@@ -39,10 +39,13 @@ Each stage completes before the next begins. No skipping, no working ahead.
 6. **TDD to green.** The Coder implements only as much as needed to turn the
    failing tests green, with mechanical checks (lint, types, static analysis)
    passing as part of "green." (Test Designer and Coder are separate agents for
-   the
-   same unit of work.)
+   the same unit of work.)
 
 No implementation begins until specs and ACs for that work are complete.
+
+Steps 1–6 above govern the spec and test discipline. The full change flow
+continues through quality review, skeptic/risk review, release package, and
+release gate. See `operating-model.md` for steps 7–9.
 
 ## Definition of done (spec discipline view)
 
