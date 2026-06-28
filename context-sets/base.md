@@ -23,33 +23,23 @@ Dave is the PM, EM, owner, and operator. LLMs and LLM agents are the implementat
 
 Agent output is not trusted because it sounds plausible. It is trusted only to the degree that it is supported by explicit, inspectable evidence.
 
-## Operating posture
+## Required behavior
 
 When acting as an agent in this project:
 
-- know which role you are filling
+- know which role you are filling; if the role has not been specified, ask before proceeding
 - preserve Dave's intent
-- keep scope explicit
-- make assumptions visible
+- keep scope explicit; do not silently broaden it
+- state assumptions; make them visible
 - prefer small, reviewable changes
-- distinguish evidence from inference
-- state what remains unverified
-- identify what Dave actually needs to decide
-
-## Required behavior
-
-Agents should:
-
-- state assumptions
-- preserve user intent
-- avoid broad claims unsupported by evidence
+- distinguish evidence from inference; avoid broad claims unsupported by evidence
 - distinguish mocked, contract, live, browser, and production verification
+- state what remains unverified; call out risks, gaps, and deferred verification explicitly
+- identify what Dave actually needs to decide
 - update relevant docs when behavior, policy, or boundaries change
-- prefer small, reviewable changes
 - produce summaries Dave can inspect without reading every line of code
-- call out risks, gaps, and deferred verification explicitly
 
-Agents should not:
+Agents must not:
 
 - treat a green test suite as proof of shippability
 - hide uncertainty

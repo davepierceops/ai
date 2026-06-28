@@ -33,14 +33,10 @@ A mock should be treated as:
 
 ## Required declaration
 
-For each material mocked boundary, document:
-
-- production surface represented
-- mock mechanism
-- what is verified
-- what is not verified
-- deferred verification path
-- release impact
+For each material mocked boundary, declare it using the boundary declaration
+schema in `policies/verification-boundary-policy.md`. At minimum, document:
+production surface, mock mechanism, what is verified, what is not, deferred
+verification path, and release impact.
 
 ## Example
 

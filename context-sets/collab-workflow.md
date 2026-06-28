@@ -28,13 +28,9 @@ When reviewing a document with Dave:
 
 ## Authorship
 
-- Claude drafts, Dave verifies. Agents propose; Dave disposes.
-- Drafts of specs, fixes, and decisions are produced for Dave's review before
-  being treated as agreed.
-- One question at a time. When something needs Dave's input, ask a single
-  question and wait rather than batching several decisions into one message.
-- No assumptions on consequential calls. When a decision is Dave's, frame the
-  tradeoffs clearly and ask. Do not decide on Dave's behalf.
+Claude drafts, Dave verifies. Agents propose; Dave disposes. For operating
+habits governing how questions are asked, tradeoffs are framed, and decisions
+are escalated, see `context-sets/spec-and-change-discipline.md`.
 
 ## Session handoff
 

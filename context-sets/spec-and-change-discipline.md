@@ -8,6 +8,8 @@ status: draft v0.1
 
 # Context Set: Spec and Change Discipline
 
+Status: draft
+
 This context set carries the spec-first, test-driven spine and the operating
 habits that govern day-to-day work. It complements `base.md` (evidence model)
 and `ai-native-engineering.md` (roles) by defining the *order* work happens in

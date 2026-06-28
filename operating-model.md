@@ -26,15 +26,8 @@ Code matters, but trust comes from evidence that the change behaves as intended 
 
 Agent output is useful but not self-validating.
 
-Claims require supporting evidence.
-
-Examples:
-
-- Feature behavior requires acceptance evidence.
-- Integration behavior requires live or deploy-like evidence.
-- Test coverage claims must state what is and is not verified.
-- Release recommendations must include known gaps.
-- Mock-based verification must declare its boundaries.
+Claims require supporting evidence. See `context-sets/base.md` for the
+evidence vocabulary and mock rule.
 
 ## Source of truth
 

@@ -196,24 +196,12 @@ Treat these areas as boundary-sensitive by default:
   capture; error budget exhaustion is a release-relevant condition
 - security and privacy controls
 
-Boundary-sensitive does not mean “must be overtested.” It means “do not overclaim.”
+Boundary-sensitive does not mean "must be overtested." It means "do not overclaim."
 
 ## What green means
 
-A green test suite means:
-
-> The tested scenarios passed under the conditions represented by the tests.
-
-It does not automatically mean:
-
-- the product is shippable
-- live integrations work
-- credentials are configured
-- browser-only behavior works
-- service workers behave correctly
-- production behavior is healthy
-- user experience is acceptable
-- operational risk is low
+See `context-sets/base.md`. A green test suite proves only that the tested
+scenarios passed under the conditions represented by the tests — not shippability.
 
 ## Required output when tests are written or reviewed
 
