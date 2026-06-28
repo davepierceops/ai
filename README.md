@@ -50,7 +50,7 @@ Before starting a meaningful change, agents should read:
 2. the canonical specs under `specs/` (PRD, then TRD)
 3. relevant files under `context-sets/`
 4. relevant policy files
-5. the role document for the role they are filling, including `roles/spec-reviewer-agent.md` for any chat involving spec authorship or review
+5. the role document for the role they are filling, including `roles/spec-reviewer-agent.md` for any chat involving spec authorship or review, and `roles/orchestrator-agent.md` for any chat involving decomposing a spec into work packages
 6. any skill document for the procedure they are executing
 
 Before release, agents should produce a change package that includes:

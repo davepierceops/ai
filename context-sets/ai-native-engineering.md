@@ -26,6 +26,7 @@ This does not mean agents are bad. It means their claims must be checked by evid
 The project may use these roles:
 
 - PM/EM/Owner
+- Orchestrator Agent
 - Architect Agent
 - Spec Reviewer Agent
 - Test Designer Agent
@@ -46,6 +47,10 @@ optional:
 
 ## Separation of concerns
 
+- The Orchestrator Agent decomposes an agreed spec into ordered change packages
+  and drafts the Claude Code prompt for each one; it operates in chat, not inside
+  a Claude Code session, and Dave approves the decomposition before any agentic
+  work begins.
 - The Coder Agent creates implementation.
 - The Test Designer Agent defines how correctness will be evaluated.
 - The Spec Reviewer Agent gates spec quality before Dave agrees a spec, and
