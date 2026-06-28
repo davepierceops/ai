@@ -40,5 +40,5 @@ When reviewing a document with Dave:
 
 - Open items, deferred decisions, and outstanding fixes are tracked in
   `OPEN-ITEMS.md` and flushed at the end of each work session.
-- Session state is packaged as a zip for handoff between sessions; do not rely
+- Session state is committed to the `davepierceops/ai` repository. Do not rely
   on chat history as the sole record of decisions made.
