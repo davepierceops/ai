@@ -4,9 +4,9 @@
 
 Reviewed and revised:
 
-- `ai/context-sets/testing-and-verification.md`
-- `ai/policies/verification-boundary-policy.md`
-- `ai/roles/skeptic-risk-agent.md`
+- `context-sets/testing-and-verification.md`
+- `policies/verification-boundary-policy.md`
+- `roles/skeptic-risk-agent.md`
 
 ## Intent
 
@@ -18,7 +18,7 @@ The goal was to make this idea usable by agents during implementation, review, a
 
 ## Changes made
 
-### `ai/context-sets/testing-and-verification.md`
+### `context-sets/testing-and-verification.md`
 
 Strengthened:
 
@@ -31,7 +31,7 @@ Strengthened:
 - minimal acceptable practice
 - anti-patterns
 
-### `ai/policies/verification-boundary-policy.md`
+### `policies/verification-boundary-policy.md`
 
 Strengthened:
 
@@ -43,7 +43,7 @@ Strengthened:
 - reviewer obligations
 - release requirements
 
-### `ai/roles/skeptic-risk-agent.md`
+### `roles/skeptic-risk-agent.md`
 
 Strengthened:
 
@@ -70,9 +70,9 @@ The operating model now has a clear enforcement path:
 
 Recommended next pass:
 
-1. `ai/policies/agent-review-policy.md`
-2. `ai/policies/release-readiness-policy.md`
-3. `ai/skills/evidence-review.md`
-4. `ai/skills/release-readiness-review.md`
+1. `policies/agent-review-policy.md`
+2. `policies/release-readiness-policy.md`
+3. `skills/evidence-review.md`
+4. `skills/release-readiness-review.md`
 
 Those should align the review and release machinery with the stronger v0.3 verification language.

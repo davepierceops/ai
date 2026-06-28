@@ -8,15 +8,15 @@ Authoritative project guidance lives under `/ai/`.
 
 For substantial work, read these first:
 
-- `ai/README.md`
-- `ai/operating-model.md`
-- the canonical specs under `ai/specs/` (PRD, TRD)
-- `ai/context-sets/base.md`
-- relevant context sets under `ai/context-sets/`
-- relevant policies under `ai/policies/`
-- relevant role documents under `ai/roles/`
-- relevant skill documents under `ai/skills/`
-- relevant boundary documents under `ai/boundaries/`
+- `README.md`
+- `operating-model.md`
+- the canonical specs under `specs/` (PRD, TRD)
+- `context-sets/base.md`
+- relevant context sets under `context-sets/`
+- relevant policies under `policies/`
+- relevant role documents under `roles/`
+- relevant skill documents under `skills/`
+- relevant boundary documents under `boundaries/`
 
 ## Operating model
 
@@ -43,6 +43,6 @@ Manage the proof, not the code.
 
 ## Collaborative document review
 
-See `ai/context-sets/collab-workflow.md`. That context set is the portable
+See `context-sets/collab-workflow.md`. That context set is the portable
 source of truth for how Dave and agents collaborate during document authorship
 and review. The rules there apply in full.

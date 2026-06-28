@@ -73,7 +73,7 @@ an open question.
 - The important **boundaries** — the points where this system meets something
   it does not control. Each durable boundary should be declared per
   `policies/verification-boundary-policy.md` and, when cross-cutting, recorded
-  under `ai/boundaries/`.
+  under `boundaries/`.
 
 ### 4. Verification boundaries (standing)
 This is the TRD's link to the evidence model. For each material standing
@@ -85,7 +85,7 @@ boundary, name:
   `accepted-risk`, `blocking`),
 - the deferred-verification path, if any.
 
-Durable boundary *types* live in `ai/boundaries/`; this section instantiates the
+Durable boundary *types* live in `boundaries/`; this section instantiates the
 ones that apply to *this* system. Per-change boundary movement is recorded in
 the change's architecture summary and boundary audit, not here — but if a change
 makes a boundary movement permanent, reflect it here.

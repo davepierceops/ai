@@ -73,8 +73,8 @@ Checks: Does the TRD answer every PRD requirement? Do ACs trace to PRD user
 journeys and goals? Are there contradictions within the spine?
 
 **Depth 2 — Spine + boundaries and policies** (on demand):
-Scope: Depth 1 plus boundary docs (`ai/boundaries/`) and policy docs
-(`ai/policies/`).
+Scope: Depth 1 plus boundary docs (`boundaries/`) and policy docs
+(`policies/`).
 Checks: Do specs reference boundaries consistently with their declarations? Do
 specs conflict with any standing policy?
 

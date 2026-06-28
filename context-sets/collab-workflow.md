@@ -39,6 +39,6 @@ When reviewing a document with Dave:
 ## Session handoff
 
 - Open items, deferred decisions, and outstanding fixes are tracked in
-  `ai/OPEN-ITEMS.md` and flushed at the end of each work session.
+  `OPEN-ITEMS.md` and flushed at the end of each work session.
 - Session state is packaged as a zip for handoff between sessions; do not rely
   on chat history as the sole record of decisions made.

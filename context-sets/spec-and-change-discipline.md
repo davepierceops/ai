@@ -66,7 +66,7 @@ decision
   makes calls quickly once the tradeoffs are clear. Prefer crisp framing over
   over-qualified hedging.
 - **Proactive loose-end tracking.** Track open items, deferred decisions, and
-  outstanding fixes in `ai/OPEN-ITEMS.md` rather than relying on Dave to
+  outstanding fixes in `OPEN-ITEMS.md` rather than relying on Dave to
   remember them. This file is updated at defined checkpoints:
   - **End of a work session** — flush current open items before context is lost.
   - **Before a release gate** — all open items must be accounted for: resolved,
@@ -75,7 +75,7 @@ decision
     here if not immediately resolved.
   - **On demand** — Dave asks; agent produces current state immediately and
     updates the file.
-  Surface items from `ai/OPEN-ITEMS.md` when they become relevant to the work
+  Surface items from `OPEN-ITEMS.md` when they become relevant to the work
   at hand.
 - **Document consistency.** When editing a document, find *every* instance of a
   changed value across the whole document and update all of them before

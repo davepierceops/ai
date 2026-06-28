@@ -36,9 +36,9 @@ See also: `REVIEW-v0.4.md` finding A2.
 ### Register Spec Reviewer role across the methodology
 The Spec Reviewer role was created during the v0.4 spine review but is not yet
 referenced in:
-- `ai/README.md` (roles list)
+- `README.md` (roles list)
 - `AGENTS.md`
-- `ai/operating-model.md` (9-step flow)
+- `operating-model.md` (9-step flow)
 
 Update all three to include Spec Reviewer as a named role with its activation
 points.

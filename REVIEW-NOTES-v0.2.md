@@ -4,8 +4,8 @@
 
 Reviewed and revised:
 
-- `ai/operating-model.md`
-- `ai/context-sets/base.md`
+- `operating-model.md`
+- `context-sets/base.md`
 
 ## Findings
 
@@ -21,7 +21,7 @@ The main weakness was that the documents were still somewhat abstract. They need
 
 ## Changes made
 
-### `ai/operating-model.md`
+### `operating-model.md`
 
 Strengthened:
 
@@ -34,7 +34,7 @@ Strengthened:
 - relationship to vendor tooling
 - production-grade standard
 
-### `ai/context-sets/base.md`
+### `context-sets/base.md`
 
 Strengthened:
 
@@ -52,8 +52,8 @@ These two files now better serve as the root instructions for the rest of the tr
 
 The next likely review targets are:
 
-1. `ai/context-sets/testing-and-verification.md`
-2. `ai/policies/verification-boundary-policy.md`
-3. `ai/roles/skeptic-risk-agent.md`
+1. `context-sets/testing-and-verification.md`
+2. `policies/verification-boundary-policy.md`
+3. `roles/skeptic-risk-agent.md`
 
 Those three files should become the strongest enforcement path for the original mocked-boundary insight.

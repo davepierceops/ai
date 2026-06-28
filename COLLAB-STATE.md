@@ -38,7 +38,7 @@ Tree: v0.4 — full spine review, carried-over files scan, post-spine cleanup, a
 
 ## Open items
 
-None. See `ai/OPEN-ITEMS.md` (all resolved this session) and `ai/BACKLOG-v2.md` for deferred work.
+None. See `OPEN-ITEMS.md` (all resolved this session) and `BACKLOG-v2.md` for deferred work.
 
 ## Workflow note
 

@@ -119,54 +119,54 @@ substance; *carried* = carried over intact, scan/spot-check.
 | ✓ | File | Tier | Notes |
 |---|------|------|-------|
 | [x] | `CLAUDE.md` | changed | adapter / entry point; **approved** — cut vague "role-specific review when appropriate" line |
-| [x] | `ai/README.md` | spine | **approved**; #5/#10 rewritten; tree-version convention (A3 resolved) |
-| [x] | `ai/operating-model.md` | spine | **approved** (ship); source-of-truth, 9-step flow, release gate, DoD, flags |
-| [ ] | `ai/context-sets/base.md` | spine | root context; see A7 (Next section) |
+| [x] | `README.md` | spine | **approved**; #5/#10 rewritten; tree-version convention (A3 resolved) |
+| [x] | `operating-model.md` | spine | **approved** (ship); source-of-truth, 9-step flow, release gate, DoD, flags |
+| [ ] | `context-sets/base.md` | spine | root context; see A7 (Next section) |
 
 ### Consequential spine — read carefully
 
 | ✓ | File | Tier | Notes |
 |---|------|------|-------|
-| [ ] | `ai/specs/trd-template.md` | spine | foundation; standing-vs-per-change line (you said yes) |
-| [ ] | `ai/specs/prd-template.md` | spine | product spec above TRD |
-| [ ] | `ai/policies/source-of-truth-policy.md` | spine | canonical chain + hard stop |
-| [ ] | `ai/policies/commit-and-change-control-policy.md` | spine | the (c) gate — see A1, A2 |
-| [ ] | `ai/context-sets/spec-and-change-discipline.md` | spine | sequence, red-gate, habits |
+| [ ] | `specs/trd-template.md` | spine | foundation; standing-vs-per-change line (you said yes) |
+| [ ] | `specs/prd-template.md` | spine | product spec above TRD |
+| [ ] | `policies/source-of-truth-policy.md` | spine | canonical chain + hard stop |
+| [ ] | `policies/commit-and-change-control-policy.md` | spine | the (c) gate — see A1, A2 |
+| [ ] | `context-sets/spec-and-change-discipline.md` | spine | sequence, red-gate, habits |
 
 ### Changed in v0.4 — review the substance
 
 | ✓ | File | Tier | Notes |
 |---|------|------|-------|
-| [ ] | `ai/roles/architect-agent.md` | changed | gained TRD + per-change summary |
-| [ ] | `ai/roles/test-designer-agent.md` | changed | separation imposed |
-| [ ] | `ai/roles/coder-agent.md` | changed | separation imposed |
-| [ ] | `ai/context-sets/ai-native-engineering.md` | changed | separation mandatory; see A5 |
-| [ ] | `ai/MANIFEST.md` | changed | v0.4 changelog + bundles |
-| [ ] | `ai/MERGE-NOTES-v0.4.md` | changed | decision record; see A6 |
+| [ ] | `roles/architect-agent.md` | changed | gained TRD + per-change summary |
+| [ ] | `roles/test-designer-agent.md` | changed | separation imposed |
+| [ ] | `roles/coder-agent.md` | changed | separation imposed |
+| [ ] | `context-sets/ai-native-engineering.md` | changed | separation mandatory; see A5 |
+| [ ] | `MANIFEST.md` | changed | v0.4 changelog + bundles |
+| [ ] | `MERGE-NOTES-v0.4.md` | changed | decision record; see A6 |
 
 ### Carried over — scan / spot-check
 
 | ✓ | File | Tier | Notes |
 |---|------|------|-------|
-| [ ] | `ai/roles/pm-em-owner.md` | carried | |
-| [ ] | `ai/roles/reviewer-agent.md` | carried | |
-| [ ] | `ai/roles/skeptic-risk-agent.md` | carried | strongest doc in the set |
-| [ ] | `ai/roles/release-manager-agent.md` | carried | |
-| [ ] | `ai/context-sets/production-grade-software.md` | carried | |
-| [ ] | `ai/context-sets/testing-and-verification.md` | carried | |
-| [ ] | `ai/policies/testing-policy.md` | carried | see A4 (red-gate gap) |
-| [ ] | `ai/policies/verification-boundary-policy.md` | carried | |
-| [ ] | `ai/policies/agent-review-policy.md` | carried | |
-| [ ] | `ai/policies/release-readiness-policy.md` | carried | |
-| [ ] | `ai/boundaries/human-review-boundary.md` | carried | see A1 |
-| [ ] | `ai/boundaries/mocked-boundaries.md` | carried | |
-| [ ] | `ai/boundaries/live-integration-boundaries.md` | carried | |
-| [ ] | `ai/boundaries/vendor-tooling-boundary.md` | carried | |
-| [ ] | `ai/skills/boundary-audit.md` | carried | |
-| [ ] | `ai/skills/evidence-review.md` | carried | |
-| [ ] | `ai/skills/release-readiness-review.md` | carried | |
-| [ ] | `ai/skills/change-package-creation.md` | carried | |
-| [ ] | `ai/skills/test-plan-review.md` | carried | |
+| [ ] | `roles/pm-em-owner.md` | carried | |
+| [ ] | `roles/reviewer-agent.md` | carried | |
+| [ ] | `roles/skeptic-risk-agent.md` | carried | strongest doc in the set |
+| [ ] | `roles/release-manager-agent.md` | carried | |
+| [ ] | `context-sets/production-grade-software.md` | carried | |
+| [ ] | `context-sets/testing-and-verification.md` | carried | |
+| [ ] | `policies/testing-policy.md` | carried | see A4 (red-gate gap) |
+| [ ] | `policies/verification-boundary-policy.md` | carried | |
+| [ ] | `policies/agent-review-policy.md` | carried | |
+| [ ] | `policies/release-readiness-policy.md` | carried | |
+| [ ] | `boundaries/human-review-boundary.md` | carried | see A1 |
+| [ ] | `boundaries/mocked-boundaries.md` | carried | |
+| [ ] | `boundaries/live-integration-boundaries.md` | carried | |
+| [ ] | `boundaries/vendor-tooling-boundary.md` | carried | |
+| [ ] | `skills/boundary-audit.md` | carried | |
+| [ ] | `skills/evidence-review.md` | carried | |
+| [ ] | `skills/release-readiness-review.md` | carried | |
+| [ ] | `skills/change-package-creation.md` | carried | |
+| [ ] | `skills/test-plan-review.md` | carried | |
 | [ ] | `AGENTS.md` | changed | adapter; spec-first + gate lines |
 | [ ] | `.claude/agents/README.md` | carried | placeholder |
 | [ ] | `.claude/skills/README.md` | carried | placeholder |

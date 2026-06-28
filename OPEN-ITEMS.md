@@ -56,6 +56,6 @@ regardless of other characteristics. Updated
 
 ## ~~SRE production readiness checklist~~
 
-**RESOLVED (deferred).** Moved to `ai/BACKLOG-v2.md`. Not blocking current
+**RESOLVED (deferred).** Moved to `BACKLOG-v2.md`. Not blocking current
 work. When tackled, likely a new context set or policy doc that extends the
 definition of done in `context-sets/spec-and-change-discipline.md`.

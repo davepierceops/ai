@@ -125,14 +125,14 @@ Update or create a boundary declaration when:
 
 Boundary information may live in:
 
-- `ai/boundaries/` for durable cross-cutting boundaries
+- `boundaries/` for durable cross-cutting boundaries
 - a feature-specific verification ledger
 - inline test comments for small/local boundaries
 - a change package
 - a release-readiness review
 - a pre-release checklist
 
-For durable or repeated boundaries, prefer `ai/boundaries/` or a dedicated project verification ledger.
+For durable or repeated boundaries, prefer `boundaries/` or a dedicated project verification ledger.
 
 ## CI and automation expectations
 
@@ -150,7 +150,7 @@ The important rule is not “run live tests constantly.” The important rule is
 ## Reviewer obligations
 
 The Spec Reviewer Agent should check that durable boundaries declared in
-`ai/boundaries/` are consistent with the TRD's standing verification boundary
+`boundaries/` are consistent with the TRD's standing verification boundary
 section, and flag drift as a continuity finding.
 
 The Reviewer Agent should check whether boundaries are named and documented.
