@@ -120,7 +120,7 @@ completes before the next begins; no skipping or working ahead.
 3. **Architecture summary** — per-change design derived from the TRD; the Issue is cut from this. *(Architect)*
 4. **Test plan, confirmed red** — ACs translated into test code, run, and confirmed to fail before any implementation. *(Test Designer)*
 5. **Implement to green** — minimum code to turn the failing tests green; mechanical checks (lint, types, static analysis) pass as part of "green." *(Coder — a different agent from the Test Designer for this unit)*
-6. **Quality review** — judgment on maintainability, correctness, consistency, and test adequacy, over the diff and the mechanical results. *(Reviewer)*
+6. **Quality review** — judgment on maintainability, correctness, consistency, and test adequacy, over the diff and the mechanical results. *(Reviewer — hard gate)*
 7. **Skeptic/risk review** — judgment on false confidence, mocked-boundary and live-integration gaps, config/deploy risk, and release overclaims, over the whole evidence chain. *(Skeptic/Risk)*
 8. **Release package** — assemble evidence and a ship recommendation. *(Release Manager)*
 9. **Release gate** — routine changes flow to release on evidence; the consequential class requires the human's explicit go/no-go at the release decision (see below). *(Dave)*
@@ -130,7 +130,7 @@ a broken test, not a head start. Quality review (6) and skeptic/risk review (7)
 are deliberately separate — quality review asks "is this good?"; skeptic/risk
 asks "where is this lying to us?" — and a change can pass one and fail the other.
 Mechanical checks (lint/types/static analysis) are deterministic evidence folded
-into "green," not a review step. Use a lighter process for low-risk changes, but
+into "green," not a review step. Use a lighter process for routine changes, but
 do not omit necessary evidence and do not skip the red-gate.
 
 ## Release gate
@@ -207,6 +207,9 @@ Escalate when:
 - security, privacy, or operational concerns arise
 - reviewers disagree materially
 - human code inspection is warranted
+- the role for the current session has not been specified
+
+When in doubt whether to escalate, escalate.
 
 Do not escalate routine implementation decisions that can be resolved through existing guidance.
 
@@ -219,4 +222,3 @@ Tool-specific files may adapt these rules but should not be the sole location of
 ## Operating standard
 
 Production-grade software is intentionally specified, verified to declared boundaries, operationally supportable, observable, recoverable, and honest about remaining uncertainty.
-
