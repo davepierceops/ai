@@ -60,6 +60,16 @@ class in `policies/commit-and-change-control-policy.md`. Requires deciding what
 "critical" means (e.g. <10% remaining) and how the agent determines current
 budget state.
 
+### Revision-commit naming: reference the ordering cycle, not the inspecting one
+`d5e7b2c` labels itself the "cycle-2 revision" although it executes cycle 1's
+directive — it was named for the review cycle that would inspect it, not the
+triage cycle that ordered it. This off-by-one caused an execution false start
+(executor concluded cycle 2 was already done). Amend
+`skills/spec-review-cycle.md`: execution commits reference the directive's
+cycle number (`cycle-<n>: ...`), matching `docs/cycles/cycle-<n>-directive.md`
+and the review-artifact naming. Fold into the skill's own gate review (it is
+in the cycle-2 directive's draft-disposition list).
+
 ---
 
 ### Reviewer role: gate vs. advisory
