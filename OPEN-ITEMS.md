@@ -4,7 +4,32 @@ This file tracks open questions, deferred decisions, and outstanding fixes
 for the AI operating model. Updated at defined checkpoints per
 `context-sets/spec-and-change-discipline.md`.
 
-Last updated: 2026-07-20
+Last updated: 2026-07-21
+
+---
+
+## Migrate existing docs to YAML frontmatter per document-metadata-policy
+
+**Source:** Document metadata policy session, 2026-07-21. New
+`policies/document-metadata-policy.md` (draft) establishes YAML frontmatter
+as the metadata format for all methodology and spec documents.
+
+**What's needed:** Convert every existing doc's plain `Status:` line to
+frontmatter with the required fields (`status`, `last-reviewed`, `audience`).
+Blocked on the policy itself reaching `approved`. Migration is mechanical but
+`audience` requires a per-doc judgment call.
+
+---
+
+## Remove repo version number from MANIFEST.md
+
+**Source:** Document metadata policy session, 2026-07-21.
+`policies/document-metadata-policy.md` supersedes the "single version
+declared once in `MANIFEST.md`" decision — git SHA is the version.
+
+**What's needed:** Edit `MANIFEST.md` to drop the version declaration and
+state the git-SHA-is-the-version rule (or point to the policy). Blocked on
+the policy reaching `approved`.
 
 ---
 
