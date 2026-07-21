@@ -33,6 +33,24 @@ the policy reaching `approved`.
 
 ---
 
+## Adopt reviews/ directory for review history; migrate root REVIEW-*.md
+
+**Source:** Document metadata policy review session, 2026-07-21. The cycle-1
+gate review of `policies/document-metadata-policy.md` is being written to
+`reviews/document-metadata-policy-cycle-1.md`, establishing `reviews/` as the
+home for review-history artifacts.
+
+**What's needed:** Make `reviews/` the standing convention for review history
+and migrate the three existing root-level files (`REVIEW-v0.4.md`,
+`REVIEW-NOTES-v0.3.md`, `REVIEW-NOTES-v0.2.md`) into it. Rationale: root is
+crowding, and one home for review artifacts keeps them from scattering. Keep
+reviewer findings (`reviews/`) distinct from triage decisions (cycle
+directives) — the canonical-vs-derived split from
+`policies/source-of-truth-policy.md`. Low priority; cheap now, cheaper than
+running two conventions indefinitely.
+
+---
+
 ## Project context configuration for WNRealtor-CRM (token optimization, workstream 1 of 2)
 
 **Source:** Token optimization session, 2026-07-20. Workstream 2 (methodology
