@@ -28,12 +28,15 @@ project artifacts.
 - `boundaries/**`
 - `skills/**`
 - `specs/**`
+- `operating-model.md`
+- `README.md`
 
 **Out of scope:**
 
 - State and tracker artifacts: `MANIFEST.md`, `OPEN-ITEMS.md`,
-  `COLLAB-STATE.md`, `TREE.txt`, review artifacts (`reviews/**`,
-  `REVIEW-*.md`), cycle directives. Their status is their content.
+  `COLLAB-STATE.md`, `TREE.txt`, `BACKLOG-v2.md`, review artifacts
+  (`reviews/**`, `REVIEW-*.md`), merge history (`MERGE-NOTES-v0.4.md`),
+  cycle directives. Their status is their content.
 - Adapters: `CLAUDE.md`, `AGENTS.md`, `.claude/**`. These are thin
   deployment targets, and leading YAML may collide with tool
   consumption.
@@ -80,7 +83,10 @@ lines, before any content.
     fails review.
   - **Grandfather clause:** documents agreed before this policy's
     adoption may carry `last-reviewed: null` until their next revision,
-    at which point normal rules apply.
+    at which point normal rules apply. Applicability is not judged
+    case-by-case: the per-document disposition list in
+    `docs/cycles/cycle-2-directive.md` is the canonical record of
+    which documents enter migration as `agreed` under this clause.
 - `audience:` list of roles that consume this document. Values are
   `roles/` file slugs plus two reserved values: `all-roles` and
   `human`. Any other value fails enforcement. Enables metadata-driven
@@ -111,6 +117,12 @@ lines, before any content.
   describes the file's current content, not its history; an edited
   file claiming `agreed` with a past review record is lying. Review
   history is not lost — it lives in `reviews/` and git.
+- Transitions to `superseded` / `deprecated`, and the agreement flip
+  itself, are **status transitions**, not revisions, and are exempt
+  from the edit-flips-in-review rule; content edits alone trigger it.
+  A status-transition commit contains nothing but the frontmatter
+  transition, so the diff from the reviewed SHA to HEAD remains
+  trivially auditable.
 - The document returns to `agreed` when Dave agrees the revision, and
   `last-reviewed` points at the new review artifact.
 - No exceptions for trivial edits. Enforcement cannot judge

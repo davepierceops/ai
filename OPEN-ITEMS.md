@@ -27,6 +27,20 @@ mapping.
 
 ---
 
+## Build this repo's frontmatter-enforcement hook
+
+**Source:** Document metadata policy cycle-2 directive (A5), 2026-07-21.
+The policy's Scope section states "Enforcement (hooks) checks exactly the
+in-scope set," but nothing tracked standing up the methodology repo's own
+hook.
+
+**What's needed:** Build the frontmatter-enforcement hook over the
+in-scope set as amended by cycle-2 B1: the six directory globs plus
+`operating-model.md` and `README.md`. Blocked on the policy reaching
+`agreed`; sequenced with the frontmatter migration item below.
+
+---
+
 ## Migrate existing docs to YAML frontmatter per document-metadata-policy
 
 **Source:** Document metadata policy session, 2026-07-21. New
