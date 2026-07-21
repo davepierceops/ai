@@ -8,6 +8,25 @@ Last updated: 2026-07-21
 
 ---
 
+## Per-project frontmatter enforcement as a project-setup step
+
+**Source:** Document metadata policy cycle-2 revision session, 2026-07-21.
+The revised `policies/document-metadata-policy.md` mandates that every
+project applying this methodology adopts the metadata schema for its spec
+documents — adoption is not optional. But the methodology repo's hooks
+cannot reach project repos, so each project must stand up its own
+enforcement.
+
+**What's needed:** "Stand up frontmatter enforcement" becomes a defined
+project-setup step. This belongs in the per-project TRD/setup guidance
+covering CI/CD mechanics — currently deferred territory per the v0.4
+decision to map deploy/release mechanics in per-project TRDs. When that
+guidance is written, include the frontmatter hook as a required setup item.
+Blocked on the policy reaching `agreed`; sequenced with the CI/CD mechanics
+mapping.
+
+---
+
 ## Migrate existing docs to YAML frontmatter per document-metadata-policy
 
 **Source:** Document metadata policy session, 2026-07-21. New
@@ -16,7 +35,7 @@ as the metadata format for all methodology and spec documents.
 
 **What's needed:** Convert every existing doc's plain `Status:` line to
 frontmatter with the required fields (`status`, `last-reviewed`, `audience`).
-Blocked on the policy itself reaching `approved`. Migration is mechanical but
+Blocked on the policy itself reaching `agreed`. Migration is mechanical but
 `audience` requires a per-doc judgment call.
 
 ---
@@ -29,7 +48,9 @@ declared once in `MANIFEST.md`" decision — git SHA is the version.
 
 **What's needed:** Edit `MANIFEST.md` to drop the version declaration and
 state the git-SHA-is-the-version rule (or point to the policy). Blocked on
-the policy reaching `approved`.
+the policy reaching `agreed`; per the revised policy, this edit and the
+spec-template footer revision land in the same change package as the
+agreement.
 
 ---
 
