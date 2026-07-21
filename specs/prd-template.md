@@ -1,6 +1,10 @@
-# Product Requirements Document (PRD) — Template
+---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
+---
 
-Status: draft
+# Product Requirements Document (PRD) — Template
 
 ## What this is
 

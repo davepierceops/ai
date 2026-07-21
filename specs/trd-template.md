@@ -1,6 +1,10 @@
-# Technical Requirements Document (TRD) — Template
+---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
+---
 
-Status: draft
+# Technical Requirements Document (TRD) — Template
 
 ## What this is
 
