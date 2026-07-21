@@ -4,7 +4,25 @@ This file tracks open questions, deferred decisions, and outstanding fixes
 for the AI operating model. Updated at defined checkpoints per
 `context-sets/spec-and-change-discipline.md`.
 
-Last updated: 2026-07-15
+Last updated: 2026-07-20
+
+---
+
+## Project context configuration for WNRealtor-CRM (token optimization, workstream 1 of 2)
+
+**Source:** Token optimization session, 2026-07-20. Workstream 2 (methodology
+change) shipped as v0.5 (`skills/spec-review-cycle.md`, commit `a3ffe08`).
+This item is the remaining workstream.
+
+**What's needed:** Decide the Context panel file list and Instructions text
+for the WNRealtor-CRM Claude project. Candidates already proposed:
+`roles/spec-reviewer-agent.md`, writer style guide,
+`boundaries/mocked-boundaries.md`, `skills/spec-review-cycle.md`. Exclusions
+already decided: PRD/TRD (change every cycle),
+`context-sets/collab-workflow.md` (artifact-pane default is the wrong mode
+for that project's gate-cycle chats). Short behavioral directives (terse
+tone, follow spec-review-cycle for gate reviews) go in Instructions, not
+Context.
 
 ---
 
