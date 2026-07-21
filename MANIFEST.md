@@ -1,14 +1,14 @@
 # Manifest
 
-Tree version: v0.5
-Status: draft
-
 This file is the assembly record and the single source for "what's current."
-Individual documents carry a maturity word on their `Status` line
-(`draft` / `in-review` / `stable` / `placeholder`), not a version number — the
-tree version above is the only version. Project artifacts produced *by* this
-model (a project's own PRD/TRD) version independently and are not covered by
-this convention.
+
+Document versioning and metadata are governed by
+`policies/document-metadata-policy.md`: the version of a document at
+reference time is the SHA of the last commit touching it; there is no
+repo-wide version number and no per-document version numbers. In-scope
+documents carry YAML frontmatter (`status`, `last-reviewed`, `audience`).
+Instantiated project PRDs/TRDs live in project repos and adopt the same
+schema, with enforcement stood up as part of project setup.
 
 Generated initial document set.
 
@@ -30,6 +30,7 @@ Generated initial document set.
 - `policies/release-readiness-policy.md`
 - `policies/source-of-truth-policy.md`
 - `policies/commit-and-change-control-policy.md`
+- `policies/document-metadata-policy.md`
 - `roles/pm-em-owner.md`
 - `roles/architect-agent.md`
 - `roles/test-designer-agent.md`
@@ -94,6 +95,13 @@ Merged the spec-first / test-driven methodology spine into this operating model.
   this manifest: `roles/orchestrator-agent.md`, `roles/context-quality-reviewer.md`,
   `roles/spec-reviewer-agent.md`, `context-sets/collab-workflow.md`.
 - Regenerated `TREE.txt` (was stale: pre-flattening paths, missing newer files).
+
+## Post-v0.5 changes (SHA-versioned per document-metadata-policy)
+
+- Added `policies/document-metadata-policy.md`: YAML frontmatter schema,
+  git-SHA versioning, revision lifecycle, and agent build-gating rules.
+  Removed the repo-wide `Tree version` declaration from this file — the
+  version headings above are historical record, not a live convention.
 
 ## Context-set bundles
 

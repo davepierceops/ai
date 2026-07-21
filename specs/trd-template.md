@@ -160,10 +160,19 @@ Before Dave agrees a TRD (or a TRD revision), the Spec Reviewer should confirm:
 
 ## Skeleton (copy this into a project TRD)
 
-```markdown
-# TRD: <project name>
+Instantiated project TRDs carry YAML frontmatter per
+`policies/document-metadata-policy.md`. `status: agreed` requires a non-null
+`last-reviewed`; the document's version is its git SHA — no per-document
+version numbers.
 
-Status: <draft|agreed> v<x.y>   Agreed by: <Dave / pending>
+```markdown
+---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
+---
+
+# TRD: <project name>
 
 ## 1. System overview
 ## 2. User journeys and SLOs
