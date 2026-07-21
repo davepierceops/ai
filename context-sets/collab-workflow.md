@@ -15,6 +15,10 @@ project documents alike.
 
 ## Document review
 
+Two modes. Interactive co-authoring review (below) uses the artifact pane.
+Reviewer-gated cycles execute per `skills/spec-review-cycle.md` — documents do
+not go into artifacts in that mode.
+
 When reviewing a document with Dave:
 
 - Put the document under review into an artifact (right pane); discuss in chat

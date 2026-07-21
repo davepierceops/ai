@@ -109,6 +109,7 @@ substance (see `context-sets/base.md`). Each stage
 completes before the next begins; no skipping or working ahead.
 
 1. **Specs agreed** — PRD/TRD written, reviewed by the Spec Reviewer Agent (hard gate), and agreed by Dave. *(PM/EM/Owner + Architect + Spec Reviewer)*
+   Review cycles execute per `skills/spec-review-cycle.md`.
 2. **Acceptance criteria** — explicit, written ACs for the unit of work. *(PM/EM/Owner)*
 3. **Architecture summary** — per-change design derived from the TRD; the Issue is cut from this. *(Architect)*
 4. **Test plan, confirmed red** — ACs translated into test code, run, and confirmed to fail before any implementation. *(Test Designer)*

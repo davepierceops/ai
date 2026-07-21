@@ -1,6 +1,6 @@
 # Manifest
 
-Tree version: v0.4
+Tree version: v0.5
 Status: draft
 
 This file is the assembly record and the single source for "what's current."
@@ -23,6 +23,7 @@ Generated initial document set.
 - `context-sets/production-grade-software.md`
 - `context-sets/testing-and-verification.md`
 - `context-sets/spec-and-change-discipline.md`
+- `context-sets/collab-workflow.md`
 - `policies/testing-policy.md`
 - `policies/verification-boundary-policy.md`
 - `policies/agent-review-policy.md`
@@ -36,11 +37,15 @@ Generated initial document set.
 - `roles/reviewer-agent.md`
 - `roles/skeptic-risk-agent.md`
 - `roles/release-manager-agent.md`
+- `roles/orchestrator-agent.md`
+- `roles/context-quality-reviewer.md`
+- `roles/spec-reviewer-agent.md`
 - `skills/boundary-audit.md`
 - `skills/evidence-review.md`
 - `skills/release-readiness-review.md`
 - `skills/change-package-creation.md`
 - `skills/test-plan-review.md`
+- `skills/spec-review-cycle.md`
 - `boundaries/mocked-boundaries.md`
 - `boundaries/live-integration-boundaries.md`
 - `boundaries/human-review-boundary.md`
@@ -76,6 +81,19 @@ Merged the spec-first / test-driven methodology spine into this operating model.
 - Gave the Architect role TRD authorship and the per-change architecture summary in `roles/architect-agent.md`.
 - Revised `operating-model.md`: spec-first summary, source-of-truth section, spec-first change flow with role mapping, release gate, and red-then-green definition of done.
 - Added composition front-matter (`include-when`, `depends-on`) to all context-sets and the bundles below.
+
+## v0.5 changes
+
+- Added `skills/spec-review-cycle.md`: reviewer-gated spec review cycles run
+  chat-for-triage, Claude Code-for-execution. Cycle directives (with reviewed
+  commit SHAs) are the handoff artifact; full documents never round-trip
+  through chat.
+- Linked the skill from `operating-model.md` change-flow step 1 and from
+  `context-sets/collab-workflow.md` (mode distinction).
+- Retroactive registration of files predating this commit and missing from
+  this manifest: `roles/orchestrator-agent.md`, `roles/context-quality-reviewer.md`,
+  `roles/spec-reviewer-agent.md`, `context-sets/collab-workflow.md`.
+- Regenerated `TREE.txt` (was stale: pre-flattening paths, missing newer files).
 
 ## Context-set bundles
 
