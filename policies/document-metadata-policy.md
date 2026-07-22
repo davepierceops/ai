@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/document-metadata-policy-cycle-3.md @ 052559a
+status: in-review
+last-reviewed: null
 audience: [all-roles, human]
 superseded-by: null
 ---
@@ -35,8 +35,8 @@ project artifacts.
 
 - State and tracker artifacts: `MANIFEST.md`, `OPEN-ITEMS.md`,
   `COLLAB-STATE.md`, `TREE.txt`, `BACKLOG-v2.md`, review artifacts
-  (`reviews/**`, `REVIEW-*.md`), merge history (`MERGE-NOTES-v0.4.md`),
-  cycle directives. Their status is their content.
+  (`reviews/**`, `REVIEW-*.md`), merge history (`MERGE-NOTES-v0.4.md`).
+  Their status is their content.
 - Adapters: `CLAUDE.md`, `AGENTS.md`, `.claude/**`. These are thin
   deployment targets, and leading YAML may collide with tool
   consumption.
@@ -84,9 +84,12 @@ lines, before any content.
   - **Grandfather clause:** documents agreed before this policy's
     adoption may carry `last-reviewed: null` until their next revision,
     at which point normal rules apply. Applicability is not judged
-    case-by-case: the per-document disposition list in
-    `docs/cycles/cycle-2-directive.md` is the canonical record of
-    which documents enter migration as `agreed` under this clause.
+    case-by-case: at adoption, the adopting repo records a one-time
+    per-document disposition list naming which documents enter
+    migration as `agreed` under this clause, and its adoption record
+    declares where that list lives. A document absent from the list
+    does not qualify. If no disposition list exists, the clause does
+    not apply and normal rules govern.
 - `audience:` list of roles that consume this document. Values are
   `roles/` file slugs plus two reserved values: `all-roles` and
   `human`. Any other value fails enforcement. Enables metadata-driven
@@ -100,15 +103,6 @@ lines, before any content.
 - Null semantics: null ≡ absent. A key present with value `null` (e.g.,
   `superseded-by: null` on a draft) is permitted and treated as the
   field being absent.
-
-## Optional fields
-
-- `re-review-trigger:` event(s) that force this doc back into review
-  (e.g., "any change to human-gate flow"). Per-doc opt-in; owner accepts
-  the maintenance burden.
-  - Consequence: when a listed event occurs, the next agent or human to
-    touch the document flips `status: in-review`. Noticing the event is
-    a shared obligation; flipping the status is mechanical.
 
 ## Revision lifecycle
 
@@ -157,8 +151,8 @@ the per-document application of the canonical-vs-derived principle in
 - Methodology documents (policies, roles, context-sets, boundaries,
   skills) are governed by context loading, not the build-gating rule:
   agents follow the currently agreed methodology; a `draft` methodology
-  document is not loaded as governing context unless a cycle directive
-  says so.
+  document is not loaded as governing context unless the human
+  explicitly directs it for a specific task.
 - Never consume `superseded` or `deprecated` docs except to follow a
   `superseded-by` pointer.
 - Orchestrators may select context by `audience`.
