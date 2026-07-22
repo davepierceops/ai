@@ -1,6 +1,10 @@
-# Product Requirements Document (PRD) — Template
+---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
+---
 
-Status: draft
+# Product Requirements Document (PRD) — Template
 
 ## What this is
 
@@ -121,10 +125,19 @@ Before Dave agrees a PRD (or a PRD revision), the Spec Reviewer should confirm:
 
 ## Skeleton (copy this into a project PRD)
 
-```markdown
-# PRD: <project name>
+Instantiated project PRDs carry YAML frontmatter per
+`policies/document-metadata-policy.md`. `status: agreed` requires a non-null
+`last-reviewed`; the document's version is its git SHA — no per-document
+version numbers.
 
-Status: <draft|agreed> v<x.y>   Agreed by: <Dave / pending>
+```markdown
+---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
+---
+
+# PRD: <project name>
 
 ## 1. Problem and intent
 ## 2. Users and use cases
