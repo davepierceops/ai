@@ -47,6 +47,7 @@ Generated initial document set.
 - `skills/change-package-creation.md`
 - `skills/test-plan-review.md`
 - `skills/spec-review-cycle.md`
+- `skills/conversation-retro.md`
 - `boundaries/mocked-boundaries.md`
 - `boundaries/live-integration-boundaries.md`
 - `boundaries/human-review-boundary.md`
@@ -102,6 +103,10 @@ Merged the spec-first / test-driven methodology spine into this operating model.
   git-SHA versioning, revision lifecycle, and agent build-gating rules.
   Removed the repo-wide `Tree version` declaration from this file — the
   version headings above are historical record, not a live convention.
+- Added `skills/conversation-retro.md` (draft): per-conversation
+  retrospective skill. Retros are per-project tracker-class artifacts
+  (`retros/` in project repos, no lifecycle frontmatter); methodology
+  changes they surface enter via spec-review cycles only.
 
 ## Context-set bundles
 
