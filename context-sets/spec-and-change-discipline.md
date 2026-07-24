@@ -45,6 +45,22 @@ Each stage completes before the next begins. No skipping, no working ahead.
 
 No implementation begins until specs and ACs for that work are complete.
 
+**A true red-gate is behavioral, not a missing-module red.** A test that fails
+only because the module under test doesn't exist yet (`Cannot find package
+'@/lib/services/x'`) proves nothing about whether the test's assertions are
+correct — a wrong assertion fails the same way as a right one. This defeats
+the purpose of Test/Coder separation: both agents can share the same blind
+spot, and the shared blind spot survives to green. For any package where
+Test/Coder separation matters (anything beyond trivial fixes), the Test
+Designer must have enough of the interface contract (from the architecture
+summary, step 3) to write tests that run against a stub or an interface with
+deliberately wrong behavior, so the red-gate demonstrates the tests can
+actually fail on bad logic — not just on an absent import. (Confirmed by Dave,
+2026-07-24, closing the P3 contact-merge review: a real gap — region going
+stale during merge — survived both implementation and a same-branch
+independent test pass, because that pass ran second against already-green
+code rather than as a true pre-implementation red-gate.)
+
 Steps 1–6 above govern the spec and test discipline. The full change flow
 continues through quality review, skeptic/risk review, release package, and
 release gate. See `operating-model.md` for steps 7–9.
@@ -85,3 +101,17 @@ decision
 - **Document consistency.** When editing a document, find *every* instance of a
   changed value across the whole document and update all of them before
   finishing. A value updated in one place but stale in another is a defect.
+- **Derived/side-effect fields checklist.** Any change that writes an entity's
+  primary fields (create, edit, merge, import) must also account for that
+  entity's *derived* fields — values computed from primary fields rather than
+  supplied directly (e.g. `region` derived from `mailingAddress`). Both the
+  Coder and an independent Test Designer can share a blind spot around a
+  derived field if neither treats it as part of the field set under test —
+  it isn't "content" the way the primary fields are, so it's easy to omit from
+  both the implementation and the test plan. Before calling a write-path
+  package done, explicitly enumerate: what derived fields exist on this
+  entity, and does this change's write path maintain them the same way every
+  other write path does. (Added 2026-07-24, closing the P3 contact-merge
+  review — F1: merge blank-filled `mailingAddress` but never re-derived
+  `region`, and this survived both implementation and an independent test
+  pass.)
