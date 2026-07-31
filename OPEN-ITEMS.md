@@ -4,7 +4,58 @@ This file tracks open questions, deferred decisions, and outstanding fixes
 for the AI operating model. Updated at defined checkpoints per
 `context-sets/spec-and-change-discipline.md`.
 
-Last updated: 2026-07-21
+Last updated: 2026-07-31
+
+---
+
+## Model selection by role — make cost/capability a per-role, per-step decision
+
+**Source:** wne-crm Orchestrator session, 2026-07-31 (cycle-10 closure). A
+frontier-tier model ran the Orchestrator role for a session that was
+majority-mechanical (SHA bookkeeping, write-verify loops, ref discipline,
+handoff maintenance). The methodology names roles and session boundaries
+but is silent on which model tier each role warrants — every session
+implicitly inherits whatever model the operator happens to open.
+
+**The observation:** the evidence model already externalizes much of the
+safety. Where errors are detectable by construction — stats-guarded
+writes, red-gates, verify-before-assert, re-gates — a cheaper model is
+safe, because the guards catch drift regardless of who drifts. Capability
+was load-bearing in that session at exactly three points: treating a
+one-line stats anomaly (+3/−3 vs. expected +2/−2) as a stop condition
+rather than noise; inventing a new guard mid-session (the stats-expectation
+check on full-file MCP writes); and byte-exact long-context reproduction
+of a ~107KB document. Judgment-dense work — spec-cycle triage, reviewer
+disagreements, directive drafting with STOP conditions, handoff synthesis —
+propagates mistakes into canonical documents and stays frontier.
+
+**What's needed:** a methodology update — probably a section in
+`operating-model.md` plus a line per role doc — covering:
+
+1. **A model-tier recommendation per role,** chosen at session open the
+   same way the role is chosen. Working hypothesis from the source
+   session: efficient tier for Orchestrator-as-executor, Coder on routine
+   packages, and mechanical directive execution; frontier tier for
+   Spec Reviewer, Skeptic/Risk, Architect, spec-cycle Orchestration, and
+   anything drafting canonical text.
+2. **Assignment criteria,** not just a static table: (a) are this role's
+   errors detectable by construction — i.e. do externalized guards catch
+   them? (b) is long-context fidelity load-bearing? (c) do this role's
+   judgments propagate into canonical documents or gates? Two or three
+   "yes" answers → frontier.
+3. **An evidence step before demotion:** trial the cheaper tier on a
+   routine package with all guards active; the guard-fire rate is the
+   signal. Tier decisions are recorded with that evidence, per the core
+   rule — not assigned by intuition, including the intuition of the
+   frontier model that proposed this item.
+4. **Vendor neutrality per the tooling rule:** durable policy speaks in
+   tiers (frontier / efficient), never model names. Concrete model
+   choices live in per-project configuration, same as the flag-backend
+   pattern.
+
+**Note:** interacts with the session-boundary habit (fresh chat per
+phase) — the phase boundary is the natural tier-switch point, so this
+costs nothing operationally once the recommendation exists.
 
 ---
 
