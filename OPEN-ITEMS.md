@@ -8,6 +8,33 @@ Last updated: 2026-07-31
 
 ---
 
+## Write-access boundary for ai/ — read-only except OPEN-ITEMS.md (DECIDED, pending policy incorporation)
+
+**Decided by Dave, 2026-07-31, effective immediately:** project sessions
+(any agent working a project repo, in any role) treat everything in this
+repo as read-only, with one exception: `OPEN-ITEMS.md`. Sessions may
+append or amend open items here to capture methodology observations,
+decisions, and gaps as they surface — that is the designed intake path.
+All other files (roles, policies, context sets, skills, boundaries,
+`operating-model.md`, README, MANIFEST) are canonical and change only
+through this repo's own drafting-and-review process, in sessions whose
+purpose is methodology work.
+
+**Rationale:** canonical methodology docs changing as a side effect of
+project sessions is the same defect class as spec drift — untracked,
+unreviewed mutation of a source of truth. The single writable surface
+gives project sessions somewhere to put what they learn without opening
+that door. (This very entry is the worked example: the rule was decided
+in a project session and recorded here rather than written into
+`operating-model.md` directly.)
+
+**What's needed:** fold the rule into canonical text — likely
+`operating-model.md` "Relationship to tools" and/or a `boundaries/` doc,
+plus a line in `roles/orchestrator-agent.md` — via normal process. Until
+then this entry is the binding statement.
+
+---
+
 ## Model selection by role — make cost/capability a per-role, per-step decision
 
 **Source:** wne-crm Orchestrator session, 2026-07-31 (cycle-10 closure). A
