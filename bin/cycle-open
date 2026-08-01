@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+"""Open a spec-review cycle: directive skeleton + reviewed-revision bundle.
+
+STUB — argument surface only; behaviour deliberately inert for the red-gate.
+Contract: `docs/packages/package-a-spec.md` §3.6.
+"""
+
+import argparse
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from aimeta import frontmatter, repo, scope  # noqa: E402,F401
+
+
+def build_parser():
+    p = argparse.ArgumentParser(
+        prog="cycle-open",
+        description=(
+            "Write a cycle directive skeleton with reviewed SHAs read from git, "
+            "and emit the reviewed revisions as an upload bundle."
+        ),
+    )
+    p.add_argument("paths", nargs="*", metavar="PATH", help="documents in scope")
+    p.add_argument("--cycle", metavar="N", help="cycle number")
+    p.add_argument("--name", metavar="SLUG", help="directive slug instead of a number")
+    p.add_argument("--title", metavar="T", help="directive title")
+    p.add_argument("--out", metavar="DIR", help="bundle output directory")
+    p.add_argument(
+        "--bundle",
+        metavar="ENTRY",
+        action="append",
+        default=[],
+        help="expand this context-set entry point into the document set",
+    )
+    p.add_argument("--date", metavar="YYYY-MM-DD", help="fix the directive date")
+    p.add_argument(
+        "--allow-dirty",
+        action="store_true",
+        help="warn instead of refusing when a document has uncommitted edits",
+    )
+    return p
+
+
+def main(argv=None):
+    build_parser().parse_args(argv)
+    # STUB: writes nothing and claims success.
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

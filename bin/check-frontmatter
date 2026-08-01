@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+"""Validate frontmatter over the in-scope set; enforce the revision lifecycle.
+
+STUB — argument surface only; behaviour deliberately inert for the red-gate.
+Contract: `docs/packages/package-a-spec.md` §3.4.
+"""
+
+import argparse
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from aimeta import frontmatter, repo, scope  # noqa: E402,F401
+
+USAGE_ERROR = 2
+
+
+def build_parser():
+    p = argparse.ArgumentParser(
+        prog="check-frontmatter",
+        description=(
+            "Validate YAML frontmatter across the in-scope document set, and "
+            "in --staged (hook) mode flip agreed -> in-review on content edits."
+        ),
+    )
+    p.add_argument("paths", nargs="*", metavar="PATH", help="documents to check")
+    p.add_argument("--staged", action="store_true", help="hook mode: check the index")
+    p.add_argument("--all", action="store_true", help="check every in-scope document")
+    p.add_argument(
+        "--no-flip",
+        action="store_true",
+        help="in --staged mode, validate only; never mutate the index",
+    )
+    return p
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
+    if args.staged and (args.paths or args.all):
+        print("check-frontmatter: --staged takes no paths", file=sys.stderr)
+        return USAGE_ERROR
+    # STUB: reports success without checking anything.
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

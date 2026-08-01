@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+"""Install the thin pre-commit shim into a target repo.
+
+The shim is the only thing that ever lands in a project repo; the scripts stay
+canonical in the /ai clone.
+
+STUB — argument surface only; behaviour deliberately inert for the red-gate.
+Contract: `docs/packages/package-a-spec.md` §3.9.
+"""
+
+import argparse
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from aimeta import repo  # noqa: E402,F401
+
+MANAGED_MARKER = "# >>> ai-methodology frontmatter hook (managed) >>>"
+
+SHIM = ""  # STUB: the real shim is written by the implementation.
+
+
+def build_parser():
+    p = argparse.ArgumentParser(
+        prog="install-hooks",
+        description="Install the ai-methodology pre-commit shim into a repo.",
+    )
+    p.add_argument("--repo", metavar="DIR", help="target repo (default: cwd's repo)")
+    p.add_argument(
+        "--force", action="store_true", help="back up and replace an unmanaged hook"
+    )
+    p.add_argument("--print", dest="print_only", action="store_true", help="print the shim")
+    return p
+
+
+def main(argv=None):
+    build_parser().parse_args(argv)
+    # STUB: installs nothing.
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

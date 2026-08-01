@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+"""Compute the reference closure from entry-point context-sets.
+
+STUB — argument surface only; behaviour deliberately inert for the red-gate.
+Contract: `docs/packages/package-a-spec.md` §3.7.
+"""
+
+import argparse
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from aimeta import frontmatter, repo, scope  # noqa: E402,F401
+
+
+def build_parser():
+    p = argparse.ArgumentParser(
+        prog="bundle",
+        description=(
+            "Walk depends-on frontmatter and in-body document references to "
+            "produce the full context set implied by an entry point."
+        ),
+    )
+    p.add_argument("entries", nargs="+", metavar="ENTRY", help="context-set name or path")
+    p.add_argument(
+        "--format", choices=["list", "json", "concat"], default="list", help="output form"
+    )
+    p.add_argument("--max-depth", type=int, metavar="N", help="truncate the walk")
+    p.add_argument("--why", action="store_true", help="annotate with referrer and depth")
+    p.add_argument(
+        "--strict", action="store_true", help="exit 1 on a dangling depends-on reference"
+    )
+    return p
+
+
+def main(argv=None):
+    build_parser().parse_args(argv)
+    # STUB: emits an empty closure.
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
