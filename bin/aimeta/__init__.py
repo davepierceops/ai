@@ -7,4 +7,4 @@ clone. See `docs/packages/package-a-spec.md` §2.1.
 Standard library only.
 """
 
-__all__ = ["frontmatter", "scope", "repo"]
+__all__ = ["frontmatter", "scope", "repo", "cli"]

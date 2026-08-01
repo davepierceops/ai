@@ -16,8 +16,12 @@ and self-verifying:
   agreed-flip and proves its own commit touched nothing but frontmatter; a
   pre-commit hook performs the `agreed → in-review` flip automatically when an
   agreed document's *content* is edited, so the lifecycle rule in
-  `policies/document-metadata-policy.md` is enforced by construction rather than
-  by memory.
+  `policies/document-metadata-policy.md` is enforced **on a direct
+  `git commit`** rather than by memory. *(Originally worded "enforced by
+  construction". The review gates disproved that: a pre-commit hook does not run
+  for merge, rebase, cherry-pick, or revert, so history replayed by those
+  operations bypasses the rule entirely. The narrower claim is the true one, and
+  it is still worth having.)*
 - **F4** — cycle opening stops being manual SHA bookkeeping. `cycle-open` reads
   reviewed SHAs from git, writes the directive skeleton, and emits the exact
   reviewed revisions as an upload bundle. `bundle` computes the reference
@@ -72,6 +76,8 @@ bin/
     frontmatter.py        # parse / render / validate the frontmatter dialect
     scope.py              # in-scope globs read from the metadata policy
     repo.py               # git helpers, repo root, methodology home, role slugs
+    cli.py                # exit codes, diagnostic format, context loading
+    closure.py            # the reference closure shared by bundle & cycle-open
   check-frontmatter       # validator + hook engine (--staged)
   flip-agreed             # self-verifying frontmatter-only status commit
   cycle-open              # directive skeleton + reviewed-revision bundle
@@ -548,9 +554,18 @@ install-hooks [--repo DIR] [--force] [--print]
   rules, and the in-scope glob extraction — verified against the policy text
   itself as the contract.
 - **Live-verified**: hook installation and firing, index mutation, and commit
-  shaping, in throwaway repos and finally in this repo itself.
+  shaping, in throwaway repos shaped like this one. *(Originally claimed
+  "and finally in this repo itself". That was false and is struck: Package A's
+  own non-goals forbid installing the hook here, and §7.1 is the reason it must
+  not be installed until Package B lands. The tests run in throwaway repos
+  shaped like this one — not in it.)*
 - **Not verified by this package**: behaviour inside a project repo other than
-  this one (the `wne-crm` shim install is deferred by the directive); any
+  this one (the `wne-crm` shim install is deferred by the directive); **any git
+  operation other than a direct `git commit`** — merge, rebase, cherry-pick,
+  revert, and pathspec commits each behave differently and are covered
+  separately in §8; **documents that are not valid UTF-8, or that use CRLF line
+  endings**; **hook execution in a minimal environment** (git GUI, IDE, Xcode)
+  where `$AI_METHODOLOGY_HOME` is unset and `python3` may be off `PATH`; any
   Windows or non-POSIX shell path; git versions other than the one on this
   machine.
 
@@ -603,14 +618,194 @@ to a single comparison so it is verifiable by reading.
 
 ## 7. Known risks (to be carried into the change package)
 
-1. **Between Package A and Package B the hook blocks commits touching legacy
-   docs** that have no frontmatter at all. That is intended pressure, but it is
-   a real operational cost; `git commit --no-verify` is the documented
-   override, and the error message names it.
+1. **Between Package A and Package B the hook blocks commits touching almost
+   every in-scope document.** Measured against this repo at review time:
+   **34 of 38 in-scope documents fail, with 46 findings** — not only the 5
+   `missing-frontmatter` cases but `missing-status`, `missing-audience`, and
+   `missing-last-reviewed` across the six context-sets, plus one
+   `invalid-status` (`context-sets/spec-and-change-discipline.md` carries
+   `status: draft v0.1`). *(Originally worded "legacy docs that have no
+   frontmatter at all", which understated the gap roughly sevenfold.)*
+   Consequently **the hook is not installed in this repo by Package A**; it is
+   installed when Package B's migration lands. `git commit --no-verify` is the
+   documented override, but note it disables the *entire* hook for that commit,
+   suspending the flip as well as the legacy check — so the interim would train
+   exactly the habit the hook exists to remove.
 2. **The hook mutates the index.** A bug here corrupts a commit rather than
-   merely failing it. This is the highest-risk surface in the package and the
-   reason for AC-CF-9's partial-staging rule and for `flip-agreed`'s
-   post-commit re-verification.
+   merely failing it. This is the highest-risk surface in the package, and the
+   review gates proved the point: the original implementation transcoded
+   non-UTF-8 documents in the index and left the index mutated when it crashed
+   mid-flip (§8, B1), and left the real index stale on a pathspec commit in a
+   way that inverted the enforcement over two commits (§8, B2). AC-CF-9's
+   partial-staging rule and `flip-agreed`'s post-commit check — the mitigations
+   this risk originally named — covered neither. The mitigations that actually
+   address it are AC-CF-14 through AC-CF-18.
 3. **Policy-text parsing is prose-coupled.** Reformatting the metadata policy's
    Scope section can break `scope.py`. Mitigated by failing closed (AC-SC-2)
-   rather than falling back to a stale built-in list.
+   rather than falling back to a stale built-in list — but note the gate found
+   a route around that protection: a glob that *parses* but matches nothing
+   enforces nothing, silently (§8, AC-CF-19).
+
+## 8. Gate findings and revised acceptance criteria
+
+The Reviewer gate returned **FAIL** and the Skeptic/Risk gate returned **do not
+ship as-is**. Between them they found three data-integrity defects that a fully
+green 232-test suite did not catch, because the suite exercised one git verb
+(`git commit -m`), one repo shape, one encoding (UTF-8/LF), and one environment.
+Every finding below sits just outside that aperture.
+
+The ACs in this section are **additions and amendments** to §3 and §4. They are
+written the same way — behavioural statements the Test Designer turns into
+tests, red before any fix is written.
+
+### 8.1 Blocking defects
+
+**B1 — the hook transcodes non-UTF-8 documents in the index, then crashes
+mid-mutation.** `repo.file_at_rev` decoded with `errors="replace"` and the flip
+re-encoded as UTF-8, so every non-UTF-8 byte became U+FFFD in the blob written
+to the index. The index write completed *before* the failing worktree read, so
+the corruption survived the crash, and `git commit --no-verify` — the override
+the tool's own message recommends — committed it.
+
+- **AC-CF-14** A staged in-scope document that is not valid UTF-8 is reported
+  `[undecodable]` and blocks the commit (exit 1). Its index blob and its
+  worktree file are **byte-identical before and after** the run. No transcoding,
+  ever: the flip path reads and writes bytes, and any decode for parsing is
+  strict.
+- **AC-CF-15** **Validate before mutating.** Findings are computed on the
+  would-be-flipped content *before* anything is written; when findings exist,
+  neither the index nor the worktree is modified. This also resolves the
+  separate finding that a *blocked* commit was leaving the developer's working
+  tree edited, and that `--no-verify` afterwards then committed the tool's
+  rewrite rather than what the developer staged.
+- **AC-X-6** No CLI ever emits a Python traceback. Every uncaught exception
+  becomes a diagnostic line with one of the documented exit codes — including
+  `UnicodeDecodeError` from `check-frontmatter --all`, `check-frontmatter
+  PATH`, and `migrate-frontmatter --plan`, all of which currently traceback.
+- **AC-X-7** Every file read and write specifies UTF-8 explicitly rather than
+  relying on the platform default. *(On Linux under `LC_ALL=C` — realistic for a
+  hook spawned by a GUI client — the default resolves to ASCII, and every
+  document containing an em-dash would raise. This repo is full of em-dashes.)*
+
+**B2 — `git commit -- <path>` leaves a stale real index, and the enforcement
+inverts.** Git runs pre-commit against a *temporary* index for pathspec commits.
+The hook flipped that index correctly, so the commit was right — but the real
+index kept the pre-flip blob, leaving a staged change the user never made. A
+second, ordinary `git commit` then sailed through: staged body equalled HEAD
+body, so AC-CF-5's status-transition exemption applied and nothing flipped.
+Final state: `status: agreed` with a stale `last-reviewed` on an edited body —
+precisely the lie the policy exists to prevent, reached via two hook-approved
+commits.
+
+- **AC-CF-16** When the hook runs against a temporary index (`$GIT_INDEX_FILE`
+  set to something other than the repository's own `index`), the flip is
+  mirrored into the real index **when, and only when, the real index's entry
+  for that path is still the pre-flip blob** — never clobbering unrelated
+  staged state. After any `git commit` variant, the real index must not hold a
+  stale pre-flip blob for a flipped path, and `git status` must not report a
+  modification the user did not make.
+
+**B3 — a conflicted merge nulls the review pointer on documents agreed on the
+merged branch.** `check_staged` diffs against HEAD (the first parent), so every
+in-scope document that changed on the merged branch looks like a content edit —
+including documents legitimately reviewed and agreed *there*. The merge commit
+recorded `status: in-review`, `last-reviewed: null`, destroying the durable
+record of which review agreed the document, on a commit the user believes is
+just a merge, at exit 0.
+
+- **AC-CF-17** When `MERGE_HEAD` exists, no flip occurs. The tool validates and
+  prints a `NOTE` naming why. A merge's difference against its first parent is
+  not an authored edit, and treating it as one loses review history.
+
+### 8.2 Correctness defects
+
+- **AC-FA-12** *(F2)* `flip-agreed` commits **without** `--no-verify`, so hooks
+  run and can alter content — but its post-commit check never compared the
+  committed body to the parent's. With a content-modifying pre-commit hook it
+  committed an injected body line and exited 0, while its docstring promised "a
+  commit that provably touches nothing but frontmatter". The post-commit check
+  gains one comparison: the committed body must equal the body at `HEAD~1`
+  (or the file must be new at HEAD). This keeps the anti-laundering property of
+  running hooks while closing the window. *(AC-FA-11 as originally written
+  specified exactly re-validate-plus-single-path, and that is exactly what was
+  built — the spec was the defect, not the code.)*
+- **AC-FA-13** *(N5)* If `git commit` fails for any reason — a rejecting
+  site-wide hook, a signing failure, a missing identity — `flip-agreed`
+  restores the worktree file and that path's index entry to their pre-invocation
+  state, reports the failure, and exits 3. It must not leave the developer with
+  a mutation they did not ask for and no message saying so. *(§6 flagged
+  AC-FA-11's exit-4 branch as the unverified risk. That was the wrong thing to
+  flag: the exit-4 branch is benign and effectively unreachable, while this
+  path is reachable and destructive. The risk ordering was inverted.)*
+- **AC-CF-18** *(N1)* A staged rename (`R`) whose new path is in scope compares
+  the staged body against the **old** path at HEAD, so renaming an agreed
+  document and editing it in the same commit still flips. Previously the tool
+  looked for the new path at HEAD, found nothing, treated it as an addition, and
+  never flipped — a one-command, hook-blessed bypass.
+- **AC-MG-14** *(F3)* `--apply` records every document marked `grandfather: yes`
+  in `reviews/frontmatter-disposition.md`, creating the file if absent, as part
+  of the same all-or-nothing write. Without this, a grandfathered document
+  passes `--apply` and then immediately fails `check-frontmatter --all` with
+  `agreed-without-review`, violating AC-MG-13 — and landing on Package B, the
+  consumer.
+- **AC-CO-12** *(F4)* `--out` is interpreted relative to the repo root. An
+  absolute path, or one escaping the root via `..`, is refused with exit 2.
+  *(`pathlib`'s `/` operator discards the left operand when the right is
+  absolute, so `--out /tmp/x` wrote outside the repo at exit 0, violating
+  AC-X-5. `migrate-frontmatter` already does this correctly via
+  `cli.relpath_of`.)*
+- **AC-FM-17** *(F5)* `render` preserves comment lines and blank lines inside
+  the frontmatter block, in position relative to the surrounding keys. The
+  dialect (§3.1) admits `#` comments and `parse_text` accepts them, but nothing
+  round-tripped them — so an unattended index mutation silently deleted content
+  the author wrote, including, in the worked example, a comment explaining why
+  the document's `audience` must not change.
+- **AC-FM-18** *(F8)* A `- item` continuation line following a scalar-valued key
+  yields `malformed-frontmatter` rather than silently discarding the scalar.
+
+### 8.3 Honesty and operability
+
+- **AC-CF-19** *(N3)* `check-frontmatter --all` prints a `NOTE` stating how many
+  files matched the in-scope set, and emits a `WARN` for any configured glob
+  that matches no path in the repo. Today a repo where enforcement matches
+  *nothing* is indistinguishable from a fully compliant one: both print nothing
+  and exit 0. AC-SC-2's fail-closed design covers a missing, unreadable, or
+  restructured policy — it does not cover a policy that parses fine and matches
+  nothing, which is reachable by a typo, a renamed directory, or a stale
+  `$AI_METHODOLOGY_HOME` pointing at an older clone.
+- **AC-IH-8** *(N4)* `install-hooks --uninstall` removes a managed hook,
+  restoring `pre-commit.bak` if one exists, and refuses to remove an unmanaged
+  hook. Without it, rollback is manual, and deleting or moving the `/ai` clone
+  bricks commits in every repo still carrying the shim.
+- **AC-IH-9** *(N4)* When `python3` is not on `PATH`, the shim fails with a
+  diagnostic naming `python3` explicitly, rather than degrading to raw shell
+  noise (`dirname: command not found`). Hooks spawned by GUI clients do not
+  inherit a login shell.
+- **AC-CF-20** *(D5)* A path argument that differs only in case from the file on
+  disk is resolved to its real case before scope matching. On a
+  case-insensitive filesystem, `check-frontmatter Policies/x.md` currently exits
+  0 silently — a false all-clear.
+- **AC-CF-21** *(D4)* A staged symlink at an in-scope path is reported and
+  skipped rather than being read as a document. The blob of a symlink is its
+  target path, so it was reported `[missing-frontmatter]` and blocked forever
+  with a misleading code; worse, on the flip path `write_text` through a symlink
+  could write outside the repo, contra AC-X-5.
+
+### 8.4 Accepted, deferred, or Dave's call
+
+- **`aimeta/cli.py` and `aimeta/closure.py`** — **accepted** by the Reviewer and
+  by me, and §2.3 is amended above to list them. AC-CO-9 requires `cycle-open`
+  and `bundle` to share *one* closure implementation; a shared module is the
+  only honest way to satisfy it.
+- **Bypass via merge, rebase, cherry-pick, and revert** — inherent to
+  pre-commit hooks and out of reach. Not fixed; the §1 claim is narrowed
+  instead. A `post-rewrite`/`post-merge` companion is a possible future package.
+- **CRLF documents** *(D2)* — `check-frontmatter PATH` passes them (universal
+  newlines) while `--staged` reports `missing-frontmatter` on line 1 being
+  `---\r`. Deferred as a named follow-up; no document in this repo uses CRLF.
+- **Sibling-`ai/` as the primary documented install** *(N4)* — the spec presents
+  `$AI_METHODOLOGY_HOME` first, but the env var is exactly what a GUI client
+  will not have. This is a product decision about who commits from what tool,
+  and it belongs with the deferred `wne-crm` shim install rather than here.
+- **Installing the hook in this repo** — **not done by Package A**, per the
+  revised §7.1.

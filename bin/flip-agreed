@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 """Self-verifying, frontmatter-only status-transition commit.
 
-STUB — argument surface only; behaviour deliberately inert for the red-gate.
 Contract: `docs/packages/package-a-spec.md` §3.5.
+
+The tool proves its own claim twice: before committing, the staged body must
+equal the body at HEAD; after committing, the committed file must re-validate
+and HEAD must touch exactly one path.
 """
 
 import argparse
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from aimeta import frontmatter, repo, scope  # noqa: E402,F401
+from aimeta import cli, frontmatter, repo  # noqa: E402
 
 TRANSITION_STATUSES = ["agreed", "superseded", "deprecated"]
 
@@ -44,11 +48,164 @@ def build_parser():
     return p
 
 
+def check_review(ctx, review):
+    """AC-FA-5: format, artifact existence, and SHA resolution."""
+    if not re.match(frontmatter.LAST_REVIEWED_RE, review):
+        raise cli.ToolError(
+            "review pointer %r is not `<reviews/path.md> @ <sha>`" % review,
+            cli.EXIT_POLICY,
+        )
+    artifact, _, sha = review.partition(" @ ")
+    if not (ctx.root / artifact).is_file():
+        raise cli.ToolError("review artifact %s does not exist" % artifact, cli.EXIT_POLICY)
+    code, _, _ = repo.run(["rev-parse", "--verify", "%s^{commit}" % sha], cwd=ctx.root)
+    if code != 0:
+        raise cli.ToolError(
+            "review SHA %s does not resolve to a commit" % sha, cli.EXIT_POLICY
+        )
+
+
+def check_preconditions(ctx, relpath):
+    """AC-FA-3 / AC-FA-4: nothing unrelated staged, no unstaged body edits."""
+    others = sorted({p for _, p in repo.staged_entries(ctx.root) if p != relpath})
+    if others:
+        raise cli.ToolError(
+            "refusing to commit with unrelated staged changes: %s" % ", ".join(others),
+            cli.EXIT_PRECONDITION,
+        )
+    staged_text = repo.file_at_rev(ctx.root, ":", relpath)
+    worktree_text = (ctx.root / relpath).read_text()
+    if staged_text is not None:
+        if frontmatter.parse_text(staged_text).body != frontmatter.parse_text(worktree_text).body:
+            raise cli.ToolError(
+                "%s has unstaged body edits in the worktree" % relpath,
+                cli.EXIT_PRECONDITION,
+            )
+    return worktree_text
+
+
+def restore(ctx, relpath, original_text, original_entry):
+    """D6: put the worktree file and this path's index entry back as they were."""
+    (ctx.root / relpath).write_text(original_text)
+    if original_entry is None:
+        repo.git("update-index", "--force-remove", "--", relpath, cwd=ctx.root)
+    else:
+        repo.git("update-index", "--cacheinfo", original_entry, cwd=ctx.root)
+
+
+def staged_entry(ctx, relpath):
+    """`<mode>,<sha>,<path>` for the current index entry, or None if absent."""
+    entry = repo.git("ls-files", "--stage", "--", relpath, cwd=ctx.root)
+    if not entry:
+        return None
+    mode, sha = entry.split()[0], entry.split()[1]
+    return "%s,%s,%s" % (mode, sha, relpath)
+
+
+def commit_message(relpath, status, review, override):
+    subject = override or "docs(%s): status -> %s" % (relpath, status)
+    body = "Status transition only; no content change."
+    if review:
+        body = "Review: %s\n\n%s" % (review, body)
+    return subject, body
+
+
 def main(argv=None):
-    build_parser().parse_args(argv)
-    # STUB: claims success without touching the document.
-    return 0
+    args = build_parser().parse_args(argv)
+    if args.status == "agreed" and not args.review:
+        raise cli.ToolError("--review is required for --status agreed", cli.EXIT_USAGE)
+    if args.status == "superseded" and not args.superseded_by:
+        raise cli.ToolError(
+            "--superseded-by is required for --status superseded", cli.EXIT_USAGE
+        )
+
+    ctx = cli.load_context()
+    relpath = cli.relpath_of(ctx.root, args.path)
+    if not ctx.in_scope(relpath):
+        raise cli.ToolError(
+            "%s is outside the frontmatter in-scope set" % relpath, cli.EXIT_POLICY
+        )
+    if not (ctx.root / relpath).is_file():
+        raise cli.ToolError("%s does not exist" % relpath, cli.EXIT_POLICY)
+    if args.review:
+        check_review(ctx, args.review)
+
+    original_text = check_preconditions(ctx, relpath)
+    original_entry = staged_entry(ctx, relpath)
+
+    doc = frontmatter.parse_text(original_text)
+    if not doc.has_frontmatter:
+        cli.diagnostic(
+            "ERROR", relpath, "missing-frontmatter", "no frontmatter block to transition"
+        )
+        return cli.EXIT_POLICY
+
+    updates = {"status": args.status}
+    if args.review:
+        updates["last-reviewed"] = args.review
+    if args.superseded_by:
+        updates["superseded-by"] = args.superseded_by
+    flipped = frontmatter.with_fields(doc, updates)
+
+    findings = list(flipped.errors) + frontmatter.validate(
+        flipped,
+        path=relpath,
+        role_slugs=ctx.role_slugs,
+        grandfathered=ctx.grandfathered(relpath),
+    )
+    if findings:
+        cli.report(findings, relpath)
+        return cli.EXIT_POLICY
+
+    (ctx.root / relpath).write_text(frontmatter.render(flipped))
+    repo.git("add", "--", relpath, cwd=ctx.root)
+
+    # AC-FA-2: the staged change must be frontmatter-only against HEAD.
+    head_text = repo.file_at_rev(ctx.root, "HEAD", relpath)
+    staged_text = repo.file_at_rev(ctx.root, ":", relpath)
+    if head_text is not None and (
+        frontmatter.parse_text(head_text).body != frontmatter.parse_text(staged_text or "").body
+    ):
+        restore(ctx, relpath, original_text, original_entry)
+        cli.diagnostic(
+            "ERROR",
+            relpath,
+            "frontmatter-only-violation",
+            "the staged body differs from HEAD; refusing to launder a content edit",
+        )
+        return cli.EXIT_SELF_VERIFY
+
+    if args.no_commit:
+        return cli.EXIT_OK
+
+    subject, body = commit_message(relpath, args.status, args.review, args.message)
+    repo.git("commit", "-q", "-m", subject, "-m", body, cwd=ctx.root)
+
+    # AC-FA-11: the commit must be what was promised. One comparison, so the
+    # branch is verifiable by reading (it has no black-box test; see spec §6).
+    committed = repo.file_at_rev(ctx.root, "HEAD", relpath) or ""
+    recheck = frontmatter.validate(
+        frontmatter.parse_text(committed),
+        path=relpath,
+        role_slugs=ctx.role_slugs,
+        grandfathered=ctx.grandfathered(relpath),
+    )
+    touched = [
+        p
+        for p in repo.git("show", "--pretty=format:", "--name-only", "HEAD", cwd=ctx.root).splitlines()
+        if p.strip()
+    ]
+    if (recheck, touched) != ([], [relpath]):
+        cli.diagnostic(
+            "ERROR",
+            relpath,
+            "post-commit-verification-failed",
+            "the commit does not match what was staged (touched %s, %d finding(s)); "
+            "the commit is left in place for inspection" % (touched, len(recheck)),
+        )
+        return cli.EXIT_SELF_VERIFY
+    return cli.EXIT_OK
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli.run(main))

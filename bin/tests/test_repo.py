@@ -193,12 +193,25 @@ class TestStagedEntries(RepoTestCase):
     def test_rp5_reports_added_modified_and_deleted(self):
         """AC-RP-5: staged adds, modifications, and deletions carry A/M/D."""
         root = make_repo(self)
-        write(root, "policies/a.md", agreed_doc())
-        write(root, "policies/gone.md", agreed_doc())
+        # The deleted and added blobs must be *dissimilar*, not merely
+        # differently named: git's rename detection is on by default, and a
+        # staged delete/add pair of similar content is correctly reported as a
+        # single `R` (which is what AC-RP-5's rename case asserts). Identical
+        # bodies here would test rename detection, not add/delete reporting.
+        write(root, "policies/a.md", agreed_doc(body="\n# A\n\noriginal\n"))
+        write(
+            root,
+            "policies/gone.md",
+            agreed_doc(body="\n# Gone\n\n" + "content that is about to be deleted\n" * 40),
+        )
         commit(root, "init")
 
         write(root, "policies/a.md", agreed_doc(body="\n# A\n\nedited\n"))
-        write(root, "policies/new.md", agreed_doc())
+        write(
+            root,
+            "policies/new.md",
+            agreed_doc(body="\n# New\n\n" + "an entirely unrelated new document\n" * 40),
+        )
         git(root, "rm", "-q", "--", "policies/gone.md", check=True)
         stage(root, "policies/a.md", "policies/new.md")
 

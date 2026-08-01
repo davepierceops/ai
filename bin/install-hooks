@@ -2,23 +2,59 @@
 """Install the thin pre-commit shim into a target repo.
 
 The shim is the only thing that ever lands in a project repo; the scripts stay
-canonical in the /ai clone.
+canonical in the /ai clone. It therefore carries no absolute paths: it
+rediscovers the methodology home at every invocation, in the order documented
+in `docs/packages/package-a-spec.md` §2.1.
 
-STUB — argument surface only; behaviour deliberately inert for the red-gate.
 Contract: `docs/packages/package-a-spec.md` §3.9.
 """
 
 import argparse
 import os
+import pathlib
+import shutil
+import stat
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from aimeta import repo  # noqa: E402,F401
+from aimeta import cli, repo  # noqa: E402
 
 MANAGED_MARKER = "# >>> ai-methodology frontmatter hook (managed) >>>"
+END_MARKER = "# <<< ai-methodology frontmatter hook (managed) <<<"
 
-SHIM = ""  # STUB: the real shim is written by the implementation.
+SHIM = """#!/bin/sh
+%s
+# Managed by the ai-methodology `install-hooks` script. Local edits are
+# replaced on the next install. Contains no machine-specific paths: the
+# methodology home is rediscovered on every commit.
+#
+# Discovery order: $AI_METHODOLOGY_HOME, then this repo when it is itself the
+# methodology clone, then a sibling directory named `ai`.
+
+top=$(git rev-parse --show-toplevel) || exit 1
+parent=$(dirname "$top")
+home=""
+
+for candidate in "$AI_METHODOLOGY_HOME" "$top" "$parent/ai"; do
+    if [ -n "$candidate" ] && [ -x "$candidate/bin/check-frontmatter" ]; then
+        home="$candidate"
+        break
+    fi
+done
+
+if [ -z "$home" ]; then
+    echo "ERROR: cannot locate the ai methodology home." >&2
+    echo "  Set AI_METHODOLOGY_HOME, or place the ai clone beside this repo." >&2
+    exit 1
+fi
+
+exec "$home/bin/check-frontmatter" --staged
+%s
+""" % (
+    MANAGED_MARKER,
+    END_MARKER,
+)
 
 
 def build_parser():
@@ -34,11 +70,41 @@ def build_parser():
     return p
 
 
+def hooks_dir(root):
+    """The repo's hooks directory, honouring `core.hooksPath` when configured."""
+    configured = repo.git("config", "--get", "core.hooksPath", cwd=root, check=False)
+    if configured:
+        path = pathlib.Path(configured)
+        return path if path.is_absolute() else root / path
+    common = pathlib.Path(repo.git("rev-parse", "--git-common-dir", cwd=root))
+    if not common.is_absolute():
+        common = root / common
+    return common / "hooks"
+
+
 def main(argv=None):
-    build_parser().parse_args(argv)
-    # STUB: installs nothing.
-    return 0
+    args = build_parser().parse_args(argv)
+    if args.print_only:
+        sys.stdout.write(SHIM)
+        return cli.EXIT_OK
+
+    root = cli.load_root(args.repo)
+    hook = hooks_dir(root) / "pre-commit"
+    if hook.exists() and MANAGED_MARKER not in hook.read_text():
+        if not args.force:
+            raise cli.ToolError(
+                "%s already exists and is not managed by this tool; "
+                "re-run with --force to back it up and replace it" % hook,
+                cli.EXIT_PRECONDITION,
+            )
+        shutil.copy2(str(hook), str(hook.with_name("pre-commit.bak")))
+
+    hook.parent.mkdir(parents=True, exist_ok=True)
+    hook.write_text(SHIM)
+    hook.chmod(hook.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+    cli.diagnostic("NOTE", str(hook), "hook-installed", "pre-commit shim installed")
+    return cli.EXIT_OK
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli.run(main))

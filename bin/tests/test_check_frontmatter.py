@@ -325,7 +325,15 @@ class TestStagedFlip(CheckFrontmatterTestCase):
 
     def test_cf8_staged_deletions_are_skipped(self):
         """AC-CF-8: a staged deletion is never read or reported (AC-CF-4 too)."""
-        write(self.repo, "policies/doomed.md", agreed_doc(body=BODY_V1))
+        # The doomed file gets its own body so it cannot pair with any added
+        # path under git's default rename detection. Nothing is added in this
+        # scenario today, so this is defensive: it keeps the deletion reported
+        # as `D` if this fixture ever grows a new file.
+        write(
+            self.repo,
+            "policies/doomed.md",
+            agreed_doc(body="\n# Doomed\n\n" + "about to be deleted\n" * 40),
+        )
         write(self.repo, TARGET, agreed_doc(body=BODY_V1))
         commit(self.repo, "seed", env=self.env)
 

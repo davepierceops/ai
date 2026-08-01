@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 """Compute the reference closure from entry-point context-sets.
 
-STUB — argument surface only; behaviour deliberately inert for the red-gate.
 Contract: `docs/packages/package-a-spec.md` §3.7.
+
+Edges are (a) `depends-on:` frontmatter entries resolved to
+`context-sets/<name>.md` and (b) backticked repo-relative `*.md` paths in the
+body that exist as files. Only declared `depends-on` edges are strict: a
+backticked string that is not a repo file is prose, not a broken reference.
 """
 
 import argparse
+import json
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from aimeta import frontmatter, repo, scope  # noqa: E402,F401
+from aimeta import cli, closure, repo  # noqa: E402
 
 
 def build_parser():
@@ -34,11 +39,34 @@ def build_parser():
     return p
 
 
+def emit(root, walked, fmt, why):
+    if fmt == "json":
+        print(json.dumps(walked, indent=2))
+        return
+    if fmt == "concat":
+        for item in walked:
+            sha = repo.last_commit_sha(root, item["path"]) or "uncommitted"
+            print("===== %s @ %s =====" % (item["path"], sha))
+            print((root / item["path"]).read_text(), end="")
+        return
+    for item in walked:
+        if why and item["via"]:
+            print("%s  <- %s (depth %d)" % (item["path"], item["via"], item["depth"]))
+        else:
+            print(item["path"])
+
+
 def main(argv=None):
-    build_parser().parse_args(argv)
-    # STUB: emits an empty closure.
-    return 0
+    args = build_parser().parse_args(argv)
+    root = cli.load_root()
+    entries = [closure.resolve_entry(root, entry) for entry in args.entries]
+    dangling = []
+    walked = closure.walk(root, entries, args.max_depth, dangling)
+    emit(root, walked, args.format, args.why)
+    if dangling and args.strict:
+        return cli.EXIT_POLICY
+    return cli.EXIT_OK
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli.run(main))

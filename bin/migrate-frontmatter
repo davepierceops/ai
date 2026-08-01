@@ -1,19 +1,34 @@
 #!/usr/bin/env python3
 """F2 transform: legacy `Status:` header -> YAML frontmatter, status-preserving.
 
-STUB — argument surface only; behaviour deliberately inert for the red-gate.
-Contract: `docs/packages/package-a-spec.md` §3.8.
+Contract: `docs/packages/package-a-spec.md` §3.8. The transform is mechanical
+by design: every judgment field is emitted as `TODO` and `--apply` refuses to
+run until a human has resolved them. `--apply` is all-or-nothing.
 """
 
 import argparse
+import difflib
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from aimeta import frontmatter, repo, scope  # noqa: E402,F401
+from aimeta import cli, frontmatter  # noqa: E402
 
-USAGE_ERROR = 2
+USAGE_ERROR = cli.EXIT_USAGE
+
+#: Legacy status values the policy also defines. Anything else is a judgment
+#: call: the transform never guesses, and never proposes `agreed`.
+STATUS_MAP = {"draft": "draft", "in-review": "in-review"}
+
+STATUS_LINE_RE = re.compile(r"^Status:\s*(\S+)")
+SEARCH_WINDOW = 20
+REQUIRED_PLAN_KEYS = ["action", "status", "last-reviewed", "audience", "grandfather"]
+TODO = "TODO"
+
+_BLOCK_HEADING_RE = re.compile(r"^## `(.+?)`\s*$")
+_PLAN_FIELD_RE = re.compile(r"^-\s+([a-z][a-z0-9-]*):\s*(.*)$")
 
 
 def build_parser():
@@ -34,6 +49,187 @@ def build_parser():
     return p
 
 
+def body_line_offset(text, doc):
+    """How many whole lines of `text` precede the body."""
+    return text[: len(text) - len(doc.body)].count("\n")
+
+
+def find_legacy_status(text, doc):
+    """`(file_line_number, verbatim_line, legacy_value)` or None.
+
+    The search window is the first `SEARCH_WINDOW` lines after the body's H1,
+    so a `Status:` line far down the document is prose, not a header.
+    """
+    lines = doc.body.split("\n")
+    start = 0
+    for index, line in enumerate(lines):
+        if line.startswith("# "):
+            start = index + 1
+            break
+    for index in range(start, min(len(lines), start + SEARCH_WINDOW)):
+        match = STATUS_LINE_RE.match(lines[index])
+        if match:
+            return (
+                body_line_offset(text, doc) + index + 1,
+                lines[index].strip(),
+                match.group(1),
+            )
+    return None
+
+
+def remove_legacy_status(body, body_index):
+    """Delete the legacy line and collapse the doubled blank line it leaves."""
+    lines = body.splitlines(keepends=True)
+    del lines[body_index]
+    if (
+        0 < body_index < len(lines)
+        and lines[body_index].strip() == ""
+        and lines[body_index - 1].strip() == ""
+    ):
+        del lines[body_index]
+    return "".join(lines)
+
+
+def plan_block(ctx, relpath):
+    text = (ctx.root / relpath).read_text()
+    doc = frontmatter.parse_text(text)
+    findings = list(doc.errors) + frontmatter.validate(
+        doc,
+        path=relpath,
+        role_slugs=ctx.role_slugs,
+        grandfathered=ctx.grandfathered(relpath),
+    )
+    legacy = find_legacy_status(text, doc)
+
+    lines = ["## `%s`" % relpath]
+    if not findings:
+        lines.append("- action: skip")
+        lines.append("- has-frontmatter: %s" % ("yes" if doc.has_frontmatter else "no"))
+        lines.append(
+            "- legacy-status-line: %s" % ("%d `%s`" % (legacy[0], legacy[1]) if legacy else "none")
+        )
+        return "\n".join(lines) + "\n"
+
+    lines.append("- action: migrate")
+    lines.append("- has-frontmatter: %s" % ("yes" if doc.has_frontmatter else "no"))
+    lines.append(
+        "- legacy-status-line: %s" % ("%d `%s`" % (legacy[0], legacy[1]) if legacy else "none")
+    )
+    mapped = STATUS_MAP.get(legacy[2]) if legacy else None
+    if mapped:
+        lines.append("- status: %s" % mapped)
+    elif legacy:
+        lines.append(
+            "- status: %s            # legacy '%s' has no mapping in the policy" % (TODO, legacy[2])
+        )
+    else:
+        lines.append("- status: %s            # no legacy Status: line to preserve" % TODO)
+    existing_review = doc.fields.get("last-reviewed")
+    lines.append("- last-reviewed: %s" % (existing_review if existing_review else "null"))
+    lines.append("- audience: %s" % TODO)
+    lines.append("- grandfather: %s" % TODO)
+    return "\n".join(lines) + "\n"
+
+
+def make_plan(ctx):
+    blocks = [plan_block(ctx, relpath) for relpath in cli.in_scope_files(ctx)]
+    return "\n".join(blocks)
+
+
+def parse_plan(text):
+    """`[(relpath, {key: value})]` per D3; a trailing ` # comment` is stripped."""
+    blocks = []
+    current = None
+    for line in text.splitlines():
+        heading = _BLOCK_HEADING_RE.match(line)
+        if heading:
+            current = (heading.group(1), {})
+            blocks.append(current)
+            continue
+        if current is None:
+            continue
+        field = _PLAN_FIELD_RE.match(line)
+        if field:
+            current[1][field.group(1)] = re.sub(r"\s+#.*$", "", field.group(2)).strip()
+    return blocks
+
+
+def transform(ctx, relpath, entry):
+    """The migrated text for one document, or raise ToolError if unreadable."""
+    path = ctx.root / relpath
+    if not path.is_file():
+        raise cli.ToolError("%s does not exist" % relpath, cli.EXIT_POLICY)
+    original = path.read_text()
+    doc = frontmatter.parse_text(original)
+    legacy = find_legacy_status(original, doc)
+
+    body = doc.body
+    if legacy:
+        body = remove_legacy_status(body, legacy[0] - body_line_offset(original, doc) - 1)
+    if not doc.has_frontmatter:
+        body = "\n" + body
+
+    fields = dict(doc.fields)
+    fields["status"] = frontmatter.parse_value(entry["status"])
+    fields["last-reviewed"] = frontmatter.parse_value(entry["last-reviewed"])
+    fields["audience"] = frontmatter.parse_value(entry["audience"])
+    migrated = frontmatter.Document(fields=fields, body=body, has_frontmatter=True)
+    return original, frontmatter.render(migrated), migrated
+
+
+def apply_plan(ctx, plan_relpath, dry_run):
+    plan_path = ctx.root / plan_relpath
+    if not plan_path.is_file():
+        raise cli.ToolError("plan %s does not exist" % plan_relpath, cli.EXIT_USAGE)
+    blocks = [
+        (relpath, entry)
+        for relpath, entry in parse_plan(plan_path.read_text())
+        if entry.get("action") != "skip"
+    ]
+
+    undecided = [
+        relpath
+        for relpath, entry in blocks
+        if any(entry.get(key, TODO) == TODO for key in REQUIRED_PLAN_KEYS)
+    ]
+    if undecided:
+        for relpath in undecided:
+            cli.diagnostic("ERROR", relpath, "unresolved-todo", "the plan still needs a decision")
+        return cli.EXIT_PRECONDITION
+
+    results = []
+    failed = False
+    for relpath, entry in blocks:
+        original, migrated_text, migrated = transform(ctx, relpath, entry)
+        findings = frontmatter.validate(
+            migrated,
+            path=relpath,
+            role_slugs=ctx.role_slugs,
+            grandfathered=entry.get("grandfather") in ("yes", "true"),
+        )
+        if findings:
+            cli.report(findings, relpath)
+            failed = True
+        results.append((relpath, original, migrated_text))
+    if failed:
+        cli.err("ERROR: refusing to write any document; the plan is not all-valid")
+        return cli.EXIT_POLICY
+
+    for relpath, original, migrated_text in results:
+        if dry_run:
+            sys.stdout.writelines(
+                difflib.unified_diff(
+                    original.splitlines(keepends=True),
+                    migrated_text.splitlines(keepends=True),
+                    fromfile="a/%s" % relpath,
+                    tofile="b/%s" % relpath,
+                )
+            )
+        else:
+            (ctx.root / relpath).write_text(migrated_text)
+    return cli.EXIT_OK
+
+
 def main(argv=None):
     args = build_parser().parse_args(argv)
     if bool(args.plan) == bool(args.apply):
@@ -42,9 +238,17 @@ def main(argv=None):
             file=sys.stderr,
         )
         return USAGE_ERROR
-    # STUB: produces no plan and applies nothing.
-    return 0
+
+    ctx = cli.load_context()
+    if args.plan:
+        plan = make_plan(ctx)
+        if args.out:
+            (ctx.root / cli.relpath_of(ctx.root, args.out)).write_text(plan)
+        else:
+            sys.stdout.write(plan)
+        return cli.EXIT_OK
+    return apply_plan(ctx, cli.relpath_of(ctx.root, args.apply), args.dry_run)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli.run(main))

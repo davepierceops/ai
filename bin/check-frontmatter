@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 """Validate frontmatter over the in-scope set; enforce the revision lifecycle.
 
-STUB — argument surface only; behaviour deliberately inert for the red-gate.
 Contract: `docs/packages/package-a-spec.md` §3.4.
+
+`--staged` is hook mode and is the one code path in this package that mutates
+the git index. It writes the flipped blob with `git hash-object -w` and points
+the index entry at it with `git update-index --cacheinfo`; the worktree file is
+rewritten only when it is byte-identical to the pre-flip staged content, so a
+partially-staged file is never clobbered.
 """
 
 import argparse
@@ -11,9 +16,14 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from aimeta import frontmatter, repo, scope  # noqa: E402,F401
+from aimeta import cli, frontmatter, repo  # noqa: E402
 
-USAGE_ERROR = 2
+USAGE_ERROR = cli.EXIT_USAGE
+
+OVERRIDE_HINT = (
+    "commit blocked by the frontmatter policy; "
+    "use `git commit --no-verify` to override deliberately"
+)
 
 
 def build_parser():
@@ -35,14 +45,118 @@ def build_parser():
     return p
 
 
+def findings_for(ctx, relpath, text):
+    doc = frontmatter.parse_text(text)
+    findings = list(doc.errors) + frontmatter.validate(
+        doc,
+        path=relpath,
+        role_slugs=ctx.role_slugs,
+        grandfathered=ctx.grandfathered(relpath),
+    )
+    return doc, findings
+
+
+def check_worktree(ctx, relpaths):
+    failed = False
+    for relpath in relpaths:
+        path = ctx.root / relpath
+        if not path.is_file():
+            cli.diagnostic("ERROR", relpath, "missing-file", "no such file")
+            failed = True
+            continue
+        _, findings = findings_for(ctx, relpath, path.read_text())
+        cli.report(findings, relpath)
+        failed = failed or bool(findings)
+    return cli.EXIT_POLICY if failed else cli.EXIT_OK
+
+
+def index_mode(ctx, relpath):
+    """The staged file mode for `relpath`, e.g. `100644`."""
+    entry = repo.git("ls-files", "--stage", "--", relpath, cwd=ctx.root)
+    if not entry:
+        raise cli.ToolError("%s is not in the index" % relpath, cli.EXIT_PRECONDITION)
+    return entry.split()[0]
+
+
+def stage_blob(ctx, relpath, text):
+    """Write `text` as a blob and point the index entry at it."""
+    mode = index_mode(ctx, relpath)
+    code, out, error = repo.run(
+        ["hash-object", "-w", "--stdin"], cwd=ctx.root, stdin=text.encode("utf-8")
+    )
+    if code != 0:
+        raise cli.ToolError("cannot write blob for %s: %s" % (relpath, error), cli.EXIT_SELF_VERIFY)
+    sha = out.decode("ascii").strip()
+    repo.git(
+        "update-index", "--cacheinfo", "%s,%s,%s" % (mode, sha, relpath), cwd=ctx.root
+    )
+
+
+def flip_staged(ctx, relpath, staged_text, doc):
+    """Rewrite the staged blob to `in-review`; mirror into a matching worktree."""
+    flipped = frontmatter.render(
+        frontmatter.with_fields(doc, {"status": "in-review", "last-reviewed": None})
+    )
+    stage_blob(ctx, relpath, flipped)
+    cli.err("FLIPPED %s: agreed -> in-review (content edit)" % relpath)
+
+    worktree = ctx.root / relpath
+    current = worktree.read_text() if worktree.is_file() else None
+    if current == staged_text:
+        worktree.write_text(flipped)
+    else:
+        cli.diagnostic(
+            "NOTE",
+            relpath,
+            "worktree-not-flipped",
+            "the worktree copy differs from the index and still claims `agreed`; "
+            "the flip landed in the index only",
+        )
+    return flipped
+
+
+def check_staged(ctx, no_flip):
+    failed = False
+    for letter, relpath in repo.staged_entries(ctx.root):
+        if letter == "D" or not ctx.in_scope(relpath):
+            continue
+        staged_text = repo.file_at_rev(ctx.root, ":", relpath)
+        if staged_text is None:
+            continue
+
+        doc, _ = findings_for(ctx, relpath, staged_text)
+        text = staged_text
+        if not no_flip and doc.has_frontmatter and doc.fields.get("status") == "agreed":
+            head_text = repo.file_at_rev(ctx.root, "HEAD", relpath)
+            if head_text is not None:
+                head_doc = frontmatter.parse_text(head_text)
+                if head_doc.body != doc.body:
+                    text = flip_staged(ctx, relpath, staged_text, doc)
+
+        _, findings = findings_for(ctx, relpath, text)
+        cli.report(findings, relpath)
+        failed = failed or bool(findings)
+
+    if failed:
+        cli.err("ERROR: %s" % OVERRIDE_HINT)
+        return cli.EXIT_POLICY
+    return cli.EXIT_OK
+
+
 def main(argv=None):
     args = build_parser().parse_args(argv)
     if args.staged and (args.paths or args.all):
         print("check-frontmatter: --staged takes no paths", file=sys.stderr)
         return USAGE_ERROR
-    # STUB: reports success without checking anything.
-    return 0
+
+    ctx = cli.load_context()
+    if args.staged:
+        return check_staged(ctx, args.no_flip)
+    if args.paths:
+        named = [cli.relpath_of(ctx.root, p) for p in args.paths]
+        return check_worktree(ctx, [p for p in named if ctx.in_scope(p)])
+    return check_worktree(ctx, cli.in_scope_files(ctx))
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli.run(main))
