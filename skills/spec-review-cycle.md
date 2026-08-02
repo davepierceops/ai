@@ -111,6 +111,112 @@ Dictated wording: <verbatim, if any — executor must use as-is>
 Required fields: cycle number, documents in scope with SHAs, one decision
 entry per finding (including rejections). Everything else as needed.
 
+## Review artifact schema
+
+Review artifacts live in `reviews/` and are what `last-reviewed:` points at
+(`policies/document-metadata-policy.md`). They are read far more often than
+they are written, and almost always to answer one question: *what did this
+review conclude?* So the verdict comes first, and a clean pass stays short.
+
+### What this schema governs
+
+It governs the **artifact**. `roles/spec-reviewer-agent.md` and
+`policies/agent-review-policy.md` govern the **review** — what must be
+inspected and what must be reported. Where they name a required output, this is
+where it goes:
+
+| Required by the role / policy | Field here |
+| --- | --- |
+| Sign-off; Recommendation (the overall ship call) | `Verdict` |
+| Required changes | entries marked `blocking` |
+| Advisory items | entries marked `non-blocking` |
+| Required follow-ups | per-finding `Fix` |
+| Risks, verification gaps | `Consequence`, and `Not inspected` |
+| Evidence inspected; Scope reviewed | `Scope`, `Cross-checked` |
+| What Dave should inspect | `Dave should inspect` |
+
+Note the entry field is `Fix`, not `Recommendation`.
+`policies/agent-review-policy.md` uses "Recommendation" for the overall ship
+call, and one word meaning two things across two canonical documents is the
+ambiguity this table exists to remove.
+
+The schema governs artifacts written after it lands. **Existing artifacts in
+`reviews/` are not retrofitted** — they are the review record of documents
+already agreed, and rewriting a record of what happened to match a later format
+would be the drift this repo exists to prevent.
+
+### Header
+
+Every artifact opens with this block, clean pass or not:
+
+```markdown
+# Review: <document path> — cycle <n>
+
+Verdict: ready | ready-with-findings | changes-required
+Reviewed: <path> @ <sha, short or full>
+Reviewer: <role, agent, or human>
+Date: <YYYY-MM-DD>
+Scope: <what was inspected>
+Cross-checked: <other documents consulted for consistency, or none>
+Not inspected: <stated explicitly — "nothing" is a claim, not a default>
+Findings: <none | count by severity>
+Prior cycle: <path to the previous review artifact, or none>
+Dave should inspect: <the few items that need his judgment, or none>
+```
+
+`Cross-checked`, `Prior cycle`, and `Dave should inspect` are **omit-if-none** —
+a clean pass should not have to write lines of `none`. The rest are required,
+**including `Not inspected`**: that one is required precisely because omitting
+it is how an unbounded claim gets made by accident.
+
+`Verdict` is deliberately **not** the word `agreed`. `agreed` is the repo's
+standing verb for a decision only Dave makes
+(`policies/document-metadata-policy.md`), and `roles/spec-reviewer-agent.md`
+forbids the reviewer from making it. `ready` means ready for Dave's agreement.
+
+A clean or confirmation pass — one that finds nothing, or that confirms a prior
+cycle's fixes — is this header and nothing else. No prose.
+
+### Findings
+
+One entry per finding, after the header:
+
+```markdown
+## <finding id> — <blocking | non-blocking | observation>
+Claim: <one sentence — what is wrong>
+Location: <path:line, or section name>
+Evidence: <what was checked; verified by running vs. inferred by reading>
+Consequence: <what goes wrong, concretely>
+Fix: <what would resolve it>
+Related: <other finding ids that are the same defect elsewhere, if any>
+```
+
+`Related` is **omit-if-none**; the other four entry fields are required.
+
+`Evidence` distinguishing *verified by running* from *inferred by reading* is
+not optional. In a documents repo, running `git log -S`, `git show <sha>:<path>`,
+and `--help` is cheap, so *inferred by reading* should be rare. A finding whose
+evidence line cannot be filled in is an observation, not a finding.
+
+`Consequence` is the field that does the work. If you cannot state concretely
+what goes wrong, the entry is an observation.
+
+Order `blocking` entries by weight — the schema has one bucket for a design
+hole and a wrong sentence, so the ordering is what carries the difference.
+
+### Prose
+
+Permitted where judgment genuinely does not compress — a material disagreement
+between reviewers, or a risk that needs an argument rather than an assertion.
+It is not the default, and it never replaces the verdict line.
+
+### Why verdict-first
+
+`last-reviewed` makes these artifacts load-bearing: a reader following the
+pointer needs the conclusion, not the reasoning that produced it. Keeping the
+clean case short also keeps the cheap case cheap — a review format expensive to
+write is a review that gets skipped.
+
 ## Output
 
 - A committed cycle directive (audit trail)

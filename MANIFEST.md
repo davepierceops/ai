@@ -1,77 +1,115 @@
 # Manifest
 
-This file is the assembly record and the single source for "what's current."
+This file holds one thing git and the metadata policy cannot derive: the
+context-set bundle definitions. Everything else it used to carry has been
+removed, because a second copy of a derivable fact drifts and then lies — the
+canonical-vs-derived principle in `policies/source-of-truth-policy.md`, applied
+to this file.
 
-Document versioning and metadata are governed by
-`policies/document-metadata-policy.md`: the version of a document at
-reference time is the SHA of the last commit touching it; there is no
-repo-wide version number and no per-document version numbers. In-scope
-documents carry YAML frontmatter (`status`, `last-reviewed`, `audience`).
-Instantiated project PRDs/TRDs live in project repos and adopt the same
-schema, with enforcement stood up as part of project setup.
+The former assembly notes carried nothing git does not; see
+`docs/packages/package-c-change-package.md` §5.
 
-Generated initial document set.
+## What is no longer here, and where it lives instead
 
-## Source-of-truth files
+**The file registry.** This file used to list every source-of-truth document.
+That list is now derived: the in-scope set is the glob list in
+`policies/document-metadata-policy.md` ("In scope (frontmatter required)"),
+and `bin/check-frontmatter --all` reports how many paths that glob set
+currently matches. A hand-maintained registry could only ever be a stale mirror
+of the filesystem — and it was: four files were registered retroactively in
+v0.5 after going missing.
 
-- `README.md`
-- `operating-model.md`
-- `specs/prd-template.md`
-- `specs/trd-template.md`
-- `context-sets/base.md`
-- `context-sets/ai-native-engineering.md`
-- `context-sets/production-grade-software.md`
-- `context-sets/testing-and-verification.md`
-- `context-sets/spec-and-change-discipline.md`
-- `context-sets/collab-workflow.md`
-- `policies/testing-policy.md`
-- `policies/verification-boundary-policy.md`
-- `policies/agent-review-policy.md`
-- `policies/release-readiness-policy.md`
-- `policies/source-of-truth-policy.md`
-- `policies/commit-and-change-control-policy.md`
-- `policies/document-metadata-policy.md`
-- `roles/pm-em-owner.md`
-- `roles/architect-agent.md`
-- `roles/test-designer-agent.md`
-- `roles/coder-agent.md`
-- `roles/reviewer-agent.md`
-- `roles/skeptic-risk-agent.md`
-- `roles/release-manager-agent.md`
-- `roles/orchestrator-agent.md`
-- `roles/context-quality-reviewer.md`
-- `roles/spec-reviewer-agent.md`
-- `skills/boundary-audit.md`
-- `skills/evidence-review.md`
-- `skills/release-readiness-review.md`
-- `skills/change-package-creation.md`
-- `skills/test-plan-review.md`
-- `skills/spec-review-cycle.md`
-- `skills/conversation-retro.md`
-- `boundaries/mocked-boundaries.md`
-- `boundaries/live-integration-boundaries.md`
-- `boundaries/human-review-boundary.md`
-- `boundaries/vendor-tooling-boundary.md`
+**Document versions and status.** Governed by
+`policies/document-metadata-policy.md`. The version of a document at reference
+time is the SHA of the last commit touching it. There is no repo-wide version
+number and no per-document version numbers. In-scope documents carry YAML
+frontmatter (`status`, `last-reviewed`, `audience`), enforced by a pre-commit
+hook. Instantiated project PRDs/TRDs live in project repos and adopt the same
+schema, standing up their own enforcement at project setup.
 
-## Adapter files
+**The changelog.** Git history is the changelog. The version sections below are
+frozen: see the tombstone.
 
-- `CLAUDE.md`
-- `AGENTS.md`
-- `.claude/agents/README.md`
-- `.claude/skills/README.md`
+## Context-set bundles
 
-## v0.2 changes
+Paste only the sets a chat needs. `base` is always included.
+
+- **Spec chat:** `base` + `spec-and-change-discipline` + `ai-native-engineering`
+- **Implementation chat:** `base` + `spec-and-change-discipline` + `ai-native-engineering` + `testing-and-verification`
+- **Release / risk chat:** `base` + `testing-and-verification` + `production-grade-software`
+- **Everything:** all context-sets.
+
+These are hand-maintained, and they are the reason this file exists.
+
+The directive that produced this rewrite deferred "`bin/bundle` superseding
+MANIFEST bundle definitions — after F4 lands and closure output is trusted."
+That deferral rests on a false premise and is withdrawn.
+
+`bin/bundle` computes a **reference closure**: what a document cites,
+transitively. A bundle is a **curated judgment**: what a conversation needs.
+Those are different questions, and **no reference closure reproduces a curated
+bundle.** Measured against "Spec chat" (`base` + `spec-and-change-discipline` +
+`ai-native-engineering`): the unbounded closure from `spec-and-change-discipline`
+returns every context-set, plus trackers, historical artifacts, and this file;
+at `--max-depth 1` it returns two context-sets and misses
+`ai-native-engineering`. **No depth returns three** — the context-set count goes
+2, 4, 6.
+
+The cause is structural, and it is **two failures in opposite directions**.
+`bin/bundle` walks two graphs. The `depends-on` graph is too *sparse* to reach a
+bundle's other members: every context-set declares `depends-on: [base]` and
+nothing else, so it is a star. The in-body citation graph is too *dense* and not
+curatorial: `ai-native-engineering` is reached only at depth 2, and not through
+`depends-on` at all — it arrives as a citation inside
+`policies/commit-and-change-control-policy.md`, alongside twenty-odd unrelated
+paths. Overshoot in one graph, undershoot in the other; no depth lands on three.
+
+What distinguishes the bundles lives in each set's prose `include-when:` field,
+which is editorial judgment, not a reference.
+
+So the two are **complementary, not successive**. Use `bin/bundle` to answer
+"what does this document cite, and did I miss something?" Use the lists above
+to answer "what do I paste into this chat?"
+
+**What is not foreclosed.** These lists could become derivable if bundle
+membership were declared as *data* — a `bundles:` frontmatter key, or a small
+`bundles.yaml` — which relocates the judgment without removing it. That is a
+different change from closure computation, and it has not been proposed or
+costed. Enriching `depends-on` to fake it is **rejected on two grounds**: "a
+spec chat also wants the AI-native set" is co-selection, not dependency, so
+encoding it there would corrupt the field for every other consumer,
+`bin/bundle` included — and it would not even work, since the in-body walk
+overshoots regardless of how good the `depends-on` edges get. If
+membership-as-data is ever built, these lists become a second copy of a
+derivable fact and should move — the same principle that emptied the rest of
+this file.
+
+---
+
+## Tombstone — frozen version history
+
+**The sections below are historical record, not a live convention.** They were
+written when this repo declared a tree version and maintained a changelog. Both
+practices ended: git history is the changelog, and the git SHA is the version.
+
+Nothing is appended here again. They are kept because they explain decisions
+whose reasoning is not otherwise recoverable — why the specs, the two-tier
+release gate, and the Test Designer/Coder split arrived when they did — and
+deleting them would lose that. Read them as archaeology, and treat any file
+list, status word, or version number inside them as expired.
+
+### v0.2 changes
 
 - Revised `operating-model.md` for stronger trust model, standard change flow, definition of done, and escalation rules.
 - Revised `context-sets/base.md` for sharper agent behavior, response shape, mock rule, and tooling rule.
 
-## v0.3 changes
+### v0.3 changes
 
 - Revised `context-sets/testing-and-verification.md` to define verification classes, confidence ledgers, test-plan requirements, and anti-patterns.
 - Revised `policies/verification-boundary-policy.md` with boundary declaration schema, status labels, triggers, and release impact labels.
 - Revised `roles/skeptic-risk-agent.md` into an operational review role with checklists, severity categories, and output template.
 
-## v0.4 changes (methodology merge)
+### v0.4 changes (methodology merge)
 
 Merged the spec-first / test-driven methodology spine into this operating model.
 
@@ -84,7 +122,7 @@ Merged the spec-first / test-driven methodology spine into this operating model.
 - Revised `operating-model.md`: spec-first summary, source-of-truth section, spec-first change flow with role mapping, release gate, and red-then-green definition of done.
 - Added composition front-matter (`include-when`, `depends-on`) to all context-sets and the bundles below.
 
-## v0.5 changes
+### v0.5 changes
 
 - Added `skills/spec-review-cycle.md`: reviewer-gated spec review cycles run
   chat-for-triage, Claude Code-for-execution. Cycle directives (with reviewed
@@ -97,7 +135,7 @@ Merged the spec-first / test-driven methodology spine into this operating model.
   `roles/spec-reviewer-agent.md`, `context-sets/collab-workflow.md`.
 - Regenerated `TREE.txt` (was stale: pre-flattening paths, missing newer files).
 
-## Post-v0.5 changes (SHA-versioned per document-metadata-policy)
+### Post-v0.5 changes (SHA-versioned per document-metadata-policy)
 
 - Added `policies/document-metadata-policy.md`: YAML frontmatter schema,
   git-SHA versioning, revision lifecycle, and agent build-gating rules.
@@ -107,12 +145,3 @@ Merged the spec-first / test-driven methodology spine into this operating model.
   retrospective skill. Retros are per-project tracker-class artifacts
   (`retros/` in project repos, no lifecycle frontmatter); methodology
   changes they surface enter via spec-review cycles only.
-
-## Context-set bundles
-
-Paste only the sets a chat needs. `base` is always included.
-
-- **Spec chat:** `base` + `spec-and-change-discipline` + `ai-native-engineering`
-- **Implementation chat:** `base` + `spec-and-change-discipline` + `ai-native-engineering` + `testing-and-verification`
-- **Release / risk chat:** `base` + `testing-and-verification` + `production-grade-software`
-- **Everything:** all context-sets.

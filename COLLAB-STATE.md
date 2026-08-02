@@ -2,7 +2,7 @@
 
 Status: active
 
-Tree: v0.4 — full spine review, carried-over files scan, post-spine cleanup, and open items resolution all complete.
+Session outcome: full spine review, carried-over files scan, post-spine cleanup, and open items resolution all complete. *(This line declared a tree version; tree versions were superseded — see A3 below.)*
 
 ## Decisions locked this session
 
@@ -11,7 +11,10 @@ Tree: v0.4 — full spine review, carried-over files scan, post-spine cleanup, a
 - Gate model: two-tier, fired at the **release decision** (not commit); CI/CD mapping deferred to each project's TRD.
 - Control surface vs release gate are independent axes; code review is **agentic** (Reviewer, Skeptic/Risk), not human, by default.
 - Deploy != release; gate attaches to the exposure event.
-- Versioning (A3): single tree version in `MANIFEST.md`; per-doc `Status` is a maturity word only.
+- ~~Versioning (A3): single tree version in `MANIFEST.md`; per-doc `Status` is a maturity word only.~~
+  **SUPERSEDED** by `policies/document-metadata-policy.md`: the git SHA is the
+  version, there is no tree version, and each in-scope document declares its own
+  `status` in YAML frontmatter.
 - Change flow: quality review and skeptic/risk review are separate steps; mechanical checks fold into "green".
 - Feature flags: vendor-neutral interface (e.g. OpenFeature), backend is a per-project TRD choice; flag lifecycle = owner + removal trigger.
 - Spec Reviewer Agent: new role, hard gate before Dave agrees any spec or revision; two modes (gate review, continuity scan); three scan depths; optional proposals during continuity scan.

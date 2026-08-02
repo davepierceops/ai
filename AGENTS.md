@@ -21,9 +21,12 @@ For meaningful changes:
 5. Use relevant skills under `skills/`.
 6. Update boundary docs when mocks, integrations, or verification assumptions change.
 7. Produce evidence for claims.
-8. Get the human's go/no-go at the release decision for consequential changes;
-   open a `human-gate` GitHub issue and state it explicitly in the current
-   response. Routine changes flow to release on evidence.
+8. Get the human's go/no-go at the release decision for consequential changes:
+   open a `human-gate` GitHub issue (the canonical record, its body derived from
+   the change package), then state one line in chat — the change, its class, a
+   pointer to the issue, and an explicit request for go/no-go. If the issue
+   cannot be opened, the chat statement carries the full body and the change
+   does not release until it is. Routine changes flow to release on evidence.
 9. Do not treat green tests as broader proof than the tested boundary supports.
 10. For document authorship or review contexts, follow
     `context-sets/collab-workflow.md`.

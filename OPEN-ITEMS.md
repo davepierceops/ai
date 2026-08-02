@@ -163,17 +163,76 @@ Blocked on the policy itself reaching `agreed`. Migration is mechanical but
 
 ---
 
-## Remove repo version number from MANIFEST.md
+## ~~`bin/bundle` supersedes MANIFEST's bundle definitions~~ — WITHDRAWN
+
+**Withdrawn 2026-08-01 by the Package C gate review**, which found the premise
+false. The streamlining directive deferred this as "after F4 lands and closure
+output is trusted"; F4 landed, and the deferral does not survive contact with
+the tool.
+
+`bin/bundle` computes a reference closure — what a document cites. A bundle is
+a curated judgment — what a conversation needs. Measured against "Spec chat"
+(`base` + `spec-and-change-discipline` + `ai-native-engineering`): unbounded
+closure returns every context-set plus trackers and historical artifacts;
+`--max-depth 1` returns two and misses `ai-native-engineering`. No depth returns
+three — the count goes 2, 4, 6 — because `bin/bundle` walks two graphs that fail
+in opposite directions: `depends-on` is too sparse (every context-set points
+only at `base`), and in-body citations are too dense and not curatorial
+(`ai-native-engineering` arrives at depth 2 as a citation inside a policy). The
+distinguishing information is in each set's prose `include-when:` field, which
+is editorial judgment, not a reference.
+
+**Consequence:** `MANIFEST.md` is not pending automation by `bin/bundle`, and
+both files now say so.
+
+**The door left open, deliberately.** What was disproved is that *closure*
+derives a bundle. What was not disproved is that bundles could be derived at
+all: declaring membership as data — a `bundles:` frontmatter key, or a small
+`bundles.yaml` — relocates the judgment into machine-readable form without
+removing it. Not proposed, not costed, and a different change from closure
+computation. **Enriching `depends-on` to fake it is rejected**: co-selection is
+not dependency, and encoding it there corrupts the field for every other
+consumer. If membership-as-data is ever built, MANIFEST's lists become a second
+copy of a derivable fact and should move.
+
+---
+
+## `TREE.txt` mention survives in the agreed metadata policy
+
+**Source:** Package C, 2026-08-01. `TREE.txt` was deleted (49 entries against
+91 tracked files at that commit; it was `git ls-files` with a maintenance
+obligation and no maintainer). `policies/document-metadata-policy.md` still
+names it in the out-of-scope list.
+
+**Deliberately not fixed.** That document is `agreed`, so correcting a cosmetic
+mention costs a full review cycle. The mention is inert — verified: an
+out-of-scope entry naming a nonexistent path excludes nothing, and
+`check-frontmatter --all` reports 38 matched with no warning.
+
+**What's needed:** ride the next cycle that opens that document for a
+substantive reason. **Package D (F6) is that cycle** — it revises the same
+document's "No exceptions for trivial edits" clause. This item is itself a
+worked example of the cost F6 exists to reduce.
+
+---
+
+## ~~Remove repo version number from MANIFEST.md~~
 
 **Source:** Document metadata policy session, 2026-07-21.
 `policies/document-metadata-policy.md` supersedes the "single version
 declared once in `MANIFEST.md`" decision — git SHA is the version.
 
-**What's needed:** Edit `MANIFEST.md` to drop the version declaration and
-state the git-SHA-is-the-version rule (or point to the policy). Blocked on
-the policy reaching `agreed`; per the revised policy, this edit and the
-spec-template footer revision land in the same change package as the
-agreement.
+**RESOLVED** by Package C (F7), 2026-08-01. `MANIFEST.md` dropped its version
+declaration in `0230e11`; `README.md`'s echo of it — `Tree version: v0.4 — see
+MANIFEST.md for the changelog` — survived that commit and was removed here.
+
+Worth recording why that mattered: the agreed metadata policy's supersession
+clause requires that the removal land in the same change package as the
+agreement, so that **the repo never holds both conventions as canonical**. From
+`0230e11` until Package C, it did — MANIFEST said the SHA was the version while
+README said the tree version was "the single source for what's current." Two
+review cycles passed over that package without catching it. Found by the
+Package C gate review, not by the executor.
 
 ---
 

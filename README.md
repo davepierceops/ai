@@ -6,9 +6,12 @@ audience: [all-roles, human]
 
 # AI Operating Model
 
-Tree version: v0.4 — see `MANIFEST.md` for the changelog. Per-document `Status`
-lines carry a maturity word (`draft` / `in-review` / `stable`), not a version
-number; the tree version is the single source for what's current.
+There is no tree version and no changelog. The version of a document is the SHA
+of the last commit touching it, and git history is the changelog. Each in-scope
+document carries YAML frontmatter declaring its own `status`, `last-reviewed`,
+and `audience`, enforced by a pre-commit hook. Adapters (`CLAUDE.md`,
+`AGENTS.md`, `.claude/**`) and trackers are deliberately excluded. See
+`policies/document-metadata-policy.md`.
 
 This directory is the source of truth for how this project is built with AI agents.
 

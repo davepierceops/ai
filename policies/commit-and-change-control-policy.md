@@ -89,19 +89,37 @@ and Coder role documents.
 
 ## Pending gate visibility
 
-A change awaiting a go/no-go must never sit silently in a queue. When a
-consequential change is ready for the human gate, the agent must:
+A change awaiting a go/no-go must never sit silently in a queue.
 
-1. **State it explicitly in the current chat response** — name the change, state
-   that it is in the consequential class, summarize the evidence, and ask for
-   an explicit go/no-go. Do not bury this in a change package or assume Dave
-   will notice.
-2. **Open a GitHub Issue labeled `human-gate`** — the issue should name the
-   change, link to the relevant change package and evidence artifacts, and state
-   clearly what is blocked until a go is given.
+The **`human-gate` GitHub issue is the canonical record of a pending gate** —
+one issue per pending change, opened when the change is ready for the gate.
+
+Its body is **derived from the change package**, not written fresh: intent,
+evidence summary, verification boundary, known gaps, and what is blocked until
+a go. Writing it twice produces two copies that drift, and the issue is the one
+that outlives the conversation.
+
+**In chat, state one line**: the change, that it is in the consequential class,
+a pointer to the issue, and **an explicit request for a go/no-go**. That line is
+the notification; the issue is the record. Do not restate the evidence in chat —
+a summary long enough to decide from is a summary long enough to drift from the
+issue. But do not drop the ask: "Absence of a response is not a go" only holds
+if someone was actually asked.
+
+**Which artifact is canonical for what:** the issue is canonical for the
+*existence and state* of a pending gate. The change package is canonical for
+the *evidence*. If a derived issue body has drifted from its change package,
+re-derive the body; do not reconcile in the other direction.
+
+**When the issue cannot be opened** — GitHub unreachable, tooling degraded, no
+remote — the chat statement carries the full derived body instead of a pointer,
+and the change **does not proceed to release** until the issue is opened and
+linked. The change package holds the record in the interim. This is not
+hypothetical: the directive that introduced this rule was itself delivered as a
+file because MCP GitHub was unavailable that session.
 
 The `human-gate` label is canonical across all projects. Dave can query it
-across repos to see all pending gates at any time.
+across repos to see every pending gate at any time.
 
 The mechanism for routing the go/no-go response back into the workflow (e.g.
 a comment on the issue, a chat reply, a label change) is a per-project concern
