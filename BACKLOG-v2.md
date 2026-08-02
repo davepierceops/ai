@@ -79,3 +79,18 @@ was noted as unresolved in the spine review. Needs a decision and a doc update.
 ### Per-file vs. single-file role granularity
 Whether agent roles (Reviewer, Skeptic/Risk, etc.) operate per-file or per
 change unit. Noted as open during the spine review.
+
+---
+
+## Tooling
+
+Deferred from the 2026-08-02 doc review (`docs/cycles/doc-review-2026-08-02-questions.md`).
+
+### `bin/dispatch`
+Enforce dispatch discipline: refuse to emit the paste block until the directive is committed and pushed, and stamp the git-read SHA into it (Q2; `skills/directive-dispatch.md`).
+
+### `bin/state`
+Render current state for the Chief of Staff — computed from OPEN-ITEMS, recent commits, and pending gates; never a maintained register (Q3a; `roles/chief-of-staff.md`).
+
+### Role-scoped credentials
+Fine-grained PATs per role — implementation agents push branches, merge rights stay elsewhere (Q7).
