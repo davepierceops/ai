@@ -1,0 +1,8 @@
+# Reviewed-revision bundles emitted by bin/cycle-open for chat upload.
+# These are copies of already-committed revisions; tracking them would create
+# a second, drifting copy of documents git already holds.
+.cycle-bundles/
+
+# Python bytecode from bin/ tooling and its tests.
+__pycache__/
+*.pyc

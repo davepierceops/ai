@@ -1,0 +1,146 @@
+#!/usr/bin/env python3
+"""Install the thin pre-commit shim into a target repo.
+
+The shim is the only thing that ever lands in a project repo; the scripts stay
+canonical in the /ai clone. It therefore carries no absolute paths: it
+rediscovers the methodology home at every invocation, in the order documented
+in `docs/packages/package-a-spec.md` §2.1.
+
+Contract: `docs/packages/package-a-spec.md` §3.9.
+"""
+
+import argparse
+import os
+import pathlib
+import shutil
+import stat
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from aimeta import cli, repo  # noqa: E402
+
+MANAGED_MARKER = "# >>> ai-methodology frontmatter hook (managed) >>>"
+END_MARKER = "# <<< ai-methodology frontmatter hook (managed) <<<"
+
+SHIM = """#!/bin/sh
+%s
+# Managed by the ai-methodology `install-hooks` script. Local edits are
+# replaced on the next install. Contains no machine-specific paths: the
+# methodology home is rediscovered on every commit.
+#
+# Discovery order: $AI_METHODOLOGY_HOME, then this repo when it is itself the
+# methodology clone, then a sibling directory named `ai`.
+
+top=$(git rev-parse --show-toplevel) || exit 1
+parent=$(dirname "$top")
+home=""
+
+for candidate in "$AI_METHODOLOGY_HOME" "$top" "$parent/ai"; do
+    if [ -n "$candidate" ] && [ -x "$candidate/bin/check-frontmatter" ]; then
+        home="$candidate"
+        break
+    fi
+done
+
+if [ -z "$home" ]; then
+    echo "ERROR: cannot locate the ai methodology home." >&2
+    echo "  Set AI_METHODOLOGY_HOME, or place the ai clone beside this repo." >&2
+    exit 3
+fi
+
+# A hook spawned by a GUI client inherits no login shell, so python3 may not be
+# on PATH. Say so in this script's own diagnostic form rather than degrading to
+# `env: python3: No such file or directory` and exit 127.
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "ERROR: python3 was not found on PATH, so the frontmatter hook cannot run." >&2
+    echo "  Install python3, or add it to the PATH your git client passes to hooks." >&2
+    exit 3
+fi
+
+exec "$home/bin/check-frontmatter" --staged
+%s
+""" % (
+    MANAGED_MARKER,
+    END_MARKER,
+)
+
+
+def build_parser():
+    p = argparse.ArgumentParser(
+        prog="install-hooks",
+        description="Install the ai-methodology pre-commit shim into a repo.",
+    )
+    p.add_argument("--repo", metavar="DIR", help="target repo (default: cwd's repo)")
+    p.add_argument(
+        "--force", action="store_true", help="back up and replace an unmanaged hook"
+    )
+    p.add_argument("--print", dest="print_only", action="store_true", help="print the shim")
+    p.add_argument(
+        "--uninstall",
+        action="store_true",
+        help="remove a managed hook, restoring any backup it replaced",
+    )
+    return p
+
+
+def uninstall(hook):
+    """AC-IH-8: remove a managed hook and put back whatever it displaced."""
+    if not hook.exists():
+        cli.diagnostic("NOTE", str(hook), "no-hook", "nothing to uninstall")
+        return cli.EXIT_OK
+    if MANAGED_MARKER not in hook.read_text(encoding=cli.ENCODING):
+        raise cli.ToolError(
+            "%s was not written by this tool; refusing to remove it" % hook,
+            cli.EXIT_PRECONDITION,
+        )
+    hook.unlink()
+    backup = hook.with_name("pre-commit.bak")
+    if backup.exists():
+        backup.replace(hook)
+        cli.diagnostic("NOTE", str(hook), "hook-restored", "restored the backed-up hook")
+    else:
+        cli.diagnostic("NOTE", str(hook), "hook-removed", "pre-commit shim removed")
+    return cli.EXIT_OK
+
+
+def hooks_dir(root):
+    """The repo's hooks directory, honouring `core.hooksPath` when configured."""
+    configured = repo.git("config", "--get", "core.hooksPath", cwd=root, check=False)
+    if configured:
+        path = pathlib.Path(configured)
+        return path if path.is_absolute() else root / path
+    common = pathlib.Path(repo.git("rev-parse", "--git-common-dir", cwd=root))
+    if not common.is_absolute():
+        common = root / common
+    return common / "hooks"
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
+    if args.print_only:
+        sys.stdout.write(SHIM)
+        return cli.EXIT_OK
+
+    root = cli.load_root(args.repo)
+    hook = hooks_dir(root) / "pre-commit"
+    if args.uninstall:
+        return uninstall(hook)
+    if hook.exists() and MANAGED_MARKER not in hook.read_text(encoding=cli.ENCODING):
+        if not args.force:
+            raise cli.ToolError(
+                "%s already exists and is not managed by this tool; "
+                "re-run with --force to back it up and replace it" % hook,
+                cli.EXIT_PRECONDITION,
+            )
+        shutil.copy2(str(hook), str(hook.with_name("pre-commit.bak")))
+
+    hook.parent.mkdir(parents=True, exist_ok=True)
+    hook.write_text(SHIM, encoding=cli.ENCODING)
+    hook.chmod(hook.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+    cli.diagnostic("NOTE", str(hook), "hook-installed", "pre-commit shim installed")
+    return cli.EXIT_OK
+
+
+if __name__ == "__main__":
+    sys.exit(cli.run(main))

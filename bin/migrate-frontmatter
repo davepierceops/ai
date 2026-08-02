@@ -1,0 +1,313 @@
+#!/usr/bin/env python3
+"""F2 transform: legacy `Status:` header -> YAML frontmatter, status-preserving.
+
+Contract: `docs/packages/package-a-spec.md` §3.8. The transform is mechanical
+by design: every judgment field is emitted as `TODO` and `--apply` refuses to
+run until a human has resolved them. `--apply` is all-or-nothing.
+"""
+
+import argparse
+import difflib
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from aimeta import cli, frontmatter, repo  # noqa: E402
+
+USAGE_ERROR = cli.EXIT_USAGE
+
+#: Legacy status values the policy also defines. Anything else is a judgment
+#: call: the transform never guesses, and never proposes `agreed`.
+STATUS_MAP = {"draft": "draft", "in-review": "in-review"}
+
+STATUS_LINE_RE = re.compile(r"^Status:\s*(\S+)")
+SEARCH_WINDOW = 20
+REQUIRED_PLAN_KEYS = ["action", "status", "last-reviewed", "audience", "grandfather"]
+TODO = "TODO"
+
+_BLOCK_HEADING_RE = re.compile(r"^## `(.+?)`\s*$")
+_PLAN_FIELD_RE = re.compile(r"^-\s+([a-z][a-z0-9-]*):\s*(.*)$")
+
+
+def build_parser():
+    p = argparse.ArgumentParser(
+        prog="migrate-frontmatter",
+        description=(
+            "Two-step migration: --plan emits a per-document disposition list "
+            "with the judgment fields marked TODO; --apply performs the "
+            "mechanical transform once every TODO is resolved."
+        ),
+    )
+    p.add_argument("--plan", action="store_true", help="emit a migration plan")
+    p.add_argument("--out", metavar="FILE", help="write the plan here (default: stdout)")
+    p.add_argument("--apply", metavar="PLAN", help="apply a completed plan")
+    p.add_argument(
+        "--dry-run", action="store_true", help="with --apply, print diffs and write nothing"
+    )
+    return p
+
+
+def body_line_offset(text, doc):
+    """How many whole lines of `text` precede the body."""
+    return text[: len(text) - len(doc.body)].count("\n")
+
+
+def find_legacy_status(text, doc):
+    """`(file_line_number, verbatim_line, legacy_value)` or None.
+
+    The search window is the first `SEARCH_WINDOW` lines after the body's H1,
+    so a `Status:` line far down the document is prose, not a header.
+    """
+    lines = doc.body.split("\n")
+    start = 0
+    for index, line in enumerate(lines):
+        if line.startswith("# "):
+            start = index + 1
+            break
+    for index in range(start, min(len(lines), start + SEARCH_WINDOW)):
+        match = STATUS_LINE_RE.match(lines[index])
+        if match:
+            return (
+                body_line_offset(text, doc) + index + 1,
+                lines[index].strip(),
+                match.group(1),
+            )
+    return None
+
+
+def remove_legacy_status(body, body_index):
+    """Delete the legacy line and collapse the doubled blank line it leaves."""
+    lines = body.splitlines(keepends=True)
+    del lines[body_index]
+    if (
+        0 < body_index < len(lines)
+        and lines[body_index].strip() == ""
+        and lines[body_index - 1].strip() == ""
+    ):
+        del lines[body_index]
+    return "".join(lines)
+
+
+def plan_block(ctx, relpath):
+    text, finding = cli.read_document(ctx.root / relpath)
+    if finding is not None:
+        cli.report([finding], relpath)
+        return None
+    doc = frontmatter.parse_text(text)
+    findings = list(doc.errors) + frontmatter.validate(
+        doc,
+        path=relpath,
+        role_slugs=ctx.role_slugs,
+        grandfathered=ctx.grandfathered(relpath),
+    )
+    legacy = find_legacy_status(text, doc)
+
+    lines = ["## `%s`" % relpath]
+    if not findings:
+        lines.append("- action: skip")
+        lines.append("- has-frontmatter: %s" % ("yes" if doc.has_frontmatter else "no"))
+        lines.append(
+            "- legacy-status-line: %s" % ("%d `%s`" % (legacy[0], legacy[1]) if legacy else "none")
+        )
+        return "\n".join(lines) + "\n"
+
+    lines.append("- action: migrate")
+    lines.append("- has-frontmatter: %s" % ("yes" if doc.has_frontmatter else "no"))
+    lines.append(
+        "- legacy-status-line: %s" % ("%d `%s`" % (legacy[0], legacy[1]) if legacy else "none")
+    )
+    mapped = STATUS_MAP.get(legacy[2]) if legacy else None
+    if mapped:
+        lines.append("- status: %s" % mapped)
+    elif legacy:
+        lines.append(
+            "- status: %s            # legacy '%s' has no mapping in the policy" % (TODO, legacy[2])
+        )
+    else:
+        lines.append("- status: %s            # no legacy Status: line to preserve" % TODO)
+    existing_review = doc.fields.get("last-reviewed")
+    lines.append("- last-reviewed: %s" % (existing_review if existing_review else "null"))
+    lines.append("- audience: %s" % TODO)
+    lines.append("- grandfather: %s" % TODO)
+    return "\n".join(lines) + "\n"
+
+
+def make_plan(ctx):
+    """The plan text, or None when a document could not be read at all."""
+    blocks = [plan_block(ctx, relpath) for relpath in cli.in_scope_files(ctx)]
+    if any(block is None for block in blocks):
+        return None
+    return "\n".join(blocks)
+
+
+def parse_plan(text):
+    """`[(relpath, {key: value})]` per D3; a trailing ` # comment` is stripped."""
+    blocks = []
+    current = None
+    for line in text.splitlines():
+        heading = _BLOCK_HEADING_RE.match(line)
+        if heading:
+            current = (heading.group(1), {})
+            blocks.append(current)
+            continue
+        if current is None:
+            continue
+        field = _PLAN_FIELD_RE.match(line)
+        if field:
+            current[1][field.group(1)] = re.sub(r"\s+#.*$", "", field.group(2)).strip()
+    return blocks
+
+
+def transform(ctx, relpath, entry):
+    """The migrated text for one document, or raise ToolError if unreadable."""
+    path = ctx.root / relpath
+    if not path.is_file():
+        raise cli.ToolError("%s does not exist" % relpath, cli.EXIT_POLICY)
+    original, finding = cli.read_document(path)
+    if finding is not None:
+        cli.report([finding], relpath)
+        raise cli.ToolError("%s cannot be read as a document" % relpath, cli.EXIT_POLICY)
+    doc = frontmatter.parse_text(original)
+    legacy = find_legacy_status(original, doc)
+
+    body = doc.body
+    if legacy:
+        body = remove_legacy_status(body, legacy[0] - body_line_offset(original, doc) - 1)
+    if not doc.has_frontmatter:
+        body = "\n" + body
+
+    fields = dict(doc.fields)
+    fields["status"] = frontmatter.parse_value(entry["status"])
+    fields["last-reviewed"] = frontmatter.parse_value(entry["last-reviewed"])
+    fields["audience"] = frontmatter.parse_value(entry["audience"])
+    migrated = frontmatter.Document(fields=fields, body=body, has_frontmatter=True)
+    return original, frontmatter.render(migrated), migrated
+
+
+def record_grandfathered(ctx, relpaths):
+    """AC-MG-14: name every grandfathered document in the disposition list.
+
+    The entries are backticked repo-relative paths because that is the only
+    form `repo.disposition_paths` reads back (AC-RP-7) — a prettier format that
+    parses to nothing would be a silent failure, not a style choice.
+    """
+    if not relpaths:
+        return
+    listing = ctx.root / repo.DISPOSITION_PATH
+    already = repo.disposition_paths(ctx.root)
+    additions = [path for path in relpaths if path not in already]
+    if not additions:
+        return
+    if listing.is_file():
+        text, finding = cli.read_document(listing)
+        if finding is not None:
+            raise cli.ToolError(
+                "cannot read %s: %s" % (repo.DISPOSITION_PATH, finding.message),
+                cli.EXIT_POLICY,
+            )
+        text = text if text.endswith("\n") else text + "\n"
+    else:
+        listing.parent.mkdir(parents=True, exist_ok=True)
+        text = (
+            "# Frontmatter grandfather disposition\n"
+            "\n"
+            "Documents agreed before `policies/document-metadata-policy.md` was\n"
+            "adopted, recorded by `bin/migrate-frontmatter --apply`. They may carry\n"
+            "`last-reviewed: null` until their next revision.\n"
+            "\n"
+        )
+    lines = ["- `%s` — agreed before policy adoption" % path for path in additions]
+    listing.write_text(text + "\n".join(lines) + "\n", encoding=cli.ENCODING)
+
+
+def apply_plan(ctx, plan_relpath, dry_run):
+    plan_path = ctx.root / plan_relpath
+    if not plan_path.is_file():
+        raise cli.ToolError("plan %s does not exist" % plan_relpath, cli.EXIT_USAGE)
+    plan_text, finding = cli.read_document(plan_path)
+    if finding is not None:
+        cli.report([finding], plan_relpath)
+        return cli.EXIT_USAGE
+    blocks = [
+        (relpath, entry)
+        for relpath, entry in parse_plan(plan_text)
+        if entry.get("action") != "skip"
+    ]
+
+    undecided = [
+        relpath
+        for relpath, entry in blocks
+        if any(entry.get(key, TODO) == TODO for key in REQUIRED_PLAN_KEYS)
+    ]
+    if undecided:
+        for relpath in undecided:
+            cli.diagnostic("ERROR", relpath, "unresolved-todo", "the plan still needs a decision")
+        return cli.EXIT_PRECONDITION
+
+    results = []
+    grandfathered = []
+    failed = False
+    for relpath, entry in blocks:
+        original, migrated_text, migrated = transform(ctx, relpath, entry)
+        is_grandfathered = entry.get("grandfather") in ("yes", "true")
+        if is_grandfathered:
+            grandfathered.append(relpath)
+        findings = frontmatter.validate(
+            migrated,
+            path=relpath,
+            role_slugs=ctx.role_slugs,
+            grandfathered=is_grandfathered,
+        )
+        if findings:
+            cli.report(findings, relpath)
+            failed = True
+        results.append((relpath, original, migrated_text))
+    if failed:
+        cli.err("ERROR: refusing to write any document; the plan is not all-valid")
+        return cli.EXIT_POLICY
+
+    for relpath, original, migrated_text in results:
+        if dry_run:
+            sys.stdout.writelines(
+                difflib.unified_diff(
+                    original.splitlines(keepends=True),
+                    migrated_text.splitlines(keepends=True),
+                    fromfile="a/%s" % relpath,
+                    tofile="b/%s" % relpath,
+                )
+            )
+        else:
+            (ctx.root / relpath).write_text(migrated_text, encoding=cli.ENCODING)
+    if not dry_run:
+        record_grandfathered(ctx, grandfathered)
+    return cli.EXIT_OK
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
+    if bool(args.plan) == bool(args.apply):
+        print(
+            "migrate-frontmatter: exactly one of --plan or --apply is required",
+            file=sys.stderr,
+        )
+        return USAGE_ERROR
+
+    ctx = cli.load_context()
+    if args.plan:
+        plan = make_plan(ctx)
+        if plan is None:
+            return cli.EXIT_POLICY
+        if args.out:
+            (ctx.root / cli.relpath_of(ctx.root, args.out)).write_text(
+                plan, encoding=cli.ENCODING
+            )
+        else:
+            sys.stdout.write(plan)
+        return cli.EXIT_OK
+    return apply_plan(ctx, cli.relpath_of(ctx.root, args.apply), args.dry_run)
+
+
+if __name__ == "__main__":
+    sys.exit(cli.run(main))

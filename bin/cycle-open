@@ -1,0 +1,198 @@
+#!/usr/bin/env python3
+"""Open a spec-review cycle: directive skeleton + reviewed-revision bundle.
+
+Contract: `docs/packages/package-a-spec.md` §3.6. The directive format is the
+one in `skills/spec-review-cycle.md`. Every SHA is the full id of the last
+commit touching the path, read from git — never invented, never abbreviated.
+"""
+
+import argparse
+import datetime
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from aimeta import cli, closure, repo  # noqa: E402
+
+BUNDLE_DIR_DEFAULT = ".cycle-bundles"
+
+PLACEHOLDER_DECISION = """<!--
+### <finding id> — <accept | reject | modify>
+Finding: <one-line restatement>
+Resolution: <instruction to the executor; for "modify", exact intent;
+for "reject", no action — recorded for audit>
+Dictated wording: <verbatim, if any — executor must use as-is>
+-->"""
+
+
+def build_parser():
+    p = argparse.ArgumentParser(
+        prog="cycle-open",
+        description=(
+            "Write a cycle directive skeleton with reviewed SHAs read from git, "
+            "and emit the reviewed revisions as an upload bundle."
+        ),
+    )
+    p.add_argument("paths", nargs="*", metavar="PATH", help="documents in scope")
+    p.add_argument("--cycle", metavar="N", help="cycle number")
+    p.add_argument("--name", metavar="SLUG", help="directive slug instead of a number")
+    p.add_argument("--title", metavar="T", help="directive title")
+    p.add_argument("--out", metavar="DIR", help="bundle output directory")
+    p.add_argument(
+        "--bundle",
+        metavar="ENTRY",
+        action="append",
+        default=[],
+        help="expand this context-set entry point into the document set",
+    )
+    p.add_argument("--date", metavar="YYYY-MM-DD", help="fix the directive date")
+    p.add_argument(
+        "--allow-dirty",
+        action="store_true",
+        help="warn instead of refusing when a document has uncommitted edits",
+    )
+    return p
+
+
+def directive_identity(root, args):
+    """(relpath, heading) for the directive, per AC-CO-1 and D4."""
+    if args.cycle:
+        title = args.title or root.name
+        return (
+            "docs/cycles/cycle-%s-directive.md" % args.cycle,
+            "# Cycle %s Directive — %s" % (args.cycle, title),
+        )
+    title = args.title or args.name.replace("-", " ")
+    return "docs/cycles/%s-directive.md" % args.name, "# %s Directive" % title
+
+
+def collect_documents(root, args):
+    """Closure expansion of `--bundle` entries, unioned with explicit paths."""
+    documents = []
+    if args.bundle:
+        entries = [closure.resolve_entry(root, entry) for entry in args.bundle]
+        for item in closure.walk(root, entries):
+            documents.append(item["path"])
+    for path in args.paths:
+        documents.append(cli.relpath_of(root, path))
+    ordered = []
+    for relpath in documents:
+        if relpath not in ordered:
+            ordered.append(relpath)
+    return ordered
+
+
+def resolve_revisions(root, documents, allow_dirty):
+    """`[(relpath, sha)]`, refusing untracked, missing, or dirty documents."""
+    revisions = []
+    for relpath in documents:
+        if not (root / relpath).is_file():
+            raise cli.ToolError("%s does not exist" % relpath, cli.EXIT_POLICY)
+        sha = repo.last_commit_sha(root, relpath)
+        if sha is None:
+            raise cli.ToolError(
+                "%s is untracked, so it has no reviewed revision" % relpath,
+                cli.EXIT_POLICY,
+            )
+        if repo.git("status", "--porcelain", "--", relpath, cwd=root):
+            if not allow_dirty:
+                raise cli.ToolError(
+                    "%s has uncommitted modifications; its recorded SHA would not "
+                    "describe the uploaded content" % relpath,
+                    cli.EXIT_PRECONDITION,
+                )
+            cli.diagnostic(
+                "WARN",
+                relpath,
+                "dirty-document",
+                "uncommitted modifications; the bundle carries the committed revision",
+            )
+        revisions.append((relpath, sha))
+    return revisions
+
+
+def render_directive(heading, date, revisions):
+    lines = [heading, "", "Date: %s" % date, "Documents in scope:"]
+    lines += ["- %s @ %s" % (relpath, sha) for relpath, sha in revisions]
+    lines += [
+        "",
+        "## Decisions",
+        "",
+        PLACEHOLDER_DECISION,
+        "",
+        "## Deferred / out of scope",
+        "",
+        "- <item> — <where it is tracked>",
+        "",
+        "## Execution notes",
+        "",
+        "<constraints on how edits are made, if any>",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def write_bundle(root, outdir, revisions, directive_relpath):
+    outdir.mkdir(parents=True, exist_ok=True)
+    manifest = []
+    for relpath, sha in revisions:
+        content = repo.file_at_rev(root, sha, relpath)
+        if content is None:
+            raise cli.ToolError(
+                "cannot read %s at %s" % (relpath, sha), cli.EXIT_PRECONDITION
+            )
+        (outdir / relpath.replace("/", "__")).write_text(content, encoding=cli.ENCODING)
+        manifest.append("%s @ %s" % (relpath, sha))
+    manifest.append(directive_relpath)
+    (outdir / "BUNDLE.txt").write_text(
+        "\n".join(manifest) + "\n", encoding=cli.ENCODING
+    )
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
+    if bool(args.cycle) == bool(args.name):
+        raise cli.ToolError(
+            "exactly one of --cycle or --name is required", cli.EXIT_USAGE
+        )
+
+    root = cli.load_root()
+    # AC-CO-12: `--out` is repo-relative, always. Resolved before anything is
+    # written, so a refused run leaves no directive behind either.
+    out_rel = cli.repo_relative_path(root, args.out, "--out") if args.out else None
+    directive_relpath, heading = directive_identity(root, args)
+    directive_path = root / directive_relpath
+    if directive_path.exists():
+        raise cli.ToolError(
+            "%s already exists; refusing to overwrite it" % directive_relpath,
+            cli.EXIT_PRECONDITION,
+        )
+
+    documents = collect_documents(root, args)
+    revisions = resolve_revisions(root, documents, args.allow_dirty)
+    date = args.date or datetime.date.today().isoformat()
+
+    directive_path.parent.mkdir(parents=True, exist_ok=True)
+    directive_path.write_text(
+        render_directive(heading, date, revisions), encoding=cli.ENCODING
+    )
+
+    stem = os.path.basename(directive_relpath)[: -len(".md")]
+    out_rel = out_rel or "%s/%s" % (BUNDLE_DIR_DEFAULT, stem)
+    outdir = root / out_rel
+    write_bundle(root, outdir, revisions, directive_relpath)
+
+    code, _, _ = repo.run(["check-ignore", "-q", "--", out_rel + "/"], cwd=root)
+    if code != 0:
+        cli.diagnostic(
+            "WARN",
+            out_rel,
+            "bundle-not-ignored",
+            "the bundle directory is not gitignored; uploads risk becoming tracked files",
+        )
+    return cli.EXIT_OK
+
+
+if __name__ == "__main__":
+    sys.exit(cli.run(main))
