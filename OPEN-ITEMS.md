@@ -4,7 +4,38 @@ This file tracks open questions, deferred decisions, and outstanding fixes
 for the AI operating model. Updated at defined checkpoints per
 `context-sets/spec-and-change-discipline.md`.
 
-Last updated: 2026-07-31
+Last updated: 2026-08-01
+
+---
+
+## AC-CF-23 is silent on the likely failure — a single typo'd in-scope glob
+
+**Source:** Package A release decision, 2026-08-01. Accepted as a known gap at
+the human gate; recorded here so it is tracked rather than absorbed.
+
+`bin/check-frontmatter --staged` warns (`WARN [empty-scope]`) when the in-scope
+glob set matches **no** tracked path — the total-no-op case. Verified at the
+gate: when one glob is typo'd (`policies/**` → `polices/**`) while the others
+still match, the hook is **silent**, and a content edit to an `agreed` document
+in the affected directory commits with `status: agreed` intact and no
+diagnostic. That is the more likely failure of the two, and it is the one not
+covered.
+
+**Why it was scoped that way:** per-glob `WARN [unmatched-glob]` lines exist in
+`--all` and were deliberately kept out of `--staged`, because a project repo
+legitimately matches only `specs/**` and would emit warnings on every commit.
+The AC was written against the rarer case; that was an authoring error at the
+spec level, not an implementation defect.
+
+**Current mitigation:** run `check-frontmatter --all` after any edit to the
+metadata policy's Scope section. This is a habit, which is exactly the class of
+control this initiative exists to replace.
+
+**What's needed:** a diagnostic that distinguishes "this glob legitimately
+matches nothing in this repo" from "this glob used to match and no longer
+does." Candidate: compare the matched set against the previous commit's, and
+warn only on a glob that lost all its matches. Unverified — the design is not
+settled, which is why this is an open item rather than a fix.
 
 ---
 
