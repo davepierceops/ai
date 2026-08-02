@@ -33,9 +33,13 @@ When reviewing a document with Dave:
 
 ## Authorship
 
-Claude drafts, Dave verifies. Agents propose; Dave disposes. For operating
-habits governing how questions are asked, tradeoffs are framed, and decisions
-are escalated, see `context-sets/spec-and-change-discipline.md`.
+Agents dispose of routine changes; Dave disposes of judgment calls. Agents
+draft, review, and merge the routine class on evidence, without asking. What
+returns to Dave is the release decision for the consequential class and the
+agreement of any canonical document. Drafts are produced for his agreement, not
+for his line-by-line verification. For operating habits governing how questions
+are asked, tradeoffs are framed, and decisions are escalated, see
+`context-sets/spec-and-change-discipline.md`.
 
 ## Session handoff
 
