@@ -8,9 +8,11 @@ audience: [all-roles, human]
 
 ## Purpose
 
-This policy defines when a change flows to release automatically and when an
-explicit human go/no-go is required. It rests on two **independent** axes that
-must not be conflated:
+This policy defines two things its title promises: how a change reaches the
+default branch (**commit control**), and when a change reaching users requires
+an explicit human go/no-go (**change control**).
+
+The second half rests on two **independent** axes that must not be conflated:
 
 - **Control surface (not revisited here).** The primary human control surface is
   spec, tests, and observability — not *human* code review. Code review is
@@ -28,6 +30,12 @@ the deploy. This policy speaks in terms of the release decision; each project's
 TRD maps that to its actual CI/CD.
 
 The resolution is a **two-tier release gate**.
+
+The first half — commit control — is deliberately **structural rather than
+gated**. Because the gate event is the release decision, the mechanics of
+getting a change onto the default branch are bounded by configuration that
+holds whoever is acting, not by asking a human per push. Those mechanics are
+stated in "Commit, push, and merge" below.
 
 ## Tier 1 — Routine changes: flow on evidence
 
@@ -127,6 +135,69 @@ and must be named in the project's TRD operational concerns section.
 
 A change does not proceed until the go is given explicitly. Absence of a
 response is not a go.
+
+## Commit, push, and merge
+
+### Push mechanics
+
+**Plain `git push` is allowed for agents.** It requires no per-push approval.
+An approval here would be ceremony on an event this policy does not gate, and
+ceremony on a frequent event is how a gate stops being read.
+
+**Force-push is denied**, and denied at two layers, because the layers fail
+differently:
+
+- **Client-side** — a deny rule in the agent runner's configuration, and it
+  must hold in *every* permission mode, including the modes that otherwise
+  skip prompting. A deny that a permissive mode waives is not a deny.
+- **Server-side** — branch protection on the default branch (below). This is
+  the layer that makes it a guarantee rather than a habit: it binds every
+  credential that reaches the repository, including ones no local
+  configuration has ever seen.
+
+The client-side rule catches the mistake early and cheaply. The server-side
+rule is what the guarantee actually rests on.
+
+### Branch protection is the structural gate
+
+Every adopting repo protects its default branch:
+
+- **no force-push**
+- **no branch deletion**
+- **changes land via pull request**
+- **bypass disallowed, including for administrators**
+
+The last one carries the others. Protection that administrators may bypass
+binds only the credentials that were never the risk — an agent holding an
+admin-capable token is governed by the honour system, and the protection
+reads as a control while enforcing nothing against the actor most able to
+break it.
+
+This is what makes "agents may push and merge" safe to state. History on the
+default branch cannot be rewritten or destroyed whoever holds the credential,
+and every change arrives as a reviewable unit.
+
+Branch protection lives in the forge's configuration, not in the repository,
+so nothing in the repo can verify it. It is an adoption precondition, and the
+setup checklist is `policies/project-setup-requirements.md` — this policy
+states the requirement; that document states what must be true before the
+methodology governs work in a repo. Do not duplicate its checklist here.
+
+### Agents may open and merge pull requests
+
+For the **routine class**, agents open a pull request and merge it. No human
+gate fires at the merge. The gates are elsewhere and both are named already:
+the release decision (Tier 2 above), and the agreement of a canonical
+document (`roles/spec-reviewer-agent.md`, a hard gate before Dave agrees).
+
+For the **consequential class**, the merge is not what is gated either — the
+*exposure* is. Wherever deploy and release are separate events, a merged pull
+request is not a released change, and Tier 2 governs the release.
+
+The pull request is therefore a mechanism for auditability and for making the
+change a reviewable unit, not a human approval step. Requiring a human review
+on the PR itself would reintroduce human diff-reading as the default control
+surface, which `boundaries/human-review-boundary.md` deliberately removes.
 
 ## When in doubt
 
