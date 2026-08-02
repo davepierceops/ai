@@ -17,6 +17,12 @@ Format — one Markdown list item per entry:
 
 `- <YYYY-MM-DD> — <document path> @ <sha> — <what changed, one clause>`
 
+The SHA is authoritative. The date and the one-clause summary are reader
+convenience — both are derivable from the commit it names, and on any conflict
+`git show` wins. They are written out anyway because a log of bare paths and
+hashes is a log nobody reads, and this file is a dated record, which is where
+derived facts are allowed to live.
+
 ## Entries
 
 <!-- none yet; the first expedited agreement appends here -->

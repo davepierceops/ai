@@ -15,8 +15,9 @@ methodology changes and published writing.
 
 Retros are an input to change, not a change mechanism. Any methodology
 revision surfaced by a retro or a synthesis enters the repo through the
-normal spec-review cycle. There is no second door into `agreed`
-documents.
+normal spec-review cycle — including where the expedited path in
+`policies/document-metadata-policy.md` would otherwise apply. That door
+exists; a retro-surfaced revision does not use it.
 
 ## Use when
 

@@ -4,7 +4,7 @@ This file tracks open questions, deferred decisions, and outstanding fixes
 for the AI operating model. Updated at defined checkpoints per
 `context-sets/spec-and-change-discipline.md`.
 
-Last updated: 2026-08-01
+Last updated: 2026-08-02
 
 ---
 
@@ -136,30 +136,28 @@ mapping.
 
 ---
 
-## Build this repo's frontmatter-enforcement hook
+## ~~Build this repo's frontmatter-enforcement hook~~
 
-**Source:** Document metadata policy cycle-2 directive (A5), 2026-07-21.
-The policy's Scope section states "Enforcement (hooks) checks exactly the
-in-scope set," but nothing tracked standing up the methodology repo's own
-hook.
+**RESOLVED** by Package A (F1), 2026-08-01. `bin/check-frontmatter` plus the
+managed pre-commit hook installed by `bin/install-hooks` enforce the in-scope
+set, read from the policy at runtime.
 
-**What's needed:** Build the frontmatter-enforcement hook over the
-in-scope set as amended by cycle-2 B1: the six directory globs plus
-`operating-model.md` and `README.md`. Blocked on the policy reaching
-`agreed`; sequenced with the frontmatter migration item below.
+Struck by Package D, 2026-08-02, on the handoff in
+`docs/packages/package-c-change-package.md` §9. The entry had gone on asserting
+"Blocked on the policy reaching `agreed`" after the policy was agreed, the hook
+was live, and the work had shipped — a live tracker asserting a blocker that no
+longer exists.
 
 ---
 
-## Migrate existing docs to YAML frontmatter per document-metadata-policy
+## ~~Migrate existing docs to YAML frontmatter per document-metadata-policy~~
 
-**Source:** Document metadata policy session, 2026-07-21. New
-`policies/document-metadata-policy.md` (draft) establishes YAML frontmatter
-as the metadata format for all methodology and spec documents.
+**RESOLVED** by Package B (F2), 2026-08-01. 34 documents migrated to YAML
+frontmatter with a repo-wide disposition list under the grandfather clause; one
+batch gate review.
 
-**What's needed:** Convert every existing doc's plain `Status:` line to
-frontmatter with the required fields (`status`, `last-reviewed`, `audience`).
-Blocked on the policy itself reaching `agreed`. Migration is mechanical but
-`audience` requires a per-doc judgment call.
+Struck by Package D, 2026-08-02, on the same handoff as the item above, for the
+same reason: it still read "Blocked on the policy itself reaching `agreed`".
 
 ---
 
@@ -197,22 +195,128 @@ copy of a derivable fact and should move.
 
 ---
 
-## `TREE.txt` mention survives in the agreed metadata policy
+## ~~`TREE.txt` mention survives in the agreed metadata policy~~
 
-**Source:** Package C, 2026-08-01. `TREE.txt` was deleted (49 entries against
-91 tracked files at that commit; it was `git ls-files` with a maintenance
-obligation and no maintainer). `policies/document-metadata-policy.md` still
-names it in the out-of-scope list.
+**RESOLVED** by Package D, 2026-08-02, exactly as this entry planned: the rider
+rode the F6 cycle that opened the document for a substantive reason, and the
+mention left the out-of-scope list in the same diff the reviewer read.
 
-**Deliberately not fixed.** That document is `agreed`, so correcting a cosmetic
-mention costs a full review cycle. The mention is inert — verified: an
-out-of-scope entry naming a nonexistent path excludes nothing, and
-`check-frontmatter --all` reports 38 matched with no warning.
+Confirmed inert on the way out, by the cycle-5 gate review rather than on the
+executor's say-so: `bin/aimeta/scope.py` stops parsing at the `Out of scope`
+marker, so enforcement never read the prose; `check-frontmatter --all` and the
+321-test `bin/` suite are unchanged by the removal.
 
-**What's needed:** ride the next cycle that opens that document for a
-substantive reason. **Package D (F6) is that cycle** — it revises the same
-document's "No exceptions for trivial edits" clause. This item is itself a
-worked example of the cost F6 exists to reduce.
+---
+
+## The expedited path's log entry is unenforced — `flip-agreed` checks existence, not content
+
+**Source:** Package D cycle-5 gate review (B4), 2026-08-02. Verified by
+running, in a scratch clone: with step 3 of the expedited sequence **skipped
+entirely**, `bin/flip-agreed --review 'reviews/expedited-log.md @ <sha>'` exited
+0 against a log holding no entries, and `check-frontmatter --all` then reported
+the repo clean.
+
+**Why it matters now and did not before.** A per-cycle review artifact had to be
+*created* to satisfy the existence check, so existence was weak evidence that a
+review happened. `reviews/expedited-log.md` exists permanently, so the same
+check is satisfied vacuously and forever, for every document in the repo. The
+policy now states the rule that carries the weight — the SHA cited in
+`last-reviewed` must appear in an entry in the log — but nothing checks it.
+
+**What's needed:** `bin/flip-agreed` (and probably `bin/check-frontmatter`)
+verify that the cited SHA appears in the target artifact when that artifact is
+the expedited log. Small and checkable. It is a `bin/` change with its own ACs
+and tests, which is why it is not inside Package D — F6 is a routing change, and
+the directive scopes Package D to F6 alone. **Named as a release risk at the
+Package D gate, not absorbed.**
+
+---
+
+## A policy edit can blind enforcement of itself — the self-referential scope hazard
+
+**Source:** Package D cycle-5 gate review (B2), 2026-08-02. Pre-dates F6;
+surfaced by testing F6's blast radius.
+
+**Verified by running,** in a scratch clone: a single commit deleting the
+`policies/**` line from the metadata policy's in-scope list dropped enforcement
+from 38 files / 8 globs to 31 / 7, and the committed file still read
+`status: agreed` with its prior `last-reviewed` intact — because
+`bin/aimeta/scope.py` reads the globs from the policy on disk, so by the time
+the hook evaluated the commit the file had already removed itself from scope and
+the flip never fired. The mirror case is worse: when the flip does land first,
+`flip-agreed` then refuses the document as "outside the frontmatter in-scope
+set" and it cannot return to `agreed` by tool at all.
+
+**Mitigated, not fixed.** F6 eligibility condition 3 keeps this policy off the
+expedited path entirely, so the hazard is not *authorized*. It remains reachable
+by any ordinary commit.
+
+**What's needed:** the same diagnostic class as the typo'd-glob item at the top
+of this file — compare the matched set against the previous commit's and warn on
+a glob that lost all its matches. Both items are one fix.
+
+---
+
+## Does the Spec Reviewer gate non-spec canonical documents? Two canonical documents disagree
+
+**Source:** Package D cycle-5 gate review (N2), 2026-08-02. Pre-dates F6.
+Surfaced because F6 eligibility condition 4 has to rest on the answer.
+
+`roles/spec-reviewer-agent.md` triggers the hard gate on "initial PRD or TRD
+authorship" and "any revision to a **spec** document"; `README.md`,
+`operating-model.md`, and `boundaries/human-review-boundary.md` all say the same
+in the same words. `skills/spec-review-cycle.md` scopes the cycle to "spec
+documents (PRD, TRD, **or any canonical document**)".
+
+**Practice follows the skill, not the role doc.** Every gate review in
+`reviews/` is over a non-`specs/` document — four cycles over the metadata
+policy, two over Package C, this one — including the four that produced the text
+F6 amends. So the class of document that has received every gate review in this
+repo's history is the class the role doc says is not gated.
+
+**What's needed:** Dave's call on which reading is canonical, then reconcile the
+two documents. F6 does not block on it: condition 4 defers to the gate wherever
+it applies rather than defining its reach, and conditions 1–3 bound the override
+to a ten-line single-file diff outside this policy either way.
+
+---
+
+## Review artifact schema — third-use feedback from the cycle-5 gate review
+
+**Source:** Package D cycle-5 gate review, schema feedback section, 2026-08-02.
+Cycle 2 of Package C asked for a third data point on two specific frictions;
+this is it, plus two new ones. Not acted on in Package D — the F3 schema is
+Package C's document and F6 does not authorize revising it beyond the
+expedited-log carve-out.
+
+1. **A `Severity:` qualifier inside `blocking` — friction confirmed, and it
+   scales badly.** Six blocking entries here span two orders of magnitude of
+   weight. The header line `Findings: 6 blocking` reads as six equal hard stops.
+   The reviewer reports considering demoting two findings purely to keep the
+   count honest — the schema shaping the finding. Proposed cheaper fix that
+   avoids the "everyone ships past `Severity: low`" failure: let the count read
+   `6 blocking (B1–B2 material)`.
+2. **Omit-if-none header fields — no friction, but the reasoning is
+   asymmetric.** `Not inspected` is required because omitting it is how an
+   unbounded claim gets made by accident; `Dave should inspect` carries the same
+   risk and is omit-if-none. `Cross-checked` and `Prior cycle` are fine as-is.
+3. **New: the schema has no shape for a check that passed.** Dave named the
+   compounding check as this review's priority and it passed, with no field for
+   that. `observation` was the only bucket and its required `Consequence:` field
+   ("what goes wrong, concretely") can never be filled by one — the artifact
+   carries `Consequence: None` four times. Without those entries a reader cannot
+   distinguish "the check passed" from "the check was never run", which is the
+   distinction `Not inspected` exists to protect.
+4. **New: the header names one revision where a revision review has two.**
+   `Reviewed: <path> @ <sha>` fits a first-cycle review of a draft. Cycles 2+
+   review a range; the baseline SHA is what makes the diff reproducible. A
+   `Baseline:` field would carry it.
+
+**What worked, recorded because it is load-bearing:** the
+`verified by running` / `inferred by reading` split. B2 and B4 exist because the
+field pushed the reviewer to execute the sequence instead of reasoning about it,
+and both are things a reading-only review would have gotten wrong in the
+confident direction.
 
 ---
 

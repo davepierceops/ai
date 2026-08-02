@@ -129,37 +129,47 @@ lines, before any content.
 A document falsely claiming review currency is expensive. A full review
 cycle over a one-line fix is merely tedious. The expedited path
 shortens the second without weakening the first: the document still
-flips to `in-review`, Dave still reads the change, and `agreed` still
-requires a review record that exists and is pointed at. What is dropped
-is the reviewer-gated cycle — the findings round-trip, the cycle
-directive, and the per-cycle review artifact.
+flips to `in-review`, Dave still reads the whole change, and the
+agreement still leaves a record that says what was read and when. What
+is dropped is the reviewer-gated cycle — the findings round-trip, the
+cycle directive, and the per-cycle review artifact.
 
 ### Eligibility
 
-Every condition is a fact about the change, not a judgment about its
-importance:
+Conditions 1–4 are facts about the change, readable from
+`git show --stat` and a path prefix. Condition 5 is a human judgment,
+and it is the only one:
 
-1. The revision commit touches **exactly one** in-scope document and no
-   other tracked path. A second file — including a tracker or an
-   adapter edited alongside — escalates.
-2. The document is not under `specs/`. Spec agreement is gated by the
+1. The revision is a **single commit** touching **exactly one** in-scope
+   document and no other tracked path. A second file — including a
+   tracker or an adapter edited alongside — escalates, and so does a
+   revision spread across two commits.
+2. The diff is **no more than ten changed lines**, added plus deleted,
+   per `git diff --numstat`. The threshold is arbitrary, which is the
+   point: a bright line cannot be negotiated with, and exceeding it
+   costs a full cycle rather than blocking the change.
+3. The document is not this policy. Enforcement reads its in-scope set
+   from the Scope section above, so an edit here can narrow what is
+   enforced — including enforcement of this document — in one commit.
+   This policy returns to `agreed` only through a full cycle.
+4. The document is not under `specs/`. Spec agreement is gated by the
    Spec Reviewer Agent (`roles/spec-reviewer-agent.md`); this path does
    not reach that gate and does not override it.
-3. The revision is not to this section. The expedited path may not be
-   the vehicle for widening, narrowing, or introducing itself.
-4. Dave reads the whole diff and agrees it **as-is**: zero findings, no
+5. Dave reads the whole diff and agrees it **as-is**: zero findings, no
    dictated wording, no requested change.
 
-Condition 4 is the load-bearing one. *Any* finding escalates, however
-small: the moment there is a finding there is a revision to review, and
-whoever wrote it is not its reviewer. An edit that acquires a finding
-does not get a second attempt at this path — it becomes a full cycle
-per `skills/spec-review-cycle.md`.
+Condition 5 is load-bearing, and it is not dressed up as structural.
+What this path substitutes for the reviewer-gated cycle is Dave's own
+read — not nothing. *Any* finding escalates, however small: the moment
+there is a finding there is a revision to review, and whoever wrote it
+is not its reviewer. An edit that acquires a finding does not get a
+second attempt at this path — it becomes a full cycle per
+`skills/spec-review-cycle.md`.
 
-Eligibility is Dave's to apply, and enforcement does not check it. A
-hook can see one staged file; it cannot see whether the diff was read.
-The mechanical rules are unchanged: `agreed` still requires a non-null
-`last-reviewed` naming an artifact that exists.
+Enforcement checks none of this and cannot. A hook can count staged
+files and changed lines; it cannot see whether the diff was read.
+Conditions 1–4 bound how much an unread diff could do; condition 5 is
+what makes the path a review at all.
 
 ### The record
 
@@ -169,9 +179,24 @@ naming the document, the reviewed SHA, the date, and what changed;
 is what makes that pointer resolve to a single entry — many documents
 point at one log, and the entry carrying the cited SHA is the one meant.
 
+The mechanical rules are unchanged in form and weaker in effect, which
+is worth stating rather than glossing. `agreed` still requires a
+non-null `last-reviewed` naming an artifact that exists — but a
+per-cycle artifact had to be *created* to satisfy that check, whereas
+the log exists permanently, so its existence no longer evidences that
+anything was reviewed. The rule carrying that weight instead: **the SHA
+cited in `last-reviewed` must appear in an entry in the log.** A pointer
+to a SHA the log does not name is a false claim of review, whether or
+not tooling currently catches it.
+
 The log is append-only. Entries are not edited or removed when a
 document is later revised or superseded: it records what was agreed and
 when, which is history, not current state.
+
+An adopting repo creates an empty `reviews/expedited-log.md` when it
+stands up enforcement at project setup. Without it the first expedited
+agreement fails on a missing review artifact, which reads as a review
+problem rather than the setup omission it is.
 
 ### Sequence
 
@@ -180,10 +205,13 @@ when, which is history, not current state.
 2. Dave reads the diff and agrees it as-is.
 3. The log entry commits, naming the SHA from step 1.
 4. A frontmatter-only status-transition commit flips the document back
-   to `agreed` with `last-reviewed` pointing at the log.
+   to `agreed`, with `last-reviewed` citing the log and the same step-1
+   SHA the entry names.
 
 Steps 3 and 4 stay separate commits so that the status transition
-contains nothing but the transition, per the rule above.
+contains nothing but the transition, per the rule above. Step 3 before
+step 4, so the entry the pointer resolves to already exists when the
+pointer is written.
 
 ## Excluded fields (do not add)
 

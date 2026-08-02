@@ -145,6 +145,15 @@ The schema governs artifacts written after it lands. **Existing artifacts in
 already agreed, and rewriting a record of what happened to match a later format
 would be the drift this repo exists to prevent.
 
+One thing `last-reviewed:` points at is **not** an artifact in this sense:
+`reviews/expedited-log.md`. The expedited path in
+`policies/document-metadata-policy.md` produces one line per agreement in a
+shared append-only log, not a per-cycle document, and the header block above
+would be absurd applied per line. The log's own format is specified where the
+path is. The rule generalizes: this schema governs artifacts produced by a
+review *cycle* — one document, one cycle, one verdict. A per-entry log is a
+record of agreements, and its shape is defined by the policy that mandates it.
+
 ### Header
 
 Every artifact opens with this block, clean pass or not:
