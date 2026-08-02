@@ -136,41 +136,55 @@ cycle directive, and the per-cycle review artifact.
 
 ### Eligibility
 
-Conditions 1–4 are facts about the change, readable from
-`git show --stat` and a path prefix. Condition 5 is a human judgment,
-and it is the only one:
+Conditions 1–4 are facts about the change. Condition 5 is a human
+judgment, and it is the only one:
 
 1. The revision is a **single commit** touching **exactly one** in-scope
    document and no other tracked path. A second file — including a
    tracker or an adapter edited alongside — escalates, and so does a
    revision spread across two commits.
 2. The diff is **no more than ten changed lines of document body**,
-   added plus deleted. Count the body only: exclude the frontmatter
-   block, which the hook rewrites on every revision — by two lines or
-   by four, depending on whether `last-reviewed` was already null. That
-   is a case analysis with a wrong answer in it, so there is no
-   constant to subtract; measure the body. The threshold itself is
+   added plus deleted — the `+`/`-` lines below the frontmatter's
+   closing `---`. Count the body only: the hook rewrites the
+   frontmatter on every revision, by two lines or by four depending on
+   whether `last-reviewed` was already null. That is a case analysis
+   with a wrong answer in it, so there is no constant to subtract and
+   no whole-file `--stat` to read; measure the body. The threshold is
    arbitrary, which is the point: a bright line cannot be negotiated
    with, and exceeding it costs a full cycle rather than blocking the
    change.
-3. The document does not govern how documents are reviewed, agreed, or
-   released. Such a document can use this path to weaken the review
-   regime that authorizes the path, and the size ceiling cannot see the
-   difference — deleting a hard gate takes three lines. The class is
-   **enumerated, not judged**; a document not named here is not
-   excluded by this condition:
+3. The document does not state a gate, a hard stop, or an enforcement
+   rule governing how work is reviewed, agreed, or released. Such a
+   document can use this path to weaken the review regime that
+   authorizes the path, and a size ceiling cannot see the difference:
+   four changed lines take both hard gates out of `operating-model.md`,
+   one takes the spec-review gate out of
+   `boundaries/human-review-boundary.md`. The class is **enumerated,
+   not judged** — a document not named here is not excluded by this
+   condition:
    - `policies/document-metadata-policy.md` — this document.
      Enforcement reads its in-scope set from the Scope section above,
      so an edit here can narrow what is enforced, including enforcement
      of this document.
    - `policies/agent-review-policy.md`
    - `policies/commit-and-change-control-policy.md`
+   - `policies/source-of-truth-policy.md`
+   - `policies/release-readiness-policy.md`
    - `roles/spec-reviewer-agent.md`
+   - `roles/reviewer-agent.md`
+   - `roles/release-manager-agent.md`
    - `skills/spec-review-cycle.md`
+   - `skills/release-readiness-review.md`
+   - `skills/conversation-retro.md`
+   - `boundaries/human-review-boundary.md`
+   - `operating-model.md`
+   - `README.md`
 
-   These return to `agreed` only through a full cycle. A repo that adds
-   a document to this class names it here; a repo that organizes these
-   concerns under different paths substitutes its own.
+   These return to `agreed` only through a full cycle. The list is
+   normative and it is the cost of the design: enumeration cannot be
+   derived, so it has to be maintained. A repo that adds a governing
+   document names it here; a repo that organizes these concerns under
+   different paths substitutes its own.
 4. The document is not under `specs/`. Spec agreement is gated by the
    Spec Reviewer Agent (`roles/spec-reviewer-agent.md`); this path does
    not reach that gate and does not override it.

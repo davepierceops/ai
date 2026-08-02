@@ -115,9 +115,9 @@ entry per finding (including rejections). Everything else as needed.
 
 Review artifacts live in `reviews/` and are what `last-reviewed:` points at
 (`policies/document-metadata-policy.md`), with one exception below. They are
-read far more often than
-they are written, and almost always to answer one question: *what did this
-review conclude?* So the verdict comes first, and a clean pass stays short.
+read far more often than they are written, and almost always to answer one
+question: *what did this review conclude?* So the verdict comes first, and a
+clean pass stays short.
 
 ### What this schema governs
 

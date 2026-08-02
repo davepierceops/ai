@@ -257,6 +257,35 @@ a glob that lost all its matches. Both items are one fix.
 
 ---
 
+## Settle condition 3's enumerated class before a second document reaches `agreed`
+
+**Source:** Package D cycle-7 gate review (B1/B2/N2), 2026-08-02. The expedited
+path's condition 3 excludes a named list of documents that state a gate, hard
+stop, or enforcement rule. The list is normative, is not derivable by any tool,
+and therefore has to be maintained by hand.
+
+**It was incomplete on the day it was written.** Cycle 7 measured five in-scope
+documents matching the class, unnamed, each with a gate removable inside the
+ten-line ceiling: `operating-model.md` (4 body lines removes both hard gates),
+`roles/reviewer-agent.md` (2), `skills/conversation-retro.md` (4),
+`boundaries/human-review-boundary.md` (1), `README.md` (2). All five are now
+named, along with the release trio the class definition implied.
+
+**Unsettled, and Dave's call:** `policies/testing-policy.md` (the red-gate),
+`policies/verification-boundary-policy.md` (boundary-declaration rules), and
+`roles/skeptic-risk-agent.md` (a change-flow review step). Each states a gate or
+enforcement rule over *work* rather than over documents, which is where the
+class definition's edge falls. Also open: whether the class definition should be
+narrowed to match the list, or the list widened to match the definition.
+
+**The forcing point, named explicitly so this does not become the `TREE.txt`
+mention again:** none of it is reachable until a second document reaches
+`agreed`, because until then the expedited path has no addressable document at
+all. That day arrives through a reviewer-gated cycle, so the gate is already
+attached — **settle this list at that cycle, before the flip.**
+
+---
+
 ## Does the Spec Reviewer gate non-spec canonical documents? Two canonical documents disagree
 
 **Source:** Package D cycle-5 gate review (N2), 2026-08-02. Pre-dates F6.

@@ -241,8 +241,8 @@ document has yet been agreed through it. The first real use is unverified.
 
 **The path has nothing to apply to yet — not "no users," no addressable
 documents.** Found by cycle 6 and verified by enumerating the in-scope set:
-**38 in-scope documents, 39 `status: draft`, 1 `in-review` (this policy), 0
-`agreed`.** The expedited path is a *return* to `agreed`, so its addressable set
+**38 in-scope documents — 37 `draft`, 1 `in-review` (this policy), 0 `agreed`.**
+The expedited path is a *return* to `agreed`, so its addressable set
 is `{agreed documents} − {the condition-3 class} − {specs/}`. That is empty
 today, and it is **still empty on the day Package D is agreed**, because the
 agreement flip makes this policy the repo's only `agreed` document and condition
@@ -250,12 +250,31 @@ agreement flip makes this policy the repo's only `agreed` document and condition
 through a full cycle.
 
 This cuts both ways at the gate and both directions are stated rather than the
-convenient one: Package D's cost is a consequential-tier cycle over three
-documents and two review rounds, and its realizable benefit in this repo today
-is zero. It also means the B4 tooling gap below has an exposure of zero in the
-interim, which makes deferring it cheaper than that paragraph argues on its own.
-An earlier draft of this section said "the path has no users yet," which reads
-as *not yet exercised* when the accurate statement is *cannot be exercised*.
+convenient one: Package D's cost is a consequential-tier cycle over five edited
+documents, three cycle directives, and three review rounds, and its realizable
+benefit in this repo today is zero. It also means the B4 tooling gap below has
+an exposure of zero in the interim, which makes deferring it cheaper than that
+paragraph argues on its own. An earlier draft of this section said "the path has
+no users yet," which reads as *not yet exercised* when the accurate statement is
+*cannot be exercised* — and stated the cost as "three documents and two review
+rounds," borrowing §6's counting basis for a claim it does not fit and
+understating the cost side of the trade Dave is being asked to weigh.
+
+**Condition 3's list has to be maintained, and was wrong on arrival.** The
+enumeration is not derivable — no tool can compute which documents govern how
+work is reviewed, agreed, or released — so it carries a standing obligation:
+adding a governing document means naming it there, and an adopting repo
+substitutes its own paths. Cycle 7 measured the first instance of the cost
+immediately, finding five in-scope documents that matched the class, were not
+named, and could have a gate deleted inside the ceiling —
+`operating-model.md` chief among them, where four changed lines remove both hard
+gates. All five are now named, along with the release trio the class definition
+implied and the enumeration had omitted. **The borderline set is not settled and
+is Dave's call:** `policies/testing-policy.md` states the red-gate,
+`policies/verification-boundary-policy.md` states boundary-declaration rules,
+and `roles/skeptic-risk-agent.md` owns a change-flow review step. Each states a
+gate or an enforcement rule over *work* rather than over documents, which is
+where the class definition's edge falls. Tracked in `OPEN-ITEMS.md`.
 
 **Release risk, named rather than absorbed — the log entry is unenforced (B4).**
 The policy now states the rule that carries the weight: the SHA cited in
@@ -341,7 +360,19 @@ it yet. A rule stated and unenforced is a gap; a rule unstated is a lie.
 
 The change is internally consistent, its canonical contradictions are reconciled
 in the same diff, the compounding check passes, and the mechanics were verified
-by execution rather than by reading, across two gate rounds.
+by execution rather than by reading, across three gate rounds.
+
+**The reviewer's own shipping judgment, quoted because it is the answer to the
+question three rounds raises.** Asked to distinguish "there is always one more
+finding" from "this is done", the gate said the change is **converging, not
+diverging**: the counts moved 6/8 → 3/6 → 3/4, but the kind changed — cycle 5
+found design holes, cycle 6 found the fixes mis-sized, cycle 7 found a short
+list and an arithmetic slip. *"Nothing in this round is a question about whether
+the design works… The design has held under three rounds of adversarial
+execution; what is left is bookkeeping on a list, and bookkeeping does not get
+better by holding the change."* Its residual-risk statement is in
+`reviews/document-metadata-policy-cycle-7.md` under **Shipping judgment**, and
+it is the section to read before deciding.
 
 The recommendation rests on a fact that has to be stated with it: **the path
 cannot be used on anything in this repo on the day it is agreed** (§7). Nothing
