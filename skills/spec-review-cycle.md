@@ -81,16 +81,17 @@ reviewer-gated cycle only.
     status-transition commit, `last-reviewed` naming the review artifact and
     the reviewed SHA.
 
-**Precondition on the agreement flip — check this before running it.** The
+**Precondition on the agreement flip — enforced by tool since 2026-08-02.** The
 expedited path in `policies/document-metadata-policy.md` makes
 `reviews/expedited-log.md` a permanent `last-reviewed` target, which empties
 the "the artifact exists" check for *every* document, not only expedited ones.
 The rule that carries the weight instead is that the cited SHA must appear in
-an entry in the log, and as of Package D **no tool checks it**. Dave set this
-as a hard precondition on the next agreement flip after Package D's, when the
-expedited path first has an addressable document and the exposure stops being
-zero: the check ships in `bin/` — with its own acceptance criteria and tests —
-before that flip runs. Tracked in `OPEN-ITEMS.md`.
+an entry in the log. `bin/flip-agreed` now enforces it, failing closed when the
+cited SHA does not resolve to an entry in the log, and `bin/check-frontmatter`
+reports the same condition over the in-scope set (`bin/aimeta/expedited.py`,
+shipped red-then-green with its own acceptance criteria and tests, per Dave's
+hard-precondition disposition after Package D — see the resolved entry in
+`OPEN-ITEMS.md` for what the check does and does not cover).
 
 ### Fallback (no Claude Code available)
 
