@@ -8,6 +8,39 @@ Last updated: 2026-08-02
 
 ---
 
+## Directive-execution mechanics are oral tradition — kickoff prompts restate governed rules
+
+**Source:** chat triage session, 2026-08-02, at the dispatch of
+`docs/cycles/triage-2026-08-02b-directive.md`. The kickoff prompt drafted for
+the executor session ran ~30 lines. On inspection, every line was one of two
+defects: a restatement of rules the directive or the canonical text behind it
+already states (red-gate, no-flip, executor recusal, branch-plus-PR,
+stop-and-surface), or a session mechanic with no canonical home at all,
+re-invented at every dispatch — pull first and record the SHA executed, branch
+naming, verify every push in `git log` before reporting it, run `bin/tests/run`
+and `check-frontmatter --all` before opening the PR, report shape, STOP
+semantics. Dave rejected the prompt and named the defect: a per-dispatch
+restatement is an unversioned derived copy of governed text, and derived
+copies written fresh drift — the same defect class as the pending-gate rule's
+"derived body" clause and the write-access-boundary rationale. Worse, if the
+executor *needs* the restatement to comply, that is the load-bearing-context
+failure relocated from bundles to prompts.
+
+**The rule, effective now:** a kickoff prompt is one line — "Execute
+<directive path> from origin/main HEAD." Anything more is a signal of a gap in
+canonical text; fix the gap there, once. (The b-directive execution ran on the
+one-line kickoff and delivered clean, which is one data point that the
+restatement was ceremony.)
+
+**What's needed:** `skills/directive-execution.md` via normal
+drafting-and-review process, giving the session-level mechanics above one
+canonical home. When drafted, assess it against the expedited path's
+ineligibility criterion — it states verification steps that function as
+enforcement rules, so under the criterion-primary reading it is likely
+ineligible whether or not it is ever named in the list.
+
+---
+
 ## AC-CF-23 is silent on the likely failure — a single typo'd in-scope glob
 
 **Source:** Package A release decision, 2026-08-01. Accepted as a known gap at
