@@ -112,7 +112,7 @@ behavior, interfaces, tests, dependencies, boundaries, or documentation of
 substance (see `context-sets/base.md`). Each stage
 completes before the next begins; no skipping or working ahead.
 
-1. **Specs agreed** — PRD/TRD written, reviewed by the Spec Reviewer Agent (hard gate), and agreed by Dave. *(PM/EM/Owner + Architect + Spec Reviewer)*
+1. **Specs agreed** — PRD/TRD written, reviewed by the Spec Reviewer Agent (hard gate), and agreed by Dave. The same gate covers any canonical document, methodology documents included. *(PM/EM/Owner + Architect + Spec Reviewer)*
    Review cycles execute per `skills/spec-review-cycle.md`.
 2. **Acceptance criteria** — explicit, written ACs for the unit of work. *(PM/EM/Owner)*
 3. **Architecture summary** — per-change design derived from the TRD; the Issue is cut from this. *(Architect)*

@@ -20,12 +20,20 @@ The Spec Reviewer fires in two modes:
 
 ### 1. Gate review
 Triggered on:
-- initial PRD or TRD authorship, before Dave agrees the document
-- any revision to a spec document, before Dave agrees the revision
+- initial authorship of any canonical document, before Dave agrees it —
+  PRD and TRD, and equally the methodology documents under `policies/`,
+  `roles/`, `skills/`, `context-sets/`, and `boundaries/`
+- any revision to a canonical document, before Dave agrees the revision
 
-This is a **hard gate**. Dave does not agree a spec or spec revision without
-a Spec Reviewer sign-off. The Spec Reviewer may not be the same agent instance
-that drafted the document under review.
+This is a **hard gate**. Dave does not agree a canonical document or a revision
+to one without a Spec Reviewer sign-off. The Spec Reviewer may not be the same
+agent instance that drafted the document under review.
+
+The gate's reach is **any canonical document, not `specs/` only**. This matches
+`skills/spec-review-cycle.md` and the review record: every gate review in
+`reviews/` is over a non-`specs/` document. The one bounded exception is the
+expedited path in `policies/document-metadata-policy.md`, which substitutes
+Dave's own read of a diff for this gate under five stated conditions.
 
 ### 2. Continuity scan
 Triggered on:

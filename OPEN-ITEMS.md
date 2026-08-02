@@ -208,7 +208,7 @@ marker, so enforcement never read the prose; `check-frontmatter --all` and the
 
 ---
 
-## The expedited path's log entry is unenforced — `flip-agreed` checks existence, not content
+## The expedited path's log entry is unenforced — `flip-agreed` checks existence, not content — HARD PRECONDITION ON THE NEXT AGREEMENT FLIP
 
 **Source:** Package D cycle-5 gate review (B4), 2026-08-02. Verified by
 running, in a scratch clone: with step 3 of the expedited sequence **skipped
@@ -227,8 +227,25 @@ policy now states the rule that carries the weight — the SHA cited in
 verify that the cited SHA appears in the target artifact when that artifact is
 the expedited log. Small and checkable. It is a `bin/` change with its own ACs
 and tests, which is why it is not inside Package D — F6 is a routing change, and
-the directive scopes Package D to F6 alone. **Named as a release risk at the
-Package D gate, not absorbed.**
+the directive scopes Package D to F6 alone.
+
+**Disposition at the Package D gate, 2026-08-02.** Named as a release risk, not
+absorbed, and Dave decided: it does **not** block the Package D flip, because
+the expedited path has zero addressable documents and therefore zero exposure.
+It **is a hard precondition on the next agreement flip**, when a second document
+reaches `agreed` and the exposure stops being zero. The check ships in `bin/`
+with its own acceptance criteria and tests before that flip runs.
+
+The ACs it needs, so the work starts from a spec rather than a description:
+`flip-agreed --review` resolves the cited SHA against the target artifact's
+contents when that artifact is the expedited log, and fails closed when the SHA
+is absent; abbreviation is normalized through `git rev-parse` before comparison,
+per the policy's stated rule; a non-log artifact keeps today's
+existence-only behaviour; and `check-frontmatter` reports the same condition
+over the whole in-scope set.
+
+Recorded at the trip point as well as here: `skills/spec-review-cycle.md` step
+11 states the precondition where the next cycle will actually run the flip.
 
 ---
 
@@ -286,7 +303,22 @@ attached — **settle this list at that cycle, before the flip.**
 
 ---
 
-## Does the Spec Reviewer gate non-spec canonical documents? Two canonical documents disagree
+## ~~Does the Spec Reviewer gate non-spec canonical documents? Two canonical documents disagree~~
+
+**RESOLVED by Dave at the Package D gate, 2026-08-02, in favour of practice:**
+the Spec Reviewer hard gate covers **any canonical document**, not `specs/`
+only. `skills/spec-review-cycle.md` and the entire review record already said
+so; the four contradicting documents were `draft`, and were corrected by plain
+commit to match rather than being carried as a standing contradiction. Corrected:
+`roles/spec-reviewer-agent.md` (the Activation clause, which was the origin of
+the narrow reading), `README.md` principle 9, `operating-model.md` change-flow
+step 1, and `boundaries/human-review-boundary.md`. Deliberately not part of
+Package D's diff.
+
+The one bounded exception is now named in the role doc: the expedited path
+substitutes Dave's read for this gate under five stated conditions.
+
+**Original entry, kept for the record:**
 
 **Source:** Package D cycle-5 gate review (N2), 2026-08-02. Pre-dates F6.
 Surfaced because F6 eligibility condition 4 has to rest on the answer.

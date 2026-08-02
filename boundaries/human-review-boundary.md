@@ -48,7 +48,8 @@ Dave may review:
 When human code review is not used, the change must rely on:
 
 - spec-first work
-- spec review (Spec Reviewer Agent gate before Dave agrees any spec)
+- spec review (Spec Reviewer Agent gate before Dave agrees any canonical
+  document, specs and methodology documents alike)
 - tests
 - independent agent review
 - skeptic/risk review

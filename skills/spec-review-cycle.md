@@ -77,6 +77,20 @@ reviewer-gated cycle only.
 9. Dave reviews the git diff — the human control surface.
 10. Hand the revised documents back to the reviewer for the gate re-check.
     Findings from that re-check open the next cycle at step 1.
+11. On Dave's go, the agreement flip lands as a frontmatter-only
+    status-transition commit, `last-reviewed` naming the review artifact and
+    the reviewed SHA.
+
+**Precondition on the agreement flip — check this before running it.** The
+expedited path in `policies/document-metadata-policy.md` makes
+`reviews/expedited-log.md` a permanent `last-reviewed` target, which empties
+the "the artifact exists" check for *every* document, not only expedited ones.
+The rule that carries the weight instead is that the cited SHA must appear in
+an entry in the log, and as of Package D **no tool checks it**. Dave set this
+as a hard precondition on the next agreement flip after Package D's, when the
+expedited path first has an addressable document and the exposure stops being
+zero: the check ships in `bin/` — with its own acceptance criteria and tests —
+before that flip runs. Tracked in `OPEN-ITEMS.md`.
 
 ### Fallback (no Claude Code available)
 

@@ -393,9 +393,76 @@ On go, the agreement flip lands as its own frontmatter-only commit with
 `last-reviewed` pointing at `reviews/document-metadata-policy-cycle-5.md` and the
 reviewed content SHA. It is not executed by this package.
 
-## 11. Remaining sequence
+## 11. Release record
 
-F1–F7 are complete with this package. The streamlining directive's remaining
-deferred items are `bin/gate-open` (F5, optional, build when a consequential
-change next reaches a gate) and the wne-crm shim installation. The `bin/bundle`
-supersession item was withdrawn by the Package C gate on a false premise.
+**Go given by Dave, 2026-08-02.** He read the full diff from the last agreed
+state — `602502f` (the cycle-4 agreement flip) through `bb1898a` — and agreed it
+as-is with zero findings. No cycle 8.
+
+The flip landed as `26998e5`: a frontmatter-only status-transition commit,
+`status: in-review → agreed`, `last-reviewed: reviews/document-metadata-policy-cycle-7.md @ fbbee63`,
+two insertions and two deletions, nothing else in the commit. Verified against
+the policy's own status-transition rule. `policies/document-metadata-policy.md`
+is `agreed` on `main` at `26998e5`; the branch `package-d-expedited-path` holds
+the same history and was merged fast-forward.
+
+**The two open decisions were decided at the gate, and both are recorded where
+they will be acted on:**
+
+- **The `flip-agreed` SHA-in-log check does not block this flip** — the
+  expedited path has zero addressable documents, so exposure is zero. It is a
+  **hard precondition on the next agreement flip**, when a second document
+  reaches `agreed` and exposure becomes nonzero. The check ships in `bin/` with
+  its own acceptance criteria and tests before that flip runs. Recorded in
+  `OPEN-ITEMS.md` with draft ACs, and at the trip point in
+  `skills/spec-review-cycle.md` step 11, where the next cycle actually runs the
+  flip.
+- **N2 resolved in favour of practice** — the Spec Reviewer hard gate covers any
+  canonical document, not `specs/` only. The four contradicting documents were
+  `draft` and were corrected by plain commit to match:
+  `roles/spec-reviewer-agent.md` (the Activation clause, origin of the narrow
+  reading), `README.md` principle 9, `operating-model.md` change-flow step 1,
+  `boundaries/human-review-boundary.md`. Deliberately outside Package D's diff.
+
+**One deviation from `policies/commit-and-change-control-policy.md`, recorded
+rather than absorbed.** That policy makes the `human-gate` GitHub issue the
+canonical record of a pending gate, and states that where the issue cannot be
+opened, the change does not release until it is opened and linked. Package D was
+consequential and released without one: the gate was given inline in the working
+session, so no issue was ever opened for it to be the record of. The change
+package held the evidence, which is the role the policy assigns it in the
+degraded case, and the gate decision is recorded here. **What the policy did not
+anticipate is a gate that opens and closes in the same session** — the issue
+exists to stop a pending gate sitting silently in a queue, and there was no
+interval in which it could. Whether that is a legitimate exception or a gap in
+the policy is a question for the next cycle that opens it; it is not this
+package's to settle.
+
+## 12. What remains, outside this directive
+
+The streamlining directive is **fully executed**: F1 and F4 shipped in Package
+A, F2 in Package B, F3, F5, and F7 in Package C, F6 here. Nothing in it is
+outstanding.
+
+Outside it, and not owned by any package:
+
+- **`bin/` SHA-in-log check** — hard precondition on the next agreement flip.
+  ACs drafted in `OPEN-ITEMS.md`.
+- **Condition 3's enumerated class** — settle the borderline set
+  (`policies/testing-policy.md`, `policies/verification-boundary-policy.md`,
+  `roles/skeptic-risk-agent.md`) and decide whether the class definition narrows
+  to the list or the list widens to the definition. Same forcing point as the
+  item above: the cycle that agrees the second document.
+- **wne-crm shim installation** — deferred by the directive after Package A
+  landed; still open.
+- **`bin/gate-open`** (F5) — optional, build when a consequential change next
+  reaches a gate. The gate this package just passed is the first evidence about
+  whether it is worth building, and the deviation recorded in §11 is the first
+  thing it would have to handle.
+- **The self-referential scope hazard** for ordinary commits, paired with the
+  typo'd-glob diagnostic — one fix, tracked.
+- **F3 review artifact schema, third-use feedback** — four items from the
+  cycle-5 through cycle-7 reviewer, tracked and not acted on.
+
+The `bin/bundle` supersession item was withdrawn by the Package C gate on a
+false premise and is not outstanding.
