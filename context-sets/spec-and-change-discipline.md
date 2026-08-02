@@ -21,8 +21,15 @@ Development is **spec-first** and **test-driven**. Nothing is built until it has
 been specified and its acceptance criteria are written. Tests are written before
 implementation. Implementation exists only to make pre-written tests pass.
 
-> Specifications are the source of truth, and a human verifies every
-> consequential step before it lands.
+> Specifications are the source of truth, and human judgment gates the
+> decisions that are actually judgment.
+
+Those decisions are spec agreement and the release decision for the
+consequential class. Everything between them is the routine class: agents
+execute it, review it, and merge it autonomously once the evidence exists. The
+gate anchors at the release decision, not at landing — see
+`policies/commit-and-change-control-policy.md` for the two tiers and what
+membership in the consequential class means.
 
 ## The canonical sequence
 
@@ -77,8 +84,12 @@ decision
 
 ## Operating habits
 
-- **Claude drafts, Dave verifies.** Agents propose; Dave disposes. Drafts of
-  specs, fixes, and decisions are produced for Dave's review.
+- **Agents dispose of routine changes; Dave disposes of judgment calls.**
+  Agents draft, review, and merge the routine class on evidence, without
+  asking. What returns to Dave is the release decision for the consequential
+  class and the agreement of any canonical document — specs and methodology
+  documents alike. Drafts are produced for his agreement, not for his
+  line-by-line verification (`boundaries/human-review-boundary.md`).
 - **One question at a time.** When something needs Dave's input, ask a single
   question and wait, rather than batching several decisions into one message.
 - **No assumptions on consequential calls.** When a decision is Dave's, frame

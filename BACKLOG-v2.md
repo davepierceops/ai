@@ -94,3 +94,7 @@ Render current state for the Chief of Staff — computed from OPEN-ITEMS, recent
 
 ### Role-scoped credentials
 Fine-grained PATs per role — implementation agents push branches, merge rights stay elsewhere (Q7).
+Evidence (B4, 2026-08-02): `main` branch protection was bypassable by the admin credential the agent held, so the protection bound only the credentials that were never the risk; bypass is now disallowed repo-side, but the durable fix is a PAT that *cannot* bypass by construction, with the admin credential as break-glass.
+
+### Bundle manifest completeness check
+Committed bundle manifest plus a verify script — judgment stays in the curated list, enforcement moves to the check (D2, 2026-08-02: reference closure provably cannot reproduce a curated session bundle, so structural completeness needs a different mechanism).

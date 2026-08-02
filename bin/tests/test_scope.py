@@ -21,6 +21,7 @@ EXPECTED_GLOBS = [
     "boundaries/**",
     "skills/**",
     "specs/**",
+    "vendors/**",
     "operating-model.md",
     "README.md",
 ]
@@ -28,7 +29,7 @@ EXPECTED_GLOBS = [
 
 class TestParseInScopeGlobs(unittest.TestCase):
     def test_sc1_extracts_the_in_scope_list_in_document_order(self):
-        """AC-SC-1: the current policy yields exactly the eight in-scope globs."""
+        """AC-SC-1: the current policy yields exactly the nine in-scope globs."""
         self.assertEqual(scope.parse_in_scope_globs(REAL_POLICY_TEXT), EXPECTED_GLOBS)
 
     def test_sc1_stops_at_the_out_of_scope_marker(self):
