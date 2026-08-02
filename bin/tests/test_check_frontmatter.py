@@ -13,10 +13,12 @@ are part of the contract (spec §2.4).
 
 from __future__ import annotations
 
+import shutil
 import unittest
 
 from tests.helpers import (
     DOCUMENTED_EXIT_CODES,
+    REAL_POLICY_TEXT,
     agreed_doc,
     base_env,
     blob_bytes,
@@ -778,11 +780,25 @@ class TestTemporaryIndexGuard(HookedRepoTestCase):
         self.real_index_before = self.index_blob()
         self.assertIn("Edited body.", self.real_index_before, "fixture: index should hold v2")
 
-    def test_cf16_commit_a_reports_that_the_real_index_was_left_alone(self):
-        """AC-CF-16: the guard fires and says so when the real index differs."""
+    def test_cf24_commit_a_emits_no_false_untouched_note(self):
+        """AC-CF-24: no `[real-index-untouched]` NOTE when the guard compares a blob to itself.
+
+        **Amended.** This test previously asserted the NOTE was *present*, which
+        §8.5 now identifies as a false diagnostic. During `git commit -a` git
+        sets `$GIT_INDEX_FILE` to `.git/index.lock`, which is exactly what
+        `installable_index_path()` returns — so the guard reads back the blob the
+        flip just wrote, never matches the pre-flip sha, and always declines,
+        announcing that it protected staged work when it did nothing of the kind.
+        See the note in the final report.
+        """
         rc, out, err = git(self.repo, "commit", "-a", "-m", "commit -a", env=self.env)
         self.assertEqual(rc, 0, "commit failed: stdout=%r stderr=%r" % (out, err))
-        self.assertIn("real-index-untouched", bracket_codes(out + err))
+        self.assertNotIn(
+            "real-index-untouched",
+            bracket_codes(out + err),
+            "the guard compared the flipped blob against itself and reported "
+            "that it left the real index alone",
+        )
 
     def test_cf16_commit_a_records_the_flip_and_leaves_a_clean_tree(self):
         """AC-CF-16: `git commit -a` still commits the flip, and `git status` is clean."""
@@ -817,6 +833,24 @@ class TestTemporaryIndexGuard(HookedRepoTestCase):
         self.assertIn("status: in-review", staged)
         self.assertIn("Worktree-only third revision.", staged)
 
+    def test_cf24_note_still_fires_when_the_real_index_genuinely_differs(self):
+        """AC-CF-24: the NOTE must survive for the case it was actually written for.
+
+        The complement of the `commit -a` test above: deleting the diagnostic
+        outright would satisfy "no false NOTE" while losing a true one. Here
+        `.git/index.lock` does not exist, so the installable index *is* the real
+        index, and it genuinely holds a different blob.
+        """
+        env = self.temp_index_env()
+
+        rc, out, err = self.check("--staged", env=env)
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        self.assertIn(
+            "real-index-untouched",
+            bracket_codes(out + err),
+            "a genuine real-index difference went unreported",
+        )
+
     def test_cf16_real_index_keeps_the_unrelated_staged_blob(self):
         """AC-CF-16: staged work the user did not offer to this commit survives."""
         env = self.temp_index_env()
@@ -829,6 +863,291 @@ class TestTemporaryIndexGuard(HookedRepoTestCase):
             "the flip clobbered unrelated staged state in the real index",
         )
         self.assertIn("status: agreed", self.index_blob())
+
+
+class TestMirrorFailure(HookedRepoTestCase):
+    """AC-CF-22 (§8.5): a mirror that fails quietly re-opens B2.
+
+    The mirror depends on undocumented git ordering. That dependency is
+    acceptable only if its failure is loud, because a silent failure is
+    indistinguishable from success — and the failure mode is precisely B2:
+    a real index left at `agreed` that a later commit turns into a stale
+    `last-reviewed` on an edited body.
+
+    There are two failure sites, and only one of them was inside the
+    implementation's `try`: the mirror's **write** (`update-index`) and the
+    mirror's **read** (`index_entry`, which reads `.git/index.lock`).
+    """
+
+    def setUp(self):
+        super().setUp()
+        write(self.repo, TARGET, agreed_doc(body=BODY_V1))
+        commit(self.repo, "seed", env=self.env)
+        write(self.repo, TARGET, agreed_doc(body=BODY_V2))
+        stage(self.repo, TARGET, env=self.env)
+        self.head_before = git(
+            self.repo, "rev-parse", "HEAD", env=self.env, check=True
+        )[1].strip()
+
+    # -- failure injection ------------------------------------------------
+
+    def block_the_mirror_write(self):
+        """A stale lock on the installable index makes `update-index` fail.
+
+        `.git/index.lock.lock` is what git itself would take to write
+        `.git/index.lock`; leaving one behind does not stop git creating and
+        installing `.git/index.lock`, only our mirror from writing it.
+        """
+        (self.repo / ".git" / "index.lock.lock").write_text("")
+
+    def corrupt_the_mirror_read(self, content=b""):
+        """A truncated/garbage `.git/index.lock` makes `ls-files --stage` fail."""
+        (self.repo / ".git" / "index.lock").write_bytes(content)
+
+    def seam_env(self):
+        """The conditions git creates for a pathspec commit.
+
+        A separate temporary index (so the hook is not writing the real one)
+        plus a pre-populated `.git/index.lock` (which git installs as the real
+        index when it finishes). Building it here is what lets the test inspect
+        the temporary index *after* a failure — during a real commit git
+        discards it, so a surviving mutation would be invisible.
+        """
+        tmp_index = temp_dir(self, "aimeta-tmpindex-") / "index"
+        env = dict(self.env)
+        env["GIT_INDEX_FILE"] = str(tmp_index)
+        git(self.repo, "read-tree", "HEAD", env=env, check=True)
+        git(self.repo, "add", "--", TARGET, env=env, check=True)
+        shutil.copyfile(
+            str(self.repo / ".git" / "index"), str(self.repo / ".git" / "index.lock")
+        )
+        return env
+
+    def pathspec_commit(self):
+        # The pathspec form is required. A plain `git commit` is handed the real
+        # index directly, so the mirror never runs and the fixture would pass
+        # vacuously.
+        return git(self.repo, "commit", "-m", "pathspec", "--", TARGET, env=self.env)
+
+    def assert_coded_error(self, out, err):
+        combined = out + err
+        self.assertIn(
+            "real-index-unreachable",
+            bracket_codes(combined),
+            "mirror failure was not reported with its code: %r" % combined,
+        )
+        coded = [l for l in combined.splitlines() if "real-index-unreachable" in l]
+        self.assertTrue(
+            all(l.startswith("ERROR") for l in coded),
+            "mirror failure was downgraded below ERROR: %r" % coded,
+        )
+        self.assertTrue(no_traceback(out, err))
+
+    # -- end to end -------------------------------------------------------
+
+    def test_cf22_write_failure_blocks_the_commit(self):
+        """AC-CF-22: a mirror write failure blocks the commit rather than passing."""
+        self.block_the_mirror_write()
+
+        rc, out, err = self.pathspec_commit()
+        self.assertNotEqual(
+            rc, 0, "the commit succeeded despite an unreachable real index: %r" % (out + err)
+        )
+        self.assertEqual(
+            git(self.repo, "rev-parse", "HEAD", env=self.env, check=True)[1].strip(),
+            self.head_before,
+            "a commit was created despite the mirror failing",
+        )
+
+    def test_cf22_write_failure_is_reported_as_a_coded_error(self):
+        """AC-CF-22: `ERROR [real-index-unreachable]`, never a NOTE at exit 0."""
+        self.block_the_mirror_write()
+
+        rc, out, err = self.pathspec_commit()
+        self.assert_coded_error(out, err)
+
+    def test_cf22_two_commit_laundering_cannot_complete(self):
+        """AC-CF-22: the B2 sequence must not be reachable through a failed mirror."""
+        self.block_the_mirror_write()
+        self.pathspec_commit()
+
+        # Clear the injected failure and let the developer proceed normally.
+        (self.repo / ".git" / "index.lock.lock").unlink()
+        git(self.repo, "commit", "-m", "second", env=self.env)
+
+        final = self.head_blob()
+        if "Edited body." in final:
+            self.assertIn(
+                "status: in-review",
+                final,
+                "an edited body was committed as `agreed` with a stale review pointer",
+            )
+
+    # -- the seam: observable state after a failure -----------------------
+
+    def test_cf22_write_failure_exits_one(self):
+        """AC-CF-22: the tool itself exits 1 (policy failure), not 0 and not 3."""
+        env = self.seam_env()
+        self.block_the_mirror_write()
+
+        rc, out, err = self.check("--staged", env=env)
+        self.assertEqual(rc, 1, "stdout=%r stderr=%r" % (out, err))
+        self.assert_coded_error(out, err)
+
+    def test_cf22_read_failure_exits_one_with_a_coded_error(self):
+        """AC-CF-22: a truncated `.git/index.lock` is a coded finding, not a raw git error."""
+        env = self.seam_env()
+        self.corrupt_the_mirror_read()
+
+        rc, out, err = self.check("--staged", env=env)
+        self.assertEqual(rc, 1, "stdout=%r stderr=%r" % (out, err))
+        self.assert_coded_error(out, err)
+
+    def test_cf22_garbage_index_lock_is_also_a_coded_error(self):
+        """AC-CF-22: garbage, not only truncation, is handled the same way."""
+        env = self.seam_env()
+        self.corrupt_the_mirror_read(b"not an index file at all")
+
+        rc, out, err = self.check("--staged", env=env)
+        self.assertEqual(rc, 1, "stdout=%r stderr=%r" % (out, err))
+        self.assert_coded_error(out, err)
+
+    def test_cf22_write_failure_leaves_no_surviving_mutation(self):
+        """AC-CF-22: the temporary index must not be left flipped when the run aborts."""
+        env = self.seam_env()
+        before = show(self.repo, ":" + TARGET, env=env)
+        self.block_the_mirror_write()
+
+        self.check("--staged", env=env)
+
+        self.assertEqual(
+            show(self.repo, ":" + TARGET, env=env),
+            before,
+            "the flip survived a failed run in the commit-bound index",
+        )
+        self.assertIn("status: agreed", show(self.repo, ":" + TARGET, env=env))
+
+    def test_cf22_read_failure_leaves_no_surviving_mutation(self):
+        """AC-CF-22: same for the read site — a mutation must not outlive the failure."""
+        env = self.seam_env()
+        before = show(self.repo, ":" + TARGET, env=env)
+        self.corrupt_the_mirror_read()
+
+        self.check("--staged", env=env)
+
+        self.assertEqual(
+            show(self.repo, ":" + TARGET, env=env),
+            before,
+            "the flip survived a failed run in the commit-bound index",
+        )
+
+    def test_cf22_failure_leaves_the_worktree_alone(self):
+        """AC-CF-22: no half-applied worktree either (the AC-CF-15 class of defect)."""
+        env = self.seam_env()
+        before = read(self.repo, TARGET)
+        self.corrupt_the_mirror_read()
+
+        self.check("--staged", env=env)
+
+        self.assertEqual(read(self.repo, TARGET), before)
+
+    def test_cf22_failure_on_one_document_does_not_leave_another_applied(self):
+        """AC-CF-22: a mirror failure part-way through applies none of the flips."""
+        second = "policies/second-policy.md"
+        write(self.repo, TARGET, agreed_doc(body=BODY_V1))
+        write(self.repo, second, agreed_doc(body=BODY_V1))
+        commit(self.repo, "seed two", env=self.env)
+        write(self.repo, TARGET, agreed_doc(body=BODY_V2))
+        write(self.repo, second, agreed_doc(body=BODY_V2))
+        stage(self.repo, TARGET, second, env=self.env)
+
+        env = self.seam_env()
+        git(self.repo, "add", "--", second, env=env, check=True)
+        self.block_the_mirror_write()
+
+        self.check("--staged", env=env)
+
+        for relpath in (TARGET, second):
+            self.assertIn(
+                "status: agreed",
+                show(self.repo, ":" + relpath, env=env),
+                "%s was left flipped after the run aborted" % relpath,
+            )
+
+
+class TestHookModeScopeVisibility(CheckFrontmatterTestCase):
+    """AC-CF-23 (§8.5): the unattended mode is the one that needs the warning.
+
+    AC-CF-19 put the diagnostic in `--all`, the mode a human runs deliberately,
+    and not in `--staged`, the mode that runs on every commit with nobody
+    watching. A typo'd glob, a renamed directory, or a stale
+    `$AI_METHODOLOGY_HOME` silently turns the hook into a no-op.
+    """
+
+    #: One document per configured glob, so that in the "files matched" case no
+    #: per-glob AC-CF-19 warning can fire either and "no WARN at all" is an
+    #: unambiguous assertion.
+    FULL_COVERAGE = [
+        "policies/a.md",
+        "roles/coder-agent.md",
+        "context-sets/a.md",
+        "boundaries/a.md",
+        "skills/a.md",
+        "specs/a.md",
+        "operating-model.md",
+        "README.md",
+    ]
+
+    def stage_a_content_edit(self):
+        write(self.repo, TARGET, agreed_doc(body=BODY_V1))
+        commit(self.repo, "seed", env=self.env)
+        write(self.repo, TARGET, agreed_doc(body=BODY_V2))
+        stage(self.repo, TARGET, env=self.env)
+
+    def test_cf23_staged_warns_when_the_glob_set_matches_nothing(self):
+        """AC-CF-23: a typo'd glob set makes the hook a no-op, and it must say so."""
+        self.stage_a_content_edit()
+        typo_home = make_home(
+            self, policy_text=REAL_POLICY_TEXT.replace("`policies/**`", "`polices/**`")
+        )
+        env = base_env(methodology_home=typo_home)
+
+        rc, out, err = self.check("--staged", env=env)
+        warns = [l for l in err.splitlines() if l.startswith("WARN")]
+        self.assertTrue(
+            warns,
+            "the hook enforced nothing and said nothing; stdout=%r stderr=%r" % (out, err),
+        )
+
+    def test_cf23_warning_is_silent_when_documents_do_match(self):
+        """AC-CF-23: no warning on an ordinary commit, or it would fire on every one."""
+        for relpath in self.FULL_COVERAGE:
+            write(self.repo, relpath, agreed_doc())
+        commit(self.repo, "seed one document per glob", env=self.env)
+        write(self.repo, "policies/a.md", agreed_doc(body=BODY_V2))
+        stage(self.repo, "policies/a.md", env=self.env)
+
+        rc, out, err = self.check("--staged")
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        warns = [l for l in err.splitlines() if l.startswith("WARN")]
+        self.assertEqual(warns, [], "a warning fired on an ordinary commit")
+
+    def test_cf23_a_disabled_hook_still_does_not_silently_pass_an_edit(self):
+        """AC-CF-23: the point of the warning — enforcement has become a no-op."""
+        self.stage_a_content_edit()
+        typo_home = make_home(
+            self, policy_text=REAL_POLICY_TEXT.replace("`policies/**`", "`polices/**`")
+        )
+        env = base_env(methodology_home=typo_home)
+
+        rc, out, err = self.check("--staged", env=env)
+        # The document is genuinely out of the (typo'd) scope, so it is not
+        # flipped -- that part is correct. What must not happen is silence.
+        self.assertIn("status: agreed", self.index_blob())
+        self.assertTrue(
+            (out + err).strip(),
+            "an agreed document was edited and committed with no diagnostic at all",
+        )
 
 
 class TestMergeCommits(HookedRepoTestCase):

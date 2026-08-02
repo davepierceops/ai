@@ -323,6 +323,46 @@ class TestOutPathContainment(CycleOpenTestCase):
         self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
         self.assertTrue((self.repo / "uploads/cycle7" / "policies__alpha.md").is_file())
 
+    def test_co12_out_is_relative_to_the_repo_root_not_the_cwd(self):
+        """AC-CO-12: `--out bundlehere` lands at `<repo-root>/bundlehere`, wherever it is run.
+
+        The bundle's location is referenced by the directive, so it cannot
+        depend on which directory the operator happened to be standing in.
+        """
+        nested = self.repo / "nested" / "deep"
+        nested.mkdir(parents=True)
+
+        # The document argument stays CWD-relative on purpose — that is ordinary
+        # CLI behaviour and AC-CO-12 does not change it. Only `--out` is under
+        # test here, so the two must not be conflated.
+        rc, out, err = run_cli(
+            "cycle-open", "--cycle", "7", "--title", "T", "--out", "bundlehere",
+            "../../" + DOC_A,
+            cwd=nested, env=self.env,
+        )
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        self.assertTrue(
+            (self.repo / "bundlehere" / "policies__alpha.md").is_file(),
+            "bundle did not land at the repo root",
+        )
+        self.assertFalse(
+            (nested / "bundlehere").exists(),
+            "bundle was resolved against the CWD instead of the repo root",
+        )
+
+    def test_co12_absolute_out_inside_the_repo_is_still_refused(self):
+        """AC-CO-12: absolute means refused, even when it points inside the repo."""
+        inside = self.repo / "uploads"
+
+        rc, out, err = self.open_cycle(
+            "--cycle", "7", "--title", "T", "--out", str(inside), DOC_A
+        )
+        self.assertEqual(
+            rc, 2, "an absolute --out inside the repo was accepted; stdout=%r stderr=%r"
+            % (out, err),
+        )
+        self.assertFalse(inside.exists(), "the refused bundle was written anyway")
+
 
 class TestDateAndSideEffects(CycleOpenTestCase):
     def test_co10_date_flag_fixes_the_date_line(self):

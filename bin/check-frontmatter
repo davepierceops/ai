@@ -84,12 +84,48 @@ def check_worktree(ctx, relpaths):
 # ------------------------------------------------------------------ hook mode
 
 
+class MirrorError(Exception):
+    """The flip could not be carried into the index git is about to install.
+
+    AC-CF-22: this is never absorbed. A silent mirror failure is
+    indistinguishable from success and re-opens defect B2 in full.
+    """
+
+    def __init__(self, relpath, detail):
+        Exception.__init__(self, detail)
+        self.relpath = relpath
+        self.detail = detail
+
+
+def mirror_target(ctx):
+    """The index git will install, or None when it is the one already flipped.
+
+    During `git commit -a` git *is* using `.git/index.lock` as its working
+    index, so the flip has already landed in the file that will become the
+    repository index and there is nothing to mirror (AC-CF-24). Comparing the
+    flipped blob against itself and reporting that staged work was protected
+    would be a false diagnostic.
+    """
+    override = os.environ.get("GIT_INDEX_FILE")
+    current = (
+        os.path.abspath(os.path.join(str(ctx.root), override))
+        if override
+        else repo.real_index_path(ctx.root)
+    )
+    target = repo.installable_index_path(ctx.root)
+    return None if target == current else target
+
+
 def mirror_into_real_index(ctx, relpath, pre_sha, new_sha):
     """AC-CF-16: carry the flip into the real index, and only over the pre-flip blob."""
-    if not repo.using_temporary_index(ctx.root):
+    target = mirror_target(ctx)
+    if target is None:
         return
-    env = {"GIT_INDEX_FILE": repo.installable_index_path(ctx.root)}
-    real_mode, real_sha = repo.index_entry(ctx.root, relpath, env=env)
+    env = {"GIT_INDEX_FILE": target}
+    try:
+        real_mode, real_sha = repo.index_entry(ctx.root, relpath, env=env)
+    except repo.GitError as exc:
+        raise MirrorError(relpath, "cannot read %s: %s" % (target, exc))
     if real_sha != pre_sha:
         # The "and only when" half of AC-CF-16: the repository index holds
         # something other than what was flipped, so it is someone else's staged
@@ -111,15 +147,15 @@ def mirror_into_real_index(ctx, relpath, pre_sha, new_sha):
             env=env,
         )
     except repo.GitError as exc:
-        # Mirroring is a repair, not the commit's correctness: the commit
-        # itself already carries the flip. Never fail a commit over it.
-        cli.diagnostic(
-            "NOTE", relpath, "real-index-unreachable", "could not mirror the flip: %s" % exc
-        )
+        raise MirrorError(relpath, "cannot write %s: %s" % (target, exc))
 
 
-def apply_flip(ctx, flip):
-    """Write the flipped blob into the index, then mirror it where it belongs."""
+def apply_flip(ctx, flip, applied):
+    """Write the flipped blob into the index, then mirror it where it belongs.
+
+    Everything undoable is recorded in `applied` *before* it can fail, so a
+    mirror failure leaves no half-applied mutation behind (AC-CF-22).
+    """
     relpath, mode, pre_sha, staged_bytes, new_bytes = flip
     code, out, error = repo.run(
         ["hash-object", "-w", "--stdin"], cwd=ctx.root, stdin=new_bytes
@@ -132,7 +168,10 @@ def apply_flip(ctx, flip):
     repo.git(
         "update-index", "--cacheinfo", "%s,%s,%s" % (mode, new_sha, relpath), cwd=ctx.root
     )
-    cli.err("FLIPPED %s: agreed -> in-review (content edit)" % relpath)
+    record = {"relpath": relpath, "mode": mode, "pre_sha": pre_sha,
+              "staged_bytes": staged_bytes, "worktree_written": False}
+    applied.append(record)
+
     mirror_into_real_index(ctx, relpath, pre_sha, new_sha)
 
     worktree = ctx.root / relpath
@@ -142,6 +181,7 @@ def apply_flip(ctx, flip):
         current = None
     if current == staged_bytes:
         worktree.write_bytes(new_bytes)
+        record["worktree_written"] = True
     else:
         cli.diagnostic(
             "NOTE",
@@ -150,6 +190,29 @@ def apply_flip(ctx, flip):
             "the worktree copy differs from the index and still claims `agreed`; "
             "the flip landed in the index only",
         )
+    cli.err("FLIPPED %s: agreed -> in-review (content edit)" % relpath)
+
+
+def undo(ctx, applied):
+    """Put every applied flip back, newest first, so nothing outlives a failure."""
+    for record in reversed(applied):
+        relpath = record["relpath"]
+        try:
+            repo.git(
+                "update-index",
+                "--cacheinfo",
+                "%s,%s,%s" % (record["mode"], record["pre_sha"], relpath),
+                cwd=ctx.root,
+            )
+            if record["worktree_written"]:
+                (ctx.root / relpath).write_bytes(record["staged_bytes"])
+        except (repo.GitError, OSError) as exc:
+            cli.diagnostic(
+                "ERROR",
+                relpath,
+                "rollback-failed",
+                "could not undo the flip after an aborted run: %s" % exc,
+            )
 
 
 def would_flip(ctx, relpath, doc, renames):
@@ -177,6 +240,17 @@ def would_flip(ctx, relpath, doc, renames):
 
 
 def check_staged(ctx, no_flip):
+    # AC-CF-23: `--staged` is the mode that runs unattended, so it is the one
+    # that must say when enforcement has become a no-op. Quiet when it has not.
+    if not cli.any_in_scope(ctx):
+        cli.diagnostic(
+            "WARN",
+            "in-scope",
+            "empty-scope",
+            "the in-scope glob set matches no tracked path in this repo, so this "
+            "hook is enforcing nothing; check the metadata policy's Scope section "
+            "and $AI_METHODOLOGY_HOME",
+        )
     merging = repo.merge_in_progress(ctx.root)
     if merging:
         cli.diagnostic(
@@ -237,8 +311,24 @@ def check_staged(ctx, no_flip):
     if failed:
         cli.err("ERROR: %s" % OVERRIDE_HINT)
         return cli.EXIT_POLICY
+
+    applied = []
     for flip in planned:
-        apply_flip(ctx, flip)
+        try:
+            apply_flip(ctx, flip, applied)
+        except MirrorError as exc:
+            undo(ctx, applied)
+            cli.diagnostic(
+                "ERROR",
+                exc.relpath,
+                "real-index-unreachable",
+                "the flip could not be carried into the index git will install "
+                "(%s). It is therefore NOT in the real index: a later commit "
+                "would see no content change and could restore `status: agreed` "
+                "with a stale `last-reviewed`. Blocking the commit; every flip "
+                "from this run has been undone." % exc.detail,
+            )
+            return cli.EXIT_POLICY
     return cli.EXIT_OK
 
 

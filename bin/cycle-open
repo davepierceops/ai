@@ -160,7 +160,7 @@ def main(argv=None):
     root = cli.load_root()
     # AC-CO-12: `--out` is repo-relative, always. Resolved before anything is
     # written, so a refused run leaves no directive behind either.
-    out_rel = cli.relpath_of(root, args.out, cli.EXIT_USAGE) if args.out else None
+    out_rel = cli.repo_relative_path(root, args.out, "--out") if args.out else None
     directive_relpath, heading = directive_identity(root, args)
     directive_path = root / directive_relpath
     if directive_path.exists():

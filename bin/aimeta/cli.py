@@ -144,6 +144,40 @@ def relpath_of(root, argument, code=EXIT_POLICY):
     return real_case(root, rel)
 
 
+def repo_relative_path(root, argument, label, code=EXIT_USAGE):
+    """Resolve an output path against the **repo root**, never the CWD (AC-CO-12).
+
+    An absolute path is refused outright — including one that happens to fall
+    inside the repo — because the alternative is two rules for one option, and
+    the location is referenced by the artifact that names it.
+    """
+    if os.path.isabs(argument):
+        raise ToolError(
+            "%s must be relative to the repository root, not absolute: %s"
+            % (label, argument),
+            code,
+        )
+    root_abs = os.path.abspath(str(root))
+    target = os.path.abspath(os.path.join(root_abs, argument))
+    if target != root_abs and not target.startswith(root_abs + os.sep):
+        raise ToolError(
+            "%s escapes the repository root: %s" % (label, argument), code
+        )
+    return os.path.relpath(target, root_abs).replace(os.sep, "/")
+
+
+def any_in_scope(ctx):
+    """True when any path git tracks matches the in-scope set (AC-CF-23).
+
+    Read from the index rather than by walking the worktree: this runs on every
+    commit, and it is the tracked set that enforcement is about.
+    """
+    listing = repo.git("ls-files", "-z", cwd=ctx.root)
+    return any(
+        ctx.in_scope(relpath) for relpath in listing.split("\0") if relpath
+    )
+
+
 def read_document(path):
     """Read a document as UTF-8. Returns `(text, finding)`; one is always None."""
     try:

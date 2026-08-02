@@ -158,10 +158,20 @@ def installable_index_path(root):
 
     A pathspec commit holds `index.lock` for the whole hook, so the real index
     cannot be written directly — but git installs that lock file as the index
-    when it finishes, and git has already written the pre-hook index into it.
-    Updating it is therefore the only way a pre-commit hook can keep the real
-    index honest, and it degrades safely: if a future git wrote the lock after
-    the hook instead, the update is discarded rather than corrupting anything.
+    when it finishes, and git has already written the pre-hook index into it
+    and closed it (verified with `lsof`: no open descriptor survives into the
+    hook, so there is no fd-versus-path race). Updating it is therefore the
+    only way a pre-commit hook can keep the real index honest.
+
+    **This depends on undocumented git ordering, verified on git 2.54.0 only.**
+    It degrades safely with respect to *corruption* — `git update-index`
+    refuses a malformed lock rather than writing garbage, and the blast radius
+    is the post-commit index, never history. It does **not** degrade safely
+    with respect to *enforcement*: if a future git wrote the lock after the
+    hook instead, the mirror would be silently discarded and defect B2 would
+    return. That is why every failure of this path is loud and blocking
+    (AC-CF-22) rather than a warning, and why the assumption carries a standing
+    re-verification obligation (spec §8.6).
     """
     index = real_index_path(root)
     pending = index + ".lock"
