@@ -144,8 +144,11 @@ and it is the only one:
    document and no other tracked path. A second file — including a
    tracker or an adapter edited alongside — escalates, and so does a
    revision spread across two commits.
-2. The diff is **no more than ten changed lines**, added plus deleted,
-   per `git diff --numstat`. The threshold is arbitrary, which is the
+2. The diff is **no more than ten changed lines** of document body,
+   added plus deleted, per `git diff --numstat`. The hook's own
+   frontmatter flip is not counted — it is four of those lines on every
+   revision, and charging them to the author would shrink the real
+   allowance without saying so. The threshold is arbitrary, which is the
    point: a bright line cannot be negotiated with, and exceeding it
    costs a full cycle rather than blocking the change.
 3. The document is not this policy. Enforcement reads its in-scope set
