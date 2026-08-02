@@ -1,6 +1,6 @@
 ---
-status: in-review
-last-reviewed: null
+status: agreed
+last-reviewed: reviews/document-metadata-policy-cycle-4.md @ ea6b44e
 audience: [all-roles, human]
 superseded-by: null
 ---
@@ -8,9 +8,6 @@ superseded-by: null
 # Policy: Document Versioning & Metadata
 
 ## Principle
-
-TEMP LINE FOR HOOK VERIFICATION.
-
 
 Git is the versioning system. Document metadata carries only semantic
 state that git cannot derive. Anything git history already knows — when
