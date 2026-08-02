@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/document-metadata-policy-cycle-7.md @ fbbee63
+status: in-review
+last-reviewed: null
 audience: [all-roles, human]
 superseded-by: null
 ---
@@ -28,6 +28,7 @@ project artifacts.
 - `boundaries/**`
 - `skills/**`
 - `specs/**`
+- `vendors/**`
 - `operating-model.md`
 - `README.md`
 
@@ -170,6 +171,11 @@ judgment, and it is the only one:
    - `policies/commit-and-change-control-policy.md`
    - `policies/source-of-truth-policy.md`
    - `policies/release-readiness-policy.md`
+   - `policies/project-setup-requirements.md` — effective when that document
+     reaches `agreed`. It is `draft` today, so it has no expedited revision
+     to exclude yet; it is named now because its content is exactly this
+     class (branch protection and frontmatter enforcement are the structural
+     gates), and naming it later means relying on someone to remember.
    - `roles/spec-reviewer-agent.md`
    - `roles/reviewer-agent.md`
    - `roles/release-manager-agent.md`
