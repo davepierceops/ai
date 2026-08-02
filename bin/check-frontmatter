@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """Validate frontmatter over the in-scope set; enforce the revision lifecycle.
 
-Contract: `docs/packages/package-a-spec.md` §3.4.
+Contract: `docs/packages/package-a-spec.md` §3.4 and §8.
 
 `--staged` is hook mode and is the one code path in this package that mutates
-the git index. It writes the flipped blob with `git hash-object -w` and points
-the index entry at it with `git update-index --cacheinfo`; the worktree file is
-rewritten only when it is byte-identical to the pre-flip staged content, so a
-partially-staged file is never clobbered.
+the git index. Three rules keep that safe:
+
+- **Validate before mutating** (AC-CF-15). Findings are computed on the
+  would-be-flipped content first; if anything is wrong, nothing is written.
+- **Bytes end to end** (AC-CF-14). The flip reads and writes bytes; the only
+  decode is strict, and a document that fails it is reported, never rewritten.
+- **Mirror a temporary index** (AC-CF-16). `git commit -- <path>` hands the
+  hook a throwaway index; the flip is copied into the real one only while it
+  still holds the pre-flip blob.
 """
 
 import argparse
@@ -19,6 +24,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from aimeta import cli, frontmatter, repo  # noqa: E402
 
 USAGE_ERROR = cli.EXIT_USAGE
+
+#: git's file mode for a symlink. Its blob is a target path, not a document.
+SYMLINK_MODE = "120000"
 
 OVERRIDE_HINT = (
     "commit blocked by the frontmatter policy; "
@@ -45,15 +53,13 @@ def build_parser():
     return p
 
 
-def findings_for(ctx, relpath, text):
-    doc = frontmatter.parse_text(text)
-    findings = list(doc.errors) + frontmatter.validate(
+def findings_for(ctx, relpath, doc):
+    return list(doc.errors) + frontmatter.validate(
         doc,
         path=relpath,
         role_slugs=ctx.role_slugs,
         grandfathered=ctx.grandfathered(relpath),
     )
-    return doc, findings
 
 
 def check_worktree(ctx, relpaths):
@@ -64,46 +70,78 @@ def check_worktree(ctx, relpaths):
             cli.diagnostic("ERROR", relpath, "missing-file", "no such file")
             failed = True
             continue
-        _, findings = findings_for(ctx, relpath, path.read_text())
+        text, finding = cli.read_document(path)
+        if finding is not None:
+            cli.report([finding], relpath)
+            failed = True
+            continue
+        findings = findings_for(ctx, relpath, frontmatter.parse_text(text))
         cli.report(findings, relpath)
         failed = failed or bool(findings)
     return cli.EXIT_POLICY if failed else cli.EXIT_OK
 
 
-def index_mode(ctx, relpath):
-    """The staged file mode for `relpath`, e.g. `100644`."""
-    entry = repo.git("ls-files", "--stage", "--", relpath, cwd=ctx.root)
-    if not entry:
-        raise cli.ToolError("%s is not in the index" % relpath, cli.EXIT_PRECONDITION)
-    return entry.split()[0]
+# ------------------------------------------------------------------ hook mode
 
 
-def stage_blob(ctx, relpath, text):
-    """Write `text` as a blob and point the index entry at it."""
-    mode = index_mode(ctx, relpath)
+def mirror_into_real_index(ctx, relpath, pre_sha, new_sha):
+    """AC-CF-16: carry the flip into the real index, and only over the pre-flip blob."""
+    if not repo.using_temporary_index(ctx.root):
+        return
+    env = {"GIT_INDEX_FILE": repo.installable_index_path(ctx.root)}
+    real_mode, real_sha = repo.index_entry(ctx.root, relpath, env=env)
+    if real_sha != pre_sha:
+        # The "and only when" half of AC-CF-16: the repository index holds
+        # something other than what was flipped, so it is someone else's staged
+        # work and is left exactly as it is.
+        cli.diagnostic(
+            "NOTE",
+            relpath,
+            "real-index-untouched",
+            "the repository index holds a different blob than the one flipped; "
+            "leaving it alone rather than clobbering staged work",
+        )
+        return
+    try:
+        repo.git(
+            "update-index",
+            "--cacheinfo",
+            "%s,%s,%s" % (real_mode, new_sha, relpath),
+            cwd=ctx.root,
+            env=env,
+        )
+    except repo.GitError as exc:
+        # Mirroring is a repair, not the commit's correctness: the commit
+        # itself already carries the flip. Never fail a commit over it.
+        cli.diagnostic(
+            "NOTE", relpath, "real-index-unreachable", "could not mirror the flip: %s" % exc
+        )
+
+
+def apply_flip(ctx, flip):
+    """Write the flipped blob into the index, then mirror it where it belongs."""
+    relpath, mode, pre_sha, staged_bytes, new_bytes = flip
     code, out, error = repo.run(
-        ["hash-object", "-w", "--stdin"], cwd=ctx.root, stdin=text.encode("utf-8")
+        ["hash-object", "-w", "--stdin"], cwd=ctx.root, stdin=new_bytes
     )
     if code != 0:
-        raise cli.ToolError("cannot write blob for %s: %s" % (relpath, error), cli.EXIT_SELF_VERIFY)
-    sha = out.decode("ascii").strip()
+        raise cli.ToolError(
+            "cannot write blob for %s: %s" % (relpath, error), cli.EXIT_PRECONDITION
+        )
+    new_sha = out.decode("ascii").strip()
     repo.git(
-        "update-index", "--cacheinfo", "%s,%s,%s" % (mode, sha, relpath), cwd=ctx.root
+        "update-index", "--cacheinfo", "%s,%s,%s" % (mode, new_sha, relpath), cwd=ctx.root
     )
-
-
-def flip_staged(ctx, relpath, staged_text, doc):
-    """Rewrite the staged blob to `in-review`; mirror into a matching worktree."""
-    flipped = frontmatter.render(
-        frontmatter.with_fields(doc, {"status": "in-review", "last-reviewed": None})
-    )
-    stage_blob(ctx, relpath, flipped)
     cli.err("FLIPPED %s: agreed -> in-review (content edit)" % relpath)
+    mirror_into_real_index(ctx, relpath, pre_sha, new_sha)
 
     worktree = ctx.root / relpath
-    current = worktree.read_text() if worktree.is_file() else None
-    if current == staged_text:
-        worktree.write_text(flipped)
+    try:
+        current = worktree.read_bytes()
+    except OSError:
+        current = None
+    if current == staged_bytes:
+        worktree.write_bytes(new_bytes)
     else:
         cli.diagnostic(
             "NOTE",
@@ -112,34 +150,95 @@ def flip_staged(ctx, relpath, staged_text, doc):
             "the worktree copy differs from the index and still claims `agreed`; "
             "the flip landed in the index only",
         )
-    return flipped
+
+
+def would_flip(ctx, relpath, doc, renames):
+    """The flipped Document when this staged change is an edit to an agreed doc."""
+    if not doc.has_frontmatter or doc.fields.get("status") != "agreed":
+        return None
+    # AC-CF-18: a rename is compared against the OLD path at HEAD, or renaming
+    # and editing in one commit would look like an addition and never flip.
+    head_relpath = renames.get(relpath, relpath)
+    head_blob = repo.blob_at_rev(ctx.root, "HEAD", head_relpath)
+    if head_blob is None:
+        return None
+    head_text, finding = cli.decode_blob(head_blob)
+    if finding is not None:
+        cli.diagnostic(
+            "NOTE",
+            relpath,
+            "head-undecodable",
+            "the version at HEAD is not valid UTF-8, so no edit comparison is possible",
+        )
+        return None
+    if frontmatter.parse_text(head_text).body == doc.body:
+        return None
+    return frontmatter.with_fields(doc, {"status": "in-review", "last-reviewed": None})
 
 
 def check_staged(ctx, no_flip):
+    merging = repo.merge_in_progress(ctx.root)
+    if merging:
+        cli.diagnostic(
+            "NOTE",
+            "MERGE_HEAD",
+            "merge-in-progress",
+            "a merge's difference against its first parent is not an authored edit; "
+            "validating without flipping, so a review pointer agreed on the merged "
+            "branch survives",
+        )
+    renames = repo.staged_rename_sources(ctx.root)
+
     failed = False
+    planned = []
     for letter, relpath in repo.staged_entries(ctx.root):
         if letter == "D" or not ctx.in_scope(relpath):
             continue
-        staged_text = repo.file_at_rev(ctx.root, ":", relpath)
-        if staged_text is None:
+        mode, pre_sha = repo.index_entry(ctx.root, relpath)
+        if mode is None:
+            continue
+        if mode == SYMLINK_MODE:
+            cli.diagnostic(
+                "NOTE",
+                relpath,
+                "symlink",
+                "staged as a symlink, whose blob is a target path rather than a "
+                "document; skipped",
+            )
+            continue
+        staged_bytes = repo.blob_at_rev(ctx.root, ":", relpath)
+        if staged_bytes is None:
+            continue
+        text, finding = cli.decode_blob(staged_bytes)
+        if finding is not None:
+            cli.report([finding], relpath)
+            failed = True
             continue
 
-        doc, _ = findings_for(ctx, relpath, staged_text)
-        text = staged_text
-        if not no_flip and doc.has_frontmatter and doc.fields.get("status") == "agreed":
-            head_text = repo.file_at_rev(ctx.root, "HEAD", relpath)
-            if head_text is not None:
-                head_doc = frontmatter.parse_text(head_text)
-                if head_doc.body != doc.body:
-                    text = flip_staged(ctx, relpath, staged_text, doc)
+        doc = frontmatter.parse_text(text)
+        flipped = None if (no_flip or merging) else would_flip(ctx, relpath, doc, renames)
+        findings = findings_for(ctx, relpath, flipped if flipped is not None else doc)
+        if findings:
+            cli.report(findings, relpath)
+            failed = True
+            continue
+        if flipped is not None:
+            planned.append(
+                (
+                    relpath,
+                    mode,
+                    pre_sha,
+                    staged_bytes,
+                    frontmatter.render(flipped).encode(cli.ENCODING),
+                )
+            )
 
-        _, findings = findings_for(ctx, relpath, text)
-        cli.report(findings, relpath)
-        failed = failed or bool(findings)
-
+    # AC-CF-15: nothing is written until every staged document has passed.
     if failed:
         cli.err("ERROR: %s" % OVERRIDE_HINT)
         return cli.EXIT_POLICY
+    for flip in planned:
+        apply_flip(ctx, flip)
     return cli.EXIT_OK
 
 
@@ -155,7 +254,9 @@ def main(argv=None):
     if args.paths:
         named = [cli.relpath_of(ctx.root, p) for p in args.paths]
         return check_worktree(ctx, [p for p in named if ctx.in_scope(p)])
-    return check_worktree(ctx, cli.in_scope_files(ctx))
+    relpaths = cli.in_scope_files(ctx)
+    cli.report_scope(ctx, relpaths)
+    return check_worktree(ctx, relpaths)
 
 
 if __name__ == "__main__":

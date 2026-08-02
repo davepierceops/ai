@@ -28,7 +28,11 @@ def resolve_entry(root, entry):
 
 def references(root, relpath, dangling):
     """Outgoing edges from `relpath`, in discovery order."""
-    doc = frontmatter.parse_text((root / relpath).read_text())
+    text, finding = cli.read_document(root / relpath)
+    if finding is not None:
+        cli.diagnostic("WARN", relpath, finding.code, finding.message)
+        return []
+    doc = frontmatter.parse_text(text)
     edges = []
     depends = doc.fields.get("depends-on") or []
     if isinstance(depends, str):

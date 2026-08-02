@@ -44,13 +44,24 @@ class Finding:
 
 
 class Document:
-    """A parsed document: frontmatter fields plus the body after the fence."""
+    """A parsed document: frontmatter fields plus the body after the fence.
 
-    def __init__(self, fields=None, body="", has_frontmatter=False, errors=None):
+    `leading` maps a key to the comment and blank lines written immediately
+    above it, and `trailing` holds those after the last key. Per AC-FM-17 that
+    trivia binds to the key below it and travels with that key when `render`
+    reorders the block, so an unattended rewrite cannot delete authored text.
+    """
+
+    def __init__(
+        self, fields=None, body="", has_frontmatter=False, errors=None,
+        leading=None, trailing=None,
+    ):
         self.fields = dict(fields or {})
         self.body = body
         self.has_frontmatter = has_frontmatter
         self.errors = list(errors or [])
+        self.leading = {key: list(value) for key, value in (leading or {}).items()}
+        self.trailing = list(trailing or [])
 
     def __repr__(self):
         return "Document(has_frontmatter=%r, fields=%r, body_len=%d)" % (
@@ -112,10 +123,13 @@ def parse_text(text):
 
     fields = {}
     errors = []
+    leading = {}
+    pending = []
     last_key = None
     for raw_line in lines[1:close]:
         stripped = raw_line.strip()
         if not stripped or stripped.startswith("#"):
+            pending.append(raw_line)
             continue
         item = _ITEM_RE.match(raw_line)
         if item is not None:
@@ -126,10 +140,20 @@ def parse_text(text):
                         "list item with no preceding key: %r" % raw_line,
                     )
                 )
-                continue
-            if not isinstance(fields[last_key], list):
-                fields[last_key] = []
-            fields[last_key].append(parse_scalar(item.group(1).strip()))
+            elif fields[last_key] is None or isinstance(fields[last_key], list):
+                if not isinstance(fields[last_key], list):
+                    fields[last_key] = []
+                fields[last_key].append(parse_scalar(item.group(1).strip()))
+            else:
+                # AC-FM-18: the scalar is kept and the ambiguity is reported,
+                # rather than the scalar being silently replaced by a list.
+                errors.append(
+                    Finding(
+                        "malformed-frontmatter",
+                        "list item %r follows scalar value %r for key %r"
+                        % (raw_line, fields[last_key], last_key),
+                    )
+                )
             continue
         if ":" in raw_line:
             key, _, value = raw_line.partition(":")
@@ -140,6 +164,8 @@ def parse_text(text):
                         Finding("duplicate-key", "key %r appears more than once" % key)
                     )
                 fields[key] = parse_value(value)
+                leading[key] = pending
+                pending = []
                 last_key = key
                 continue
         errors.append(
@@ -147,7 +173,14 @@ def parse_text(text):
         )
 
     body = "\n".join(lines[close + 1 :])
-    return Document(fields=fields, body=body, has_frontmatter=True, errors=errors)
+    return Document(
+        fields=fields,
+        body=body,
+        has_frontmatter=True,
+        errors=errors,
+        leading=leading,
+        trailing=pending,
+    )
 
 
 def _render_value(value):
@@ -165,7 +198,10 @@ def render(doc):
     ordered = [key for key in FIELD_ORDER if key in doc.fields]
     ordered += [key for key in doc.fields if key not in FIELD_ORDER]
     lines = [FENCE]
-    lines += ["%s: %s" % (key, _render_value(doc.fields[key])) for key in ordered]
+    for key in ordered:
+        lines.extend(doc.leading.get(key, []))
+        lines.append("%s: %s" % (key, _render_value(doc.fields[key])))
+    lines.extend(doc.trailing)
     lines.append(FENCE)
     return "\n".join(lines) + "\n" + doc.body
 
@@ -180,6 +216,8 @@ def with_fields(doc, updates):
         body=doc.body,
         has_frontmatter=doc.has_frontmatter,
         errors=list(doc.errors),
+        leading=doc.leading,
+        trailing=doc.trailing,
     )
 
 

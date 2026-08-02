@@ -58,8 +58,8 @@ def load_globs(methodology_home):
     """Read POLICY_RELPATH under `methodology_home` and parse its in-scope set."""
     policy = pathlib.Path(methodology_home) / POLICY_RELPATH
     try:
-        text = policy.read_text()
-    except OSError as exc:
+        text = policy.read_bytes().decode("utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
         raise ScopeError("cannot read %s: %s" % (policy, exc))
     return parse_in_scope_globs(text)
 

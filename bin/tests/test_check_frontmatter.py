@@ -16,23 +16,30 @@ from __future__ import annotations
 import unittest
 
 from tests.helpers import (
+    DOCUMENTED_EXIT_CODES,
     agreed_doc,
     base_env,
+    blob_bytes,
     bracket_codes,
     commit,
     disposition_doc,
     draft_doc,
+    filesystem_is_case_insensitive,
     frontmatter_block,
     git,
     make_home,
     make_repo,
+    no_traceback,
     policy_without,
     read,
+    read_bytes,
     run_cli,
     show,
     snapshot_tree,
     stage,
+    temp_dir,
     write,
+    write_bytes,
 )
 
 BODY_V1 = "\n# Sample Policy\n\nOriginal body.\n"
@@ -529,6 +536,515 @@ class TestUsage(CheckFrontmatterTestCase):
         """AC-CF-1: `--staged` takes no paths (spec §2.4 exit 2)."""
         rc, out, err = self.check("--staged", "policies/x.md")
         self.assertEqual(rc, 2, "stdout=%r stderr=%r" % (out, err))
+
+
+# ---------------------------------------------------------------------------
+# §8 — gate findings. Everything below is an addition or amendment from the
+# Reviewer and Skeptic/Risk gates (spec §8), covering ground the original
+# suite's aperture missed: one git verb, one repo shape, one encoding.
+# ---------------------------------------------------------------------------
+
+
+#: An `agreed` frontmatter block as raw ASCII bytes, so a fixture can carry a
+#: body that is deliberately not valid UTF-8.
+AGREED_HEAD_BYTES = (
+    b"---\n"
+    b"status: agreed\n"
+    b"last-reviewed: reviews/sample-review.md @ abc1234\n"
+    b"audience: [all-roles]\n"
+    b"superseded-by: null\n"
+    b"---\n"
+)
+#: 0xE9 is `e` acute in latin-1 and an illegal standalone byte in UTF-8.
+LATIN1_V1 = AGREED_HEAD_BYTES + b"\n# Caf\xe9 Policy\n\noriginal body\n"
+LATIN1_V2 = AGREED_HEAD_BYTES + b"\n# Caf\xe9 Policy\n\nedited body\n"
+REPLACEMENT_CHAR = b"\xef\xbf\xbd"
+
+LATIN_TARGET = "policies/latin1-policy.md"
+
+
+class TestNonUtf8Documents(CheckFrontmatterTestCase):
+    """AC-CF-14: bytes in, bytes out. No transcoding, ever."""
+
+    def seed_latin1(self):
+        write_bytes(self.repo, LATIN_TARGET, LATIN1_V1)
+        commit(self.repo, "seed latin-1 policy", env=self.env)
+        write_bytes(self.repo, LATIN_TARGET, LATIN1_V2)
+        stage(self.repo, LATIN_TARGET, env=self.env)
+
+    def test_cf14_undecodable_document_is_reported_and_blocks_the_commit(self):
+        """AC-CF-14: a non-UTF-8 staged document is `[undecodable]` and exits 1."""
+        self.seed_latin1()
+
+        rc, out, err = self.check("--staged")
+        self.assertEqual(rc, 1, "stdout=%r stderr=%r" % (out, err))
+        self.assertIn("undecodable", bracket_codes(err))
+        self.assertIn(LATIN_TARGET, err)
+
+    def test_cf14_index_blob_is_byte_identical_before_and_after(self):
+        """AC-CF-14: the run must not rewrite the index blob of an undecodable doc."""
+        self.seed_latin1()
+        before = blob_bytes(self.repo, ":" + LATIN_TARGET, env=self.env)
+        self.assertEqual(before, LATIN1_V2, "fixture did not stage the raw bytes")
+
+        self.check("--staged")
+
+        after = blob_bytes(self.repo, ":" + LATIN_TARGET, env=self.env)
+        self.assertEqual(after, before, "the index blob was transcoded or rewritten")
+
+    def test_cf14_no_replacement_characters_reach_the_index(self):
+        """AC-CF-14: U+FFFD must never appear in a blob written by the tool."""
+        self.seed_latin1()
+
+        self.check("--staged")
+
+        after = blob_bytes(self.repo, ":" + LATIN_TARGET, env=self.env)
+        self.assertNotIn(
+            REPLACEMENT_CHAR, after, "a lossy decode/re-encode round trip corrupted the blob"
+        )
+        self.assertIn(b"\xe9", after, "the original latin-1 byte was lost")
+
+    def test_cf14_worktree_file_is_byte_identical_before_and_after(self):
+        """AC-CF-14: the worktree copy is left exactly as the developer wrote it."""
+        self.seed_latin1()
+        before = read_bytes(self.repo, LATIN_TARGET)
+
+        self.check("--staged")
+
+        self.assertEqual(read_bytes(self.repo, LATIN_TARGET), before)
+
+    def test_cf14_committing_after_the_block_preserves_the_bytes(self):
+        """AC-CF-14: the documented `--no-verify` override must not commit corruption."""
+        self.seed_latin1()
+
+        self.check("--staged")
+        git(self.repo, "commit", "-q", "--no-verify", "-m", "latin1", env=self.env, check=True)
+
+        committed = blob_bytes(self.repo, "HEAD:" + LATIN_TARGET, env=self.env)
+        self.assertEqual(committed, LATIN1_V2)
+
+
+class TestValidateBeforeMutating(CheckFrontmatterTestCase):
+    """AC-CF-15: findings are computed on the would-be-flipped content first."""
+
+    def stage_edit_with_findings(self):
+        write(self.repo, TARGET, agreed_doc(body=BODY_V1))
+        commit(self.repo, "seed", env=self.env)
+        # A content edit (so the flip would fire) that is also invalid (so the
+        # run must block). The tool must decide before it writes anything.
+        write(
+            self.repo,
+            TARGET,
+            frontmatter_block(
+                status="agreed",
+                last_reviewed="reviews/sample-review.md @ abc1234",
+                audience=["not-a-real-role"],
+                superseded_by=None,
+            )
+            + BODY_V2,
+        )
+        stage(self.repo, TARGET, env=self.env)
+
+    def test_cf15_findings_block_the_run(self):
+        """AC-CF-15: an invalid staged document still exits 1."""
+        self.stage_edit_with_findings()
+        rc, out, err = self.check("--staged")
+        self.assertEqual(rc, 1, "stdout=%r stderr=%r" % (out, err))
+        self.assertIn("invalid-audience", bracket_codes(err))
+
+    def test_cf15_index_is_untouched_when_findings_exist(self):
+        """AC-CF-15: a blocked run leaves the index exactly as the developer staged it."""
+        self.stage_edit_with_findings()
+        before = self.index_blob()
+
+        self.check("--staged")
+
+        self.assertEqual(self.index_blob(), before, "the index was mutated despite findings")
+        self.assertIn("status: agreed", self.index_blob())
+
+    def test_cf15_worktree_is_untouched_when_findings_exist(self):
+        """AC-CF-15: a blocked commit must not leave the working tree edited."""
+        self.stage_edit_with_findings()
+        before = read(self.repo, TARGET)
+
+        self.check("--staged")
+
+        self.assertEqual(read(self.repo, TARGET), before, "the worktree was mutated despite findings")
+
+    def test_cf15_no_verify_after_a_block_commits_what_the_developer_staged(self):
+        """AC-CF-15: the override commits the developer's content, not the tool's rewrite."""
+        self.stage_edit_with_findings()
+        staged_before = self.index_blob()
+
+        self.check("--staged")
+        git(self.repo, "commit", "-q", "--no-verify", "-m", "override", env=self.env, check=True)
+
+        self.assertEqual(self.head_blob(), staged_before)
+
+
+class HookedRepoTestCase(CheckFrontmatterTestCase):
+    """A repo with the managed pre-commit hook actually installed."""
+
+    def setUp(self):
+        super().setUp()
+        rc, out, err = run_cli("install-hooks", cwd=self.repo, env=self.env)
+        self.assertEqual(rc, 0, "install-hooks failed: stdout=%r stderr=%r" % (out, err))
+        self.assertTrue((self.repo / ".git" / "hooks" / "pre-commit").is_file())
+
+
+class TestTemporaryIndexCommit(HookedRepoTestCase):
+    """AC-CF-16: `git commit -- <path>` runs the hook against a temporary index."""
+
+    def setUp(self):
+        super().setUp()
+        write(self.repo, TARGET, agreed_doc(body=BODY_V1))
+        commit(self.repo, "seed", env=self.env)
+        write(self.repo, TARGET, agreed_doc(body=BODY_V2))
+        stage(self.repo, TARGET, env=self.env)
+
+    def pathspec_commit(self, message="pathspec commit"):
+        return git(self.repo, "commit", "-m", message, "--", TARGET, env=self.env)
+
+    def test_cf16_pathspec_commit_records_the_flip(self):
+        """AC-CF-16: the commit itself is still correct."""
+        rc, out, err = self.pathspec_commit()
+        self.assertEqual(rc, 0, "commit failed: stdout=%r stderr=%r" % (out, err))
+        self.assertIn("status: in-review", self.head_blob())
+
+    def test_cf16_real_index_does_not_keep_the_pre_flip_blob(self):
+        """AC-CF-16: the real index must not be left holding the stale `agreed` blob."""
+        rc, out, err = self.pathspec_commit()
+        self.assertEqual(rc, 0, "commit failed: stdout=%r stderr=%r" % (out, err))
+
+        self.assertIn(
+            "status: in-review",
+            self.index_blob(),
+            "the real index kept the pre-flip blob after a pathspec commit",
+        )
+
+    def test_cf16_status_reports_no_change_the_user_did_not_make(self):
+        """AC-CF-16: `git status` must be clean, as it is for a pathspec commit with no hook."""
+        rc, out, err = self.pathspec_commit()
+        self.assertEqual(rc, 0, "commit failed: stdout=%r stderr=%r" % (out, err))
+
+        status = git(self.repo, "status", "--short", env=self.env, check=True)[1]
+        self.assertEqual(
+            status.strip(), "", "the hook left a staged/unstaged change the user never made"
+        )
+
+    def test_cf16_two_commits_cannot_launder_an_edit_back_to_agreed(self):
+        """AC-CF-16: the end state after a pathspec commit plus an ordinary one.
+
+        The reported defect: the stale real index made the second commit look
+        like a pure status transition, so AC-CF-5's exemption applied and the
+        edited body landed as `agreed` with its old review pointer.
+        """
+        rc, out, err = self.pathspec_commit()
+        self.assertEqual(rc, 0, "commit failed: stdout=%r stderr=%r" % (out, err))
+
+        # Whether this second commit succeeds or reports "nothing to commit" is
+        # not the point; the end state is.
+        git(self.repo, "commit", "-m", "second", env=self.env)
+
+        final = self.head_blob()
+        self.assertIn("Edited body.", final, "fixture lost the content edit")
+        self.assertIn(
+            "status: in-review",
+            final,
+            "an edited body ended up committed as `agreed` across two hook-approved commits",
+        )
+
+
+class TestTemporaryIndexGuard(HookedRepoTestCase):
+    """AC-CF-16, the "and only when" half: never clobber unrelated staged state.
+
+    `git commit -a` builds its temporary index from the *worktree*, so when a
+    partially-staged file is present the blob the hook flips is not the blob
+    the real index holds. Mirroring the flip there would destroy staged work
+    the user never offered to this commit.
+    """
+
+    BODY_V3 = "\n# Sample Policy\n\nWorktree-only third revision.\n"
+
+    def setUp(self):
+        super().setUp()
+        write(self.repo, TARGET, agreed_doc(body=BODY_V1))
+        commit(self.repo, "seed", env=self.env)
+
+        write(self.repo, TARGET, agreed_doc(body=BODY_V2))
+        stage(self.repo, TARGET, env=self.env)          # real index  = v2
+        write(self.repo, TARGET, agreed_doc(body=self.BODY_V3))  # worktree = v3
+
+        self.real_index_before = self.index_blob()
+        self.assertIn("Edited body.", self.real_index_before, "fixture: index should hold v2")
+
+    def test_cf16_commit_a_reports_that_the_real_index_was_left_alone(self):
+        """AC-CF-16: the guard fires and says so when the real index differs."""
+        rc, out, err = git(self.repo, "commit", "-a", "-m", "commit -a", env=self.env)
+        self.assertEqual(rc, 0, "commit failed: stdout=%r stderr=%r" % (out, err))
+        self.assertIn("real-index-untouched", bracket_codes(out + err))
+
+    def test_cf16_commit_a_records_the_flip_and_leaves_a_clean_tree(self):
+        """AC-CF-16: `git commit -a` still commits the flip, and `git status` is clean."""
+        rc, out, err = git(self.repo, "commit", "-a", "-m", "commit -a", env=self.env)
+        self.assertEqual(rc, 0, "commit failed: stdout=%r stderr=%r" % (out, err))
+
+        committed = self.head_blob()
+        self.assertIn("status: in-review", committed)
+        self.assertIn("Worktree-only third revision.", committed)
+        status = git(self.repo, "status", "--short", env=self.env, check=True)[1]
+        self.assertEqual(status.strip(), "", "the tree was left dirty: %r" % status)
+
+    def temp_index_env(self):
+        """An env whose `$GIT_INDEX_FILE` is a scratch index, exactly as git does."""
+        index = temp_dir(self, "aimeta-tmpindex-") / "index"
+        env = dict(self.env)
+        env["GIT_INDEX_FILE"] = str(index)
+        # Build the temporary index the way `git commit -a` does: start from
+        # HEAD, then add the worktree content.
+        git(self.repo, "read-tree", "HEAD", env=env, check=True)
+        git(self.repo, "add", "--", TARGET, env=env, check=True)
+        return env
+
+    def test_cf16_flip_lands_in_the_temporary_index(self):
+        """AC-CF-16: the commit-bound index is still flipped when the guard declines."""
+        env = self.temp_index_env()
+
+        rc, out, err = self.check("--staged", env=env)
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+
+        staged = show(self.repo, ":" + TARGET, env=env)
+        self.assertIn("status: in-review", staged)
+        self.assertIn("Worktree-only third revision.", staged)
+
+    def test_cf16_real_index_keeps_the_unrelated_staged_blob(self):
+        """AC-CF-16: staged work the user did not offer to this commit survives."""
+        env = self.temp_index_env()
+
+        self.check("--staged", env=env)
+
+        self.assertEqual(
+            self.index_blob(),
+            self.real_index_before,
+            "the flip clobbered unrelated staged state in the real index",
+        )
+        self.assertIn("status: agreed", self.index_blob())
+
+
+class TestMergeCommits(HookedRepoTestCase):
+    """AC-CF-17: a merge's difference against its first parent is not an edit."""
+
+    BRANCH_REVIEW = "reviews/branch-review.md @ bbb2222"
+
+    def setUp(self):
+        super().setUp()
+        # `notes.txt` is out of scope and exists only to force the conflict that
+        # makes git stop and hand the merge commit to `git commit` (and so to
+        # the pre-commit hook) with MERGE_HEAD present.
+        write(self.repo, TARGET, agreed_doc(body=BODY_V1))
+        write(self.repo, "notes.txt", "main\n")
+        commit(self.repo, "seed", env=self.env)
+
+        git(self.repo, "checkout", "-q", "-b", "feature", env=self.env, check=True)
+        write(
+            self.repo,
+            TARGET,
+            agreed_doc(body=BODY_V2, review=self.BRANCH_REVIEW),
+        )
+        write(self.repo, "notes.txt", "branch\n")
+        commit(self.repo, "reviewed and agreed on the branch", env=self.env)
+
+        git(self.repo, "checkout", "-q", "main", env=self.env, check=True)
+        write(self.repo, "notes.txt", "main second\n")
+        commit(self.repo, "diverge on main", env=self.env)
+
+        rc, _, _ = git(self.repo, "merge", "feature", env=self.env)
+        self.assertNotEqual(rc, 0, "fixture expected a conflicted merge")
+        write(self.repo, "notes.txt", "resolved\n")
+        stage(self.repo, "notes.txt", env=self.env)
+        self.assertTrue(
+            (self.repo / ".git" / "MERGE_HEAD").is_file(), "fixture expected MERGE_HEAD"
+        )
+
+    def test_cf17_merge_commit_does_not_flip(self):
+        """AC-CF-17: with MERGE_HEAD present, no flip occurs."""
+        rc, out, err = git(self.repo, "commit", "-m", "merge feature", env=self.env)
+        self.assertEqual(rc, 0, "merge commit failed: stdout=%r stderr=%r" % (out, err))
+        self.assertIn("status: agreed", self.head_blob())
+
+    def test_cf17_merge_preserves_the_review_pointer_agreed_on_the_branch(self):
+        """AC-CF-17: the durable record of which review agreed the doc survives."""
+        rc, out, err = git(self.repo, "commit", "-m", "merge feature", env=self.env)
+        self.assertEqual(rc, 0, "merge commit failed: stdout=%r stderr=%r" % (out, err))
+        committed = self.head_blob()
+        self.assertIn("last-reviewed: %s" % self.BRANCH_REVIEW, committed)
+        self.assertNotIn("last-reviewed: null", committed)
+
+    def test_cf17_merge_prints_a_note_naming_why(self):
+        """AC-CF-17: the tool says it skipped the flip rather than silently doing so."""
+        rc, out, err = git(self.repo, "commit", "-m", "merge feature", env=self.env)
+        self.assertEqual(rc, 0, "merge commit failed: stdout=%r stderr=%r" % (out, err))
+        self.assertIn("NOTE", out + err)
+
+
+class TestStagedRename(CheckFrontmatterTestCase):
+    """AC-CF-18: a rename compares against the OLD path at HEAD."""
+
+    OLD = "policies/old-doc.md"
+    NEW = "policies/new-doc.md"
+    LONG_V1 = "\n# Doc\n\n" + "".join("stable paragraph %d.\n\n" % i for i in range(30))
+    LONG_V2 = LONG_V1 + "One appended line of new content.\n"
+
+    def setUp(self):
+        super().setUp()
+        write(self.repo, self.OLD, agreed_doc(body=self.LONG_V1))
+        commit(self.repo, "seed", env=self.env)
+
+        git(self.repo, "mv", self.OLD, self.NEW, env=self.env, check=True)
+        write(self.repo, self.NEW, agreed_doc(body=self.LONG_V2))
+        stage(self.repo, self.NEW, env=self.env)
+
+        status = git(
+            self.repo, "diff", "--cached", "--name-status", "HEAD", env=self.env, check=True
+        )[1]
+        self.assertTrue(
+            status.startswith("R"), "fixture expected a rename, git said: %r" % status
+        )
+
+    def test_cf18_rename_plus_edit_still_flips(self):
+        """AC-CF-18: renaming an agreed doc while editing it is not a bypass."""
+        rc, out, err = self.check("--staged")
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        self.assertIn(
+            "status: in-review",
+            self.index_blob(self.NEW),
+            "rename-and-edit slipped past the flip",
+        )
+
+    def test_cf18_pure_rename_without_an_edit_is_not_flipped(self):
+        """AC-CF-18: a rename that does not change the body is still exempt."""
+        git(self.repo, "checkout", "-q", "HEAD", "--", ".", env=self.env, check=False)
+        git(self.repo, "reset", "-q", "--hard", "HEAD", env=self.env, check=True)
+        git(self.repo, "mv", self.OLD, self.NEW, env=self.env, check=True)
+
+        rc, out, err = self.check("--staged")
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        self.assertIn("status: agreed", self.index_blob(self.NEW))
+
+
+class TestScopeVisibility(CheckFrontmatterTestCase):
+    """AC-CF-19: enforcing nothing must not look like enforcing everything."""
+
+    def test_cf19_all_reports_how_many_files_matched(self):
+        """AC-CF-19: `--all` prints a NOTE stating the in-scope match count."""
+        write(self.repo, "policies/a.md", agreed_doc())
+        write(self.repo, "policies/b.md", agreed_doc())
+        write(self.repo, "README.md", agreed_doc())
+        commit(self.repo, "seed three in-scope files", env=self.env)
+
+        rc, out, err = self.check("--all")
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        note_lines = [l for l in err.splitlines() if l.startswith("NOTE")]
+        self.assertTrue(note_lines, "no NOTE line; stderr=%r" % err)
+        self.assertTrue(
+            any("3" in l for l in note_lines),
+            "no NOTE stated the match count of 3: %r" % note_lines,
+        )
+
+    def test_cf19_globs_matching_nothing_are_warned_about(self):
+        """AC-CF-19: a configured glob that matches no path gets a WARN."""
+        write(self.repo, "policies/a.md", agreed_doc())
+        commit(self.repo, "seed only policies", env=self.env)
+
+        rc, out, err = self.check("--all")
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        warn_lines = [l for l in err.splitlines() if l.startswith("WARN")]
+        self.assertTrue(warn_lines, "no WARN for unmatched globs; stderr=%r" % err)
+        joined = "\n".join(warn_lines)
+        for unmatched in ["roles/**", "skills/**", "boundaries/**"]:
+            self.assertIn(unmatched, joined)
+        self.assertNotIn("policies/**", joined, "a glob that did match was warned about")
+
+    def test_cf19_a_repo_matching_nothing_is_distinguishable_from_a_clean_one(self):
+        """AC-CF-19: zero matches must not present as a silent all-clear."""
+        write(self.repo, "docs/notes.md", "# Out of scope\n")
+        commit(self.repo, "seed nothing in scope", env=self.env)
+
+        rc, out, err = self.check("--all")
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        self.assertIn("WARN", err)
+        note_lines = [l for l in err.splitlines() if l.startswith("NOTE")]
+        self.assertTrue(
+            any("0" in l for l in note_lines), "nothing said zero files matched: %r" % err
+        )
+
+
+class TestPathResolution(CheckFrontmatterTestCase):
+    """AC-CF-20: a mis-cased path argument must not be a false all-clear."""
+
+    def setUp(self):
+        super().setUp()
+        if not filesystem_is_case_insensitive(self.repo):
+            self.skipTest("filesystem is case-sensitive; AC-CF-20 is not reachable here")
+
+    def test_cf20_mis_cased_path_is_resolved_to_its_real_case(self):
+        """AC-CF-20: `Policies/x.md` is checked, not silently skipped as out of scope."""
+        write(self.repo, "policies/bad.md", "# In scope, no frontmatter\n")
+        commit(self.repo, "seed", env=self.env)
+
+        rc, out, err = self.check("Policies/bad.md")
+        self.assertEqual(
+            rc, 1, "mis-cased path exited %s silently; stdout=%r stderr=%r" % (rc, out, err)
+        )
+        self.assertIn("missing-frontmatter", bracket_codes(err))
+
+
+class TestStagedSymlinks(CheckFrontmatterTestCase):
+    """AC-CF-21: a symlink's blob is a path, not a document."""
+
+    LINK = "policies/link.md"
+
+    def setUp(self):
+        super().setUp()
+        self.outside = temp_dir(self, "aimeta-outside-")
+        self.victim = self.outside / "victim.md"
+        self.victim.write_text("# Outside the repo\n\nMust not be written through.\n")
+        self.victim_before = self.victim.read_text()
+
+        write(self.repo, "policies/real.md", agreed_doc())
+        commit(self.repo, "seed", env=self.env)
+
+        (self.repo / "policies" / "link.md").symlink_to(self.victim)
+        stage(self.repo, self.LINK, env=self.env)
+
+    def test_cf21_staged_symlink_is_reported(self):
+        """AC-CF-21: the symlink is named in the diagnostics rather than passed over."""
+        rc, out, err = self.check("--staged")
+        self.assertIn(self.LINK, out + err)
+        self.assertIn(rc, DOCUMENTED_EXIT_CODES)
+        self.assertTrue(no_traceback(out, err))
+
+    def test_cf21_staged_symlink_is_not_reported_as_a_broken_document(self):
+        """AC-CF-21: reporting `missing-frontmatter` on a symlink is the defect."""
+        rc, out, err = self.check("--staged")
+        link_lines = [l for l in err.splitlines() if self.LINK in l]
+        self.assertTrue(link_lines, "the symlink was not reported at all; stderr=%r" % err)
+        self.assertNotIn(
+            "missing-frontmatter",
+            bracket_codes("\n".join(link_lines)),
+            "a symlink was misreported as a document with no frontmatter",
+        )
+
+    def test_cf21_symlink_is_skipped_not_followed(self):
+        """AC-CF-21: nothing is written through the link, inside or outside the repo."""
+        self.check("--staged")
+
+        self.assertTrue(
+            (self.repo / self.LINK).is_symlink(), "the symlink was replaced by a regular file"
+        )
+        self.assertEqual(
+            self.victim.read_text(), self.victim_before, "the tool wrote outside the repo"
+        )
 
 
 if __name__ == "__main__":

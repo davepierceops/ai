@@ -230,11 +230,18 @@ class TestAgainstThisRepository(unittest.TestCase):
     def bundle(self, *args):
         return run_cli("bundle", *args, cwd=REPO_ROOT, env=self.env)
 
-    def test_bn10_bundle_base_includes_the_entry_point_itself(self):
-        """AC-BN-10: `bundle base` resolves the name and includes its own file."""
+    def test_bn10_bundle_base_yields_exactly_itself(self):
+        """AC-BN-10(a): `bundle base` yields exactly `context-sets/base.md`.
+
+        Tightened from `assertIn` to `assertEqual` when §3.7 was revised:
+        `base.md` declares `depends-on: []` and cites no documents, so a
+        closure returning anything more is over-collecting.
+        """
         rc, out, err = self.bundle("base")
         self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
-        self.assertIn("context-sets/base.md", out.splitlines())
+        self.assertEqual(
+            [l for l in out.splitlines() if l.strip()], ["context-sets/base.md"]
+        )
 
     def test_bn10_transitive_body_references_are_followed_in_this_repo(self):
         """AC-BN-10: `policies/source-of-truth-policy.md` is reachable from `operating-model.md`.

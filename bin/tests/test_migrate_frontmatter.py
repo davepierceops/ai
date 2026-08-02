@@ -15,6 +15,7 @@ from tests.helpers import (
     base_env,
     commit,
     context_set_doc,
+    disposition_doc,
     git,
     head_sha,
     legacy_doc,
@@ -32,6 +33,8 @@ LEGACY_IN_REVIEW = "policies/legacy-in-review.md"
 NO_STATUS = "policies/no-status.md"
 COMPOSED = "context-sets/composed.md"
 ALREADY_VALID = "policies/already-valid.md"
+LEGACY_AGREED = "policies/legacy-agreed.md"
+DISPOSITION = "reviews/frontmatter-disposition.md"
 
 LEGACY_STABLE_TEXT = (
     "# Legacy Stable\n"
@@ -271,6 +274,16 @@ class TestApplyGuards(MigrateTestCase):
 
 
 class TestApplyTransform(MigrateTestCase):
+    def seed_grandfathered(self):
+        """A legacy document that migrates as `agreed` under the grandfather clause."""
+        write(
+            self.repo,
+            LEGACY_AGREED,
+            legacy_doc("Legacy Agreed", "stable", body_extra="\nAgreed long ago.\n"),
+        )
+        commit(self.repo, "add a pre-policy agreed document", env=self.env)
+        self.doc_paths.append(LEGACY_AGREED)
+
     def valid_plan(self, *paths):
         blocks = []
         for path in paths:
@@ -365,7 +378,13 @@ class TestApplyTransform(MigrateTestCase):
         self.assertIn(LEGACY_STABLE, unstaged)
 
     def test_mg13_migrated_set_passes_check_frontmatter(self):
-        """AC-MG-13: after `--apply`, `check-frontmatter --all` is clean."""
+        """AC-MG-13: after `--apply`, `check-frontmatter --all` is clean.
+
+        Amended per AC-MG-14: the set now includes a document migrating as
+        `agreed` under the grandfather clause, which is only clean if `--apply`
+        also records it in the disposition list.
+        """
+        self.seed_grandfathered()
         plan = self.write_plan(
             "plan.md",
             plan_block(
@@ -388,7 +407,24 @@ class TestApplyTransform(MigrateTestCase):
                 COMPOSED, status="draft", last_reviewed="null",
                 audience="[all-roles]", grandfather="no",
             ),
+            plan_block(
+                LEGACY_AGREED, status="agreed", last_reviewed="null",
+                audience="[all-roles]", grandfather="yes",
+            ),
             plan_block(ALREADY_VALID, action="skip"),
+        )
+
+        # Guard against fixture contamination: this test asserts a *whole-repo*
+        # scan exits 0, so it is only meaningful if the hand-written plan above
+        # covers every document the tool itself considers in scope. Comparing
+        # against `--plan`'s own output means a new fixture added to setUp fails
+        # here with a clear message instead of surfacing as a mystery finding.
+        auto_planned = set(re.findall(r"(?m)^## `(.+?)`\s*$", self.plan_text()))
+        hand_planned = set(re.findall(r"(?m)^## `(.+?)`\s*$", read(self.repo, plan)))
+        self.assertEqual(
+            auto_planned - hand_planned,
+            set(),
+            "in-scope fixture documents are missing from this test's plan",
         )
 
         rc, out, err = self.migrate("--apply", plan)
@@ -407,6 +443,125 @@ class TestApplyTransform(MigrateTestCase):
         self.assertEqual(
             check_rc, 0, "migrated set still has findings: %r" % (check_err or check_out)
         )
+
+
+class TestGrandfatherDisposition(MigrateTestCase):
+    """AC-MG-14 (§8): `--apply` records grandfathered documents.
+
+    Without this, a document migrating as `agreed` under the grandfather clause
+    passes `--apply` and then immediately fails `check-frontmatter --all` with
+    `agreed-without-review` — landing the breakage on Package B, the consumer.
+    """
+
+    def setUp(self):
+        super().setUp()
+        write(
+            self.repo,
+            LEGACY_AGREED,
+            legacy_doc("Legacy Agreed", "stable", body_extra="\nAgreed long ago.\n"),
+        )
+        commit(self.repo, "add a pre-policy agreed document", env=self.env)
+        self.doc_paths.append(LEGACY_AGREED)
+
+    def disposition_text(self):
+        self.assertTrue(
+            (self.repo / DISPOSITION).is_file(),
+            "no disposition list was written; worktree: %r"
+            % sorted(p.name for p in (self.repo / "reviews").glob("*"))
+            if (self.repo / "reviews").is_dir()
+            else "no reviews/ directory at all",
+        )
+        return read(self.repo, DISPOSITION)
+
+    def grandfather_plan(self, extra=()):
+        blocks = [
+            plan_block(
+                LEGACY_AGREED, status="agreed", last_reviewed="null",
+                audience="[all-roles]", grandfather="yes",
+            ),
+            plan_block(
+                LEGACY_DRAFT, status="draft", last_reviewed="null",
+                audience="[all-roles]", grandfather="no",
+            ),
+        ]
+        blocks.extend(extra)
+        return self.write_plan("plan.md", *blocks)
+
+    def test_mg14_disposition_list_is_created(self):
+        """AC-MG-14: `--apply` creates the disposition list when it is absent."""
+        plan = self.grandfather_plan()
+        self.assertFalse((self.repo / DISPOSITION).exists(), "fixture precondition")
+
+        rc, out, err = self.migrate("--apply", plan)
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        self.assertTrue(
+            (self.repo / DISPOSITION).is_file(), "no disposition list was written"
+        )
+
+    def test_mg14_grandfathered_path_is_recorded(self):
+        """AC-MG-14: the grandfathered document is named in the disposition list."""
+        plan = self.grandfather_plan()
+        rc, out, err = self.migrate("--apply", plan)
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+
+        listing = self.disposition_text()
+        self.assertIn("`%s`" % LEGACY_AGREED, listing)
+
+    def test_mg14_non_grandfathered_paths_are_not_recorded(self):
+        """AC-MG-14: only `grandfather: yes` documents enter the list."""
+        plan = self.grandfather_plan()
+        rc, out, err = self.migrate("--apply", plan)
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+
+        listing = self.disposition_text()
+        self.assertNotIn(LEGACY_DRAFT, listing)
+
+    def test_mg14_grandfathered_document_passes_check_frontmatter(self):
+        """AC-MG-14: the round trip AC-MG-13 promises holds for a grandfathered doc."""
+        plan = self.grandfather_plan()
+        rc, out, err = self.migrate("--apply", plan)
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+
+        check_rc, check_out, check_err = run_cli(
+            "check-frontmatter", LEGACY_AGREED, cwd=self.repo, env=self.env
+        )
+        self.assertEqual(
+            check_rc,
+            0,
+            "a grandfathered document failed straight after --apply: %r"
+            % (check_err or check_out),
+        )
+
+    def test_mg14_disposition_write_is_part_of_the_all_or_nothing_write(self):
+        """AC-MG-14: a failing `--apply` writes no disposition list either."""
+        plan = self.grandfather_plan(
+            extra=[
+                plan_block(
+                    NO_STATUS, status="draft", last_reviewed="null",
+                    audience="[not-a-real-role]", grandfather="no",
+                )
+            ]
+        )
+
+        rc, out, err = self.migrate("--apply", plan)
+        self.assertEqual(rc, 1, "stdout=%r stderr=%r" % (out, err))
+        self.assertFalse(
+            (self.repo / DISPOSITION).exists(),
+            "the disposition list escaped the all-or-nothing rule",
+        )
+
+    def test_mg14_existing_disposition_entries_survive(self):
+        """AC-MG-14: recording is additive; a pre-existing listing is not clobbered."""
+        write(self.repo, DISPOSITION, disposition_doc(["policies/already-listed.md"]))
+        commit(self.repo, "seed disposition", env=self.env)
+
+        plan = self.grandfather_plan()
+        rc, out, err = self.migrate("--apply", plan)
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+
+        listing = self.disposition_text()
+        self.assertIn("`policies/already-listed.md`", listing)
+        self.assertIn("`%s`" % LEGACY_AGREED, listing)
 
 
 class TestUsage(MigrateTestCase):

@@ -11,6 +11,7 @@ import unittest
 
 from tests.helpers import (
     agreed_doc,
+    no_traceback,
     base_env,
     bracket_codes,
     commit,
@@ -20,6 +21,7 @@ from tests.helpers import (
     git,
     in_review_doc,
     make_home,
+    read,
     make_repo,
     porcelain,
     run_cli,
@@ -301,6 +303,125 @@ class TestPostCommitVerification(FlipAgreedTestCase):
             self.repo, "rev-parse", "HEAD~1", env=self.env, check=True
         )[1].strip()
         self.assertEqual(parent, self.base_sha)
+
+
+# ---------------------------------------------------------------------------
+# §8 — gate findings.
+# ---------------------------------------------------------------------------
+
+
+def hook_script(body):
+    return "#!/bin/sh\n%s\n" % body
+
+
+class TestPostCommitBodyComparison(FlipAgreedTestCase):
+    """AC-FA-12: the committed body must equal the body at `HEAD~1`.
+
+    `flip-agreed` commits *without* `--no-verify` on purpose, so hooks run and
+    it cannot be used to launder a content edit. But that also means a hook can
+    alter what lands. AC-FA-11's re-validate-plus-single-path check cannot see
+    an injected body line; this comparison can.
+    """
+
+    INJECTED = "INJECTED BY A HOOK"
+
+    def install_injecting_hook(self):
+        hook = self.repo / ".git" / "hooks" / "pre-commit"
+        hook.parent.mkdir(parents=True, exist_ok=True)
+        hook.write_text(
+            hook_script(
+                "printf '%%s\\n' '%s' >> %s\ngit add -- %s\nexit 0"
+                % (self.INJECTED, TARGET, TARGET)
+            )
+        )
+        hook.chmod(0o755)
+
+    def test_fa12_hook_injected_body_line_is_caught(self):
+        """AC-FA-12: a body altered by a hook is a self-verification failure (exit 4)."""
+        self.install_injecting_hook()
+
+        rc, out, err = self.flip_target()
+        self.assertEqual(
+            rc,
+            4,
+            "an injected body line was committed at exit %s; stdout=%r stderr=%r"
+            % (rc, out, err),
+        )
+
+    def test_fa12_failure_is_reported_with_a_code_and_no_traceback(self):
+        """AC-FA-12: the mismatch is a diagnostic, not a crash."""
+        self.install_injecting_hook()
+
+        rc, out, err = self.flip_target()
+        self.assertTrue(no_traceback(out, err), "traceback in %r" % err)
+        self.assertTrue(bracket_codes(out + err), "no [code] in %r" % (out + err))
+        self.assertIn(TARGET, out + err)
+
+    def test_fa12_the_altered_commit_is_left_in_place(self):
+        """AC-FA-12: like AC-FA-11, the tool reports rather than rewriting history."""
+        self.install_injecting_hook()
+
+        self.flip_target()
+        self.assertEqual(commit_count(self.repo, env=self.env), self.commits_before + 1)
+        self.assertIn(self.INJECTED, self.head_doc())
+
+    def test_fa12_clean_hook_run_still_succeeds(self):
+        """AC-FA-12: a hook that changes nothing must not trip the new comparison."""
+        hook = self.repo / ".git" / "hooks" / "pre-commit"
+        hook.parent.mkdir(parents=True, exist_ok=True)
+        hook.write_text(hook_script("exit 0"))
+        hook.chmod(0o755)
+
+        rc, out, err = self.flip_target()
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        self.assertIn("status: agreed", self.head_doc())
+
+
+class TestCommitFailureRecovery(FlipAgreedTestCase):
+    """AC-FA-13: a failed `git commit` must not leave a mutation behind."""
+
+    def install_rejecting_hook(self):
+        hook = self.repo / ".git" / "hooks" / "pre-commit"
+        hook.parent.mkdir(parents=True, exist_ok=True)
+        hook.write_text(hook_script("echo 'site policy says no' >&2\nexit 1"))
+        hook.chmod(0o755)
+
+    def setUp(self):
+        super().setUp()
+        self.worktree_before = read(self.repo, TARGET)
+        self.install_rejecting_hook()
+
+    def test_fa13_commit_failure_exits_three(self):
+        """AC-FA-13: a rejected commit is a precondition failure, not success."""
+        rc, out, err = self.flip_target()
+        self.assertEqual(rc, 3, "stdout=%r stderr=%r" % (out, err))
+        self.assert_no_new_commit()
+
+    def test_fa13_worktree_is_restored(self):
+        """AC-FA-13: the developer is not left holding a mutation they did not ask for."""
+        self.flip_target()
+        self.assertEqual(
+            read(self.repo, TARGET),
+            self.worktree_before,
+            "the worktree kept the flip after the commit failed",
+        )
+
+    def test_fa13_index_entry_is_restored(self):
+        """AC-FA-13: that path's index entry returns to its pre-invocation state."""
+        self.flip_target()
+        self.assertEqual(
+            show(self.repo, ":" + TARGET, env=self.env),
+            self.worktree_before,
+            "the index kept the flip after the commit failed",
+        )
+        status = git(self.repo, "status", "--porcelain", env=self.env, check=True)[1]
+        self.assertEqual(status.strip(), "", "the repo was left dirty: %r" % status)
+
+    def test_fa13_failure_is_reported_without_a_traceback(self):
+        """AC-FA-13: the failure is explained rather than swallowed or crashed."""
+        rc, out, err = self.flip_target()
+        self.assertTrue(no_traceback(out, err), "traceback in %r" % err)
+        self.assertTrue((out + err).strip(), "the commit failure was silent")
 
 
 if __name__ == "__main__":

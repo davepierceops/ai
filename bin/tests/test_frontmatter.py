@@ -267,6 +267,97 @@ class TestWithFields(unittest.TestCase):
         self.assertEqual(updated.body, doc.body)
 
 
+class TestCommentAndBlankPreservation(unittest.TestCase):
+    """AC-FM-17 (§8): `render` must not silently delete authored content.
+
+    The dialect admits `#` comments and `parse_text` accepts them, but nothing
+    round-tripped them — so an unattended index mutation deleted a comment
+    explaining why a document's `audience` must not change.
+    """
+
+    #: Key order already matches FIELD_ORDER, so "position relative to the
+    #: surrounding keys" is unambiguous here and does not collide with
+    #: AC-FM-7's canonical ordering. See the note in the final report.
+    ANNOTATED = (
+        "---\n"
+        "status: agreed\n"
+        "last-reviewed: reviews/x.md @ abc1234\n"
+        "# audience is fixed by the charter; do not change\n"
+        "audience: [all-roles]\n"
+        "\n"
+        "superseded-by: null\n"
+        "---\n"
+        "\n# Annotated\n\nBody.\n"
+    )
+    COMMENT = "# audience is fixed by the charter; do not change"
+
+    def test_fm17_comment_lines_survive_render(self):
+        """AC-FM-17: a `#` comment inside the block is preserved by `render`."""
+        rendered = fm.render(fm.parse_text(self.ANNOTATED))
+        self.assertIn(self.COMMENT, rendered)
+
+    def test_fm17_comment_keeps_its_position_relative_to_surrounding_keys(self):
+        """AC-FM-17: the comment still sits between `last-reviewed` and `audience`."""
+        rendered = fm.render(fm.parse_text(self.ANNOTATED))
+        self.assertIn(self.COMMENT, rendered)
+        self.assertLess(rendered.index("last-reviewed:"), rendered.index(self.COMMENT))
+        self.assertLess(rendered.index(self.COMMENT), rendered.index("audience:"))
+
+    def test_fm17_blank_lines_inside_the_block_survive_render(self):
+        """AC-FM-17: blank lines inside the frontmatter block are preserved."""
+        rendered = fm.render(fm.parse_text(self.ANNOTATED))
+        head = rendered.split("---\n", 2)[1]
+        self.assertIn("\n\n", head, "the blank line inside the block was dropped")
+
+    def test_fm17_comments_survive_with_fields_and_render(self):
+        """AC-FM-17: the flip path (`with_fields` then `render`) preserves comments."""
+        doc = fm.parse_text(self.ANNOTATED)
+        flipped = fm.with_fields(doc, {"status": "in-review", "last-reviewed": None})
+        rendered = fm.render(flipped)
+        self.assertIn("status: in-review", rendered)
+        self.assertIn(self.COMMENT, rendered)
+
+    def test_fm17_annotated_document_round_trips(self):
+        """AC-FM-17: parse/render/parse is stable for an annotated document."""
+        once = fm.render(fm.parse_text(self.ANNOTATED))
+        twice = fm.render(fm.parse_text(once))
+        self.assertEqual(twice, once)
+
+    def test_fm18_block_item_after_a_scalar_key_is_malformed(self):
+        """AC-FM-18: a `- item` following a scalar value is `malformed-frontmatter`."""
+        text = (
+            "---\n"
+            "status: draft\n"
+            "audience: all-roles\n"
+            "- coder-agent\n"
+            "---\nbody\n"
+        )
+        doc = fm.parse_text(text)
+        self.assertIn("malformed-frontmatter", code_set(doc.errors))
+
+    def test_fm18_scalar_is_not_silently_discarded(self):
+        """AC-FM-18: the scalar value must not vanish in favour of the list."""
+        text = (
+            "---\n"
+            "status: draft\n"
+            "audience: all-roles\n"
+            "- coder-agent\n"
+            "---\nbody\n"
+        )
+        doc = fm.parse_text(text)
+        self.assertIn(
+            "all-roles",
+            repr(doc.fields.get("audience")),
+            "the scalar `all-roles` was discarded rather than reported",
+        )
+
+    def test_fm18_a_genuine_block_list_is_still_accepted(self):
+        """AC-FM-18: `key:` with no scalar followed by `- item` remains valid."""
+        doc = fm.parse_text("---\nstatus: draft\naudience:\n- all-roles\n---\nbody\n")
+        self.assertNotIn("malformed-frontmatter", code_set(doc.errors))
+        self.assertEqual(doc.fields.get("audience"), ["all-roles"])
+
+
 class TestValidate(unittest.TestCase):
     def test_fm9_missing_frontmatter(self):
         """AC-FM-9: a document with no frontmatter yields `missing-frontmatter`."""

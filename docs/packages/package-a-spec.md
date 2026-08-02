@@ -656,7 +656,16 @@ Every finding below sits just outside that aperture.
 
 The ACs in this section are **additions and amendments** to §3 and §4. They are
 written the same way — behavioural statements the Test Designer turns into
-tests, red before any fix is written.
+tests, red before any fix is written. There are **18 new AC ids** below; other
+ids appearing in this section (`AC-CF-5`, `AC-CO-9`, `AC-FA-11`, `AC-MG-13`,
+`AC-SC-2`, `AC-X-5`) are cross-references to existing criteria, not additions.
+
+**A note on exit codes for this round.** Several of these defects currently
+*also* exit 1, because that is Python's uncaught-exception code. For this
+package, **exit 1 is not evidence of a controlled failure** — the ACs below are
+written against observable state (blob bytes, index contents, absence of a
+traceback, the specific finding code), not against the exit code alone, and
+tests must be too.
 
 ### 8.1 Blocking defects
 
@@ -744,7 +753,10 @@ just a merge, at exit 0.
   never flipped — a one-command, hook-blessed bypass.
 - **AC-MG-14** *(F3)* `--apply` records every document marked `grandfather: yes`
   in `reviews/frontmatter-disposition.md`, creating the file if absent, as part
-  of the same all-or-nothing write. Without this, a grandfathered document
+  of the same all-or-nothing write. **The entries are backticked repo-relative
+  paths** — that is the only form `repo.disposition_paths` parses (AC-RP-7), and
+  the round trip into AC-CF-12 is the whole point, so a format that reads back
+  empty is a silent failure rather than a formatting preference. Without this, a grandfathered document
   passes `--apply` and then immediately fails `check-frontmatter --all` with
   `agreed-without-review`, violating AC-MG-13 — and landing on Package B, the
   consumer.
@@ -755,7 +767,10 @@ just a merge, at exit 0.
   AC-X-5. `migrate-frontmatter` already does this correctly via
   `cli.relpath_of`.)*
 - **AC-FM-17** *(F5)* `render` preserves comment lines and blank lines inside
-  the frontmatter block, in position relative to the surrounding keys. The
+  the frontmatter block. **Binding rule, since AC-FM-7 reorders keys and the two
+  would otherwise collide: a comment or blank line binds to the key that
+  follows it and moves with that key; a trailing comment with no following key
+  is emitted at the end of the block.** The
   dialect (§3.1) admits `#` comments and `parse_text` accepts them, but nothing
   round-tripped them — so an unattended index mutation silently deleted content
   the author wrote, including, in the worked example, a comment explaining why
@@ -767,7 +782,10 @@ just a merge, at exit 0.
 
 - **AC-CF-19** *(N3)* `check-frontmatter --all` prints a `NOTE` stating how many
   files matched the in-scope set, and emits a `WARN` for any configured glob
-  that matches no path in the repo. Today a repo where enforcement matches
+  that matches no path in the repo. **Exit stays 0** — per §2.4 a `WARN` is not
+  a policy failure, and a project repo legitimately has no `policies/` or
+  `roles/` directory. The goal is that "enforcing nothing" stops being visually
+  identical to "fully compliant", not that it becomes an error. Today a repo where enforcement matches
   *nothing* is indistinguishable from a fully compliant one: both print nothing
   and exit 0. AC-SC-2's fail-closed design covers a missing, unreadable, or
   restructured policy — it does not cover a policy that parses fine and matches
@@ -777,19 +795,27 @@ just a merge, at exit 0.
   restoring `pre-commit.bak` if one exists, and refuses to remove an unmanaged
   hook. Without it, rollback is manual, and deleting or moving the `/ai` clone
   bricks commits in every repo still carrying the shim.
-- **AC-IH-9** *(N4)* When `python3` is not on `PATH`, the shim fails with a
-  diagnostic naming `python3` explicitly, rather than degrading to raw shell
-  noise (`dirname: command not found`). Hooks spawned by GUI clients do not
-  inherit a login shell.
+- **AC-IH-9** *(N4)* When `python3` is not on `PATH`, the shim fails with the
+  same `ERROR:`-prefixed diagnostic form it already uses for the
+  home-not-found path, naming `python3` and how to fix it, and exits with a
+  code from §2.4's set. Hooks spawned by GUI clients do not inherit a login
+  shell, and the current behaviour degrades to raw shell noise
+  (`dirname: command not found`, `env: python3: No such file or directory`,
+  exit 127). *(Sharpened after the Test Designer noted that the raw `env:`
+  message already names `python3` on a literal reading, so the original wording
+  was satisfied by the defect itself.)*
 - **AC-CF-20** *(D5)* A path argument that differs only in case from the file on
   disk is resolved to its real case before scope matching. On a
   case-insensitive filesystem, `check-frontmatter Policies/x.md` currently exits
   0 silently — a false all-clear.
-- **AC-CF-21** *(D4)* A staged symlink at an in-scope path is reported and
-  skipped rather than being read as a document. The blob of a symlink is its
-  target path, so it was reported `[missing-frontmatter]` and blocked forever
-  with a misleading code; worse, on the flip path `write_text` through a symlink
-  could write outside the repo, contra AC-X-5.
+- **AC-CF-21** *(D4)* A staged symlink at an in-scope path is reported with the
+  code `[symlink]` and skipped rather than being read as a document, and the
+  link itself is never replaced. The blob of a symlink is its target path, so
+  it was reported `[missing-frontmatter]` and blocked forever with a misleading
+  code. *(The related hazard — `write_text` following the link and writing
+  outside the repo — is theoretical rather than reachable: a symlink's blob is a
+  bare path, which can never parse as an `agreed` document, so the flip path
+  cannot be entered. The misleading-report defect is the real one.)*
 
 ### 8.4 Accepted, deferred, or Dave's call
 

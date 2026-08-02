@@ -9,11 +9,14 @@ from __future__ import annotations
 
 import os
 import stat
+import subprocess
 import unittest
 
 from tests.helpers import (
+    DOCUMENTED_EXIT_CODES,
     agreed_doc,
     base_env,
+    fake_path_dir,
     commit,
     draft_doc,
     frontmatter_block,
@@ -141,6 +144,119 @@ class TestInstallation(InstallHooksTestCase):
         self.assertIn(MANAGED_MARKER, out, "no shim was printed")
         for needle in ["/Users/", "/home/", str(self.repo), str(self.home)]:
             self.assertNotIn(needle, out, "shim leaks %r" % needle)
+
+
+class TestUninstall(InstallHooksTestCase):
+    """AC-IH-8 (§8): rollback must not be a manual operation.
+
+    Without an uninstall, deleting or moving the `/ai` clone bricks commits in
+    every repo still carrying the shim.
+    """
+
+    def test_ih8_uninstall_removes_a_managed_hook(self):
+        """AC-IH-8: `--uninstall` removes a hook this tool installed, exit 0."""
+        self.assertEqual(self.install()[0], 0)
+
+        rc, out, err = self.install("--uninstall")
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        self.assertFalse(self.hook_path().exists(), "the managed hook survived --uninstall")
+
+    def test_ih8_uninstall_restores_a_backup(self):
+        """AC-IH-8: a `pre-commit.bak` left by `--force` is put back."""
+        write(self.repo, ".git/hooks/pre-commit", "#!/bin/sh\necho mine\n")
+        os.chmod(self.hook_path(), 0o755)
+        self.assertEqual(self.install("--force")[0], 0)
+
+        rc, out, err = self.install("--uninstall")
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        self.assertTrue(self.hook_path().is_file(), "the backup was not restored")
+        self.assertIn("echo mine", self.hook_text())
+        self.assertFalse(
+            (self.repo / ".git/hooks/pre-commit.bak").exists(),
+            "the backup was restored but also left behind",
+        )
+
+    def test_ih8_uninstall_refuses_an_unmanaged_hook(self):
+        """AC-IH-8: a hook this tool did not write is never removed (exit 3)."""
+        write(self.repo, ".git/hooks/pre-commit", "#!/bin/sh\necho not mine\n")
+        os.chmod(self.hook_path(), 0o755)
+
+        rc, out, err = self.install("--uninstall")
+        self.assertEqual(rc, 3, "stdout=%r stderr=%r" % (out, err))
+        self.assertIn("echo not mine", self.hook_text())
+
+    def test_ih8_uninstall_with_no_hook_is_a_no_op(self):
+        """AC-IH-8: uninstalling when nothing is installed succeeds quietly (exit 0)."""
+        rc, out, err = self.install("--uninstall")
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+
+    def test_ih8_uninstall_honours_core_hooks_path(self):
+        """AC-IH-8: uninstall looks where install wrote."""
+        custom = self.repo / "githooks"
+        custom.mkdir()
+        git(self.repo, "config", "core.hooksPath", str(custom), env=self.env, check=True)
+        self.assertEqual(self.install()[0], 0)
+        self.assertTrue((custom / "pre-commit").is_file())
+
+        rc, out, err = self.install("--uninstall")
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        self.assertFalse((custom / "pre-commit").exists())
+
+
+class TestShimWithoutPython(InstallHooksTestCase):
+    """AC-IH-9 (§8): hooks spawned by GUI clients do not inherit a login shell."""
+
+    def setUp(self):
+        super().setUp()
+        rc, out, err = self.install()
+        self.assertEqual(rc, 0, "install failed: %r %r" % (out, err))
+        # A PATH carrying the utilities the shim itself needs, but no python3.
+        self.sparse_path = fake_path_dir(self, tools=("git", "dirname"))
+
+    def run_shim(self):
+        env = base_env(methodology_home=self.home, PATH=str(self.sparse_path))
+        proc = subprocess.run(
+            [str(self.hook_path())],
+            cwd=str(self.repo),
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        return proc.returncode, proc.stdout, proc.stderr
+
+    def test_ih9_missing_python3_is_named_explicitly(self):
+        """AC-IH-9: the diagnostic names `python3` rather than leaking shell noise."""
+        rc, out, err = self.run_shim()
+        self.assertNotEqual(rc, 0, "the shim succeeded with no python3 on PATH")
+        self.assertIn("python3", out + err)
+
+    def test_ih9_failure_is_a_diagnostic_not_raw_shell_noise(self):
+        """AC-IH-9: the shim reports it in its own ERROR form, like its other failure."""
+        rc, out, err = self.run_shim()
+        self.assertIn(
+            "ERROR",
+            out + err,
+            "the shim degraded to raw interpreter/shell noise: %r" % (out + err),
+        )
+
+    def test_ih9_exit_code_is_one_of_the_documented_ones(self):
+        """AC-IH-9: a missing interpreter is a precondition failure, not exit 127."""
+        rc, out, err = self.run_shim()
+        self.assertIn(
+            rc,
+            DOCUMENTED_EXIT_CODES,
+            "undocumented exit %s; stdout=%r stderr=%r" % (rc, out, err),
+        )
+
+    def test_ih9_required_utilities_were_actually_available(self):
+        """AC-IH-9: the fixture removes only python3, so the failure is unambiguous."""
+        rc, out, err = self.run_shim()
+        self.assertNotIn(
+            "dirname: command not found",
+            out + err,
+            "the fixture's PATH was too sparse to isolate the python3 failure",
+        )
 
 
 class TestEndToEndHook(InstallHooksTestCase):

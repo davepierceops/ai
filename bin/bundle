@@ -47,7 +47,11 @@ def emit(root, walked, fmt, why):
         for item in walked:
             sha = repo.last_commit_sha(root, item["path"]) or "uncommitted"
             print("===== %s @ %s =====" % (item["path"], sha))
-            print((root / item["path"]).read_text(), end="")
+            text, finding = cli.read_document(root / item["path"])
+            if finding is not None:
+                cli.diagnostic("WARN", item["path"], finding.code, finding.message)
+                continue
+            print(text, end="")
         return
     for item in walked:
         if why and item["via"]:

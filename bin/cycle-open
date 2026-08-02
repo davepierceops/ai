@@ -142,10 +142,12 @@ def write_bundle(root, outdir, revisions, directive_relpath):
             raise cli.ToolError(
                 "cannot read %s at %s" % (relpath, sha), cli.EXIT_PRECONDITION
             )
-        (outdir / relpath.replace("/", "__")).write_text(content)
+        (outdir / relpath.replace("/", "__")).write_text(content, encoding=cli.ENCODING)
         manifest.append("%s @ %s" % (relpath, sha))
     manifest.append(directive_relpath)
-    (outdir / "BUNDLE.txt").write_text("\n".join(manifest) + "\n")
+    (outdir / "BUNDLE.txt").write_text(
+        "\n".join(manifest) + "\n", encoding=cli.ENCODING
+    )
 
 
 def main(argv=None):
@@ -156,6 +158,9 @@ def main(argv=None):
         )
 
     root = cli.load_root()
+    # AC-CO-12: `--out` is repo-relative, always. Resolved before anything is
+    # written, so a refused run leaves no directive behind either.
+    out_rel = cli.relpath_of(root, args.out, cli.EXIT_USAGE) if args.out else None
     directive_relpath, heading = directive_identity(root, args)
     directive_path = root / directive_relpath
     if directive_path.exists():
@@ -169,10 +174,12 @@ def main(argv=None):
     date = args.date or datetime.date.today().isoformat()
 
     directive_path.parent.mkdir(parents=True, exist_ok=True)
-    directive_path.write_text(render_directive(heading, date, revisions))
+    directive_path.write_text(
+        render_directive(heading, date, revisions), encoding=cli.ENCODING
+    )
 
     stem = os.path.basename(directive_relpath)[: -len(".md")]
-    out_rel = args.out or "%s/%s" % (BUNDLE_DIR_DEFAULT, stem)
+    out_rel = out_rel or "%s/%s" % (BUNDLE_DIR_DEFAULT, stem)
     outdir = root / out_rel
     write_bundle(root, outdir, revisions, directive_relpath)
 

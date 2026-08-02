@@ -161,6 +161,40 @@ def read(repo, relpath):
     return (pathlib.Path(repo) / relpath).read_text()
 
 
+def write_bytes(repo, relpath, data):
+    """Write raw bytes — for fixtures that must not be valid UTF-8 (AC-CF-14)."""
+    path = pathlib.Path(repo) / relpath
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+    return path
+
+
+def read_bytes(repo, relpath):
+    """Read `repo/relpath` as raw bytes."""
+    return (pathlib.Path(repo) / relpath).read_bytes()
+
+
+def git_bytes(repo, *args, env=None, timeout=60):
+    """Run git and return raw stdout bytes, for blob content that may not decode."""
+    proc = subprocess.run(
+        ["git", *[str(a) for a in args]],
+        cwd=str(repo),
+        env=env or base_env(),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        timeout=timeout,
+    )
+    return proc.returncode, proc.stdout, proc.stderr.decode("utf-8", "replace")
+
+
+def blob_bytes(repo, spec, env=None):
+    """`git cat-file blob <spec>` as bytes — e.g. `":policies/x.md"` for the index."""
+    rc, out, err = git_bytes(repo, "cat-file", "blob", spec, env=env)
+    if rc != 0:
+        raise AssertionError("git cat-file blob %s failed: %s" % (spec, err))
+    return out
+
+
 def stage(repo, *paths, env=None):
     """`git add` the given paths (or everything when none are given)."""
     env = env or base_env()
@@ -288,6 +322,52 @@ def code_set(findings):
 
 def no_traceback(*streams):
     return not any("Traceback (most recent call last)" in (s or "") for s in streams)
+
+
+DOCUMENTED_EXIT_CODES = (0, 1, 2, 3, 4)
+
+
+def ascii_env(methodology_home=None, **overrides):
+    """An environment whose *default* text encoding is ASCII, not UTF-8.
+
+    A hook spawned by a GUI git client inherits no login shell and can easily
+    run under `LC_ALL=C`. Python's PEP 538 locale coercion and PEP 540 UTF-8
+    mode both paper over that, so both are disabled here — otherwise the
+    platform default never actually becomes ASCII and AC-X-7 cannot fail.
+    """
+    return base_env(
+        methodology_home=methodology_home,
+        LC_ALL="C",
+        LANG="C",
+        PYTHONCOERCECLOCALE="0",
+        PYTHONUTF8="0",
+        **overrides
+    )
+
+
+def fake_path_dir(case, tools=("git", "dirname"), prefix="aimeta-path-"):
+    """A directory of symlinks to exactly `tools` — a deliberately sparse PATH.
+
+    Used by AC-IH-9 to remove `python3` from PATH while leaving the utilities
+    the shim itself needs.
+    """
+    path = temp_dir(case, prefix)
+    for tool in tools:
+        located = shutil.which(tool)
+        if located is None:  # pragma: no cover - environment sanity
+            raise AssertionError("cannot build a fake PATH without %s" % tool)
+        (path / tool).symlink_to(located)
+    return path
+
+
+def filesystem_is_case_insensitive(path):
+    """True when `path`'s filesystem folds case (macOS default, not Linux)."""
+    probe = pathlib.Path(path) / "CaseProbe.tmp"
+    probe.write_text("probe")
+    try:
+        return (pathlib.Path(path) / "caseprobe.tmp").exists()
+    finally:
+        probe.unlink()
 
 
 def snapshot_tree(root, skip=()):

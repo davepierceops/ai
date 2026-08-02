@@ -74,7 +74,10 @@ def check_preconditions(ctx, relpath):
             cli.EXIT_PRECONDITION,
         )
     staged_text = repo.file_at_rev(ctx.root, ":", relpath)
-    worktree_text = (ctx.root / relpath).read_text()
+    worktree_text, finding = cli.read_document(ctx.root / relpath)
+    if finding is not None:
+        cli.report([finding], relpath)
+        raise cli.ToolError("%s cannot be read as a document" % relpath, cli.EXIT_POLICY)
     if staged_text is not None:
         if frontmatter.parse_text(staged_text).body != frontmatter.parse_text(worktree_text).body:
             raise cli.ToolError(
@@ -86,7 +89,7 @@ def check_preconditions(ctx, relpath):
 
 def restore(ctx, relpath, original_text, original_entry):
     """D6: put the worktree file and this path's index entry back as they were."""
-    (ctx.root / relpath).write_text(original_text)
+    (ctx.root / relpath).write_text(original_text, encoding=cli.ENCODING)
     if original_entry is None:
         repo.git("update-index", "--force-remove", "--", relpath, cwd=ctx.root)
     else:
@@ -157,7 +160,7 @@ def main(argv=None):
         cli.report(findings, relpath)
         return cli.EXIT_POLICY
 
-    (ctx.root / relpath).write_text(frontmatter.render(flipped))
+    (ctx.root / relpath).write_text(frontmatter.render(flipped), encoding=cli.ENCODING)
     repo.git("add", "--", relpath, cwd=ctx.root)
 
     # AC-FA-2: the staged change must be frontmatter-only against HEAD.
@@ -179,13 +182,29 @@ def main(argv=None):
         return cli.EXIT_OK
 
     subject, body = commit_message(relpath, args.status, args.review, args.message)
-    repo.git("commit", "-q", "-m", subject, "-m", body, cwd=ctx.root)
+    code, _, error = repo.run(
+        ["commit", "-q", "-m", subject, "-m", body], cwd=ctx.root
+    )
+    if code != 0:
+        # AC-FA-13: a rejected commit must not leave a mutation behind.
+        restore(ctx, relpath, original_text, original_entry)
+        cli.diagnostic(
+            "ERROR",
+            relpath,
+            "commit-failed",
+            "git commit failed (%s); the working tree and index were restored"
+            % error.strip().replace("\n", " "),
+        )
+        return cli.EXIT_PRECONDITION
 
-    # AC-FA-11: the commit must be what was promised. One comparison, so the
-    # branch is verifiable by reading (it has no black-box test; see spec §6).
-    committed = repo.file_at_rev(ctx.root, "HEAD", relpath) or ""
+    # AC-FA-11 + AC-FA-12: the commit must be what was promised — it re-validates,
+    # it touches exactly one path, and its body is the parent's body untouched.
+    # Kept to a single comparison so it is verifiable by reading (spec §6).
+    committed = frontmatter.parse_text(repo.file_at_rev(ctx.root, "HEAD", relpath) or "")
+    parent = repo.file_at_rev(ctx.root, "HEAD~1", relpath)
+    parent_body = frontmatter.parse_text(parent).body if parent is not None else committed.body
     recheck = frontmatter.validate(
-        frontmatter.parse_text(committed),
+        committed,
         path=relpath,
         role_slugs=ctx.role_slugs,
         grandfathered=ctx.grandfathered(relpath),
@@ -195,13 +214,14 @@ def main(argv=None):
         for p in repo.git("show", "--pretty=format:", "--name-only", "HEAD", cwd=ctx.root).splitlines()
         if p.strip()
     ]
-    if (recheck, touched) != ([], [relpath]):
+    if (recheck, touched, committed.body) != ([], [relpath], parent_body):
         cli.diagnostic(
             "ERROR",
             relpath,
             "post-commit-verification-failed",
-            "the commit does not match what was staged (touched %s, %d finding(s)); "
-            "the commit is left in place for inspection" % (touched, len(recheck)),
+            "the commit does not match what was staged (touched %s, %d finding(s), "
+            "body %s); the commit is left in place for inspection"
+            % (touched, len(recheck), "changed" if committed.body != parent_body else "intact"),
         )
         return cli.EXIT_SELF_VERIFY
     return cli.EXIT_OK

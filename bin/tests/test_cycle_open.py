@@ -23,6 +23,8 @@ from tests.helpers import (
     porcelain,
     read,
     run_cli,
+    snapshot_tree,
+    temp_dir,
     write,
 )
 
@@ -276,6 +278,50 @@ class TestBundleExpansion(CycleOpenTestCase):
         self.assertEqual(len(paths), len(set(paths)), "duplicate entries: %r" % paths)
         self.assertIn("context-sets/leaf.md", paths)
         self.assertIn(DOC_A, paths)
+
+
+class TestOutPathContainment(CycleOpenTestCase):
+    """AC-CO-12 (§8): `--out` is relative to the repo root, always.
+
+    `pathlib`'s `/` discards the left operand when the right is absolute, so
+    `--out /tmp/x` wrote outside the repo at exit 0 — violating AC-X-5.
+    """
+
+    def test_co12_absolute_out_is_refused(self):
+        """AC-CO-12: an absolute `--out` is a usage error (exit 2)."""
+        outside = temp_dir(self, "aimeta-escape-")
+
+        rc, out, err = self.open_cycle(
+            "--cycle", "7", "--title", "T", "--out", str(outside), DOC_A
+        )
+        self.assertEqual(rc, 2, "stdout=%r stderr=%r" % (out, err))
+
+    def test_co12_absolute_out_writes_nothing_outside_the_repo(self):
+        """AC-CO-12: refusing means refusing — nothing lands outside the root."""
+        outside = temp_dir(self, "aimeta-escape-")
+        before = snapshot_tree(outside)
+
+        self.open_cycle("--cycle", "7", "--title", "T", "--out", str(outside), DOC_A)
+
+        self.assertEqual(snapshot_tree(outside), before, "the tool wrote outside the repo")
+
+    def test_co12_dotdot_escaping_out_is_refused(self):
+        """AC-CO-12: a relative `--out` that escapes the root is a usage error (2)."""
+        rc, out, err = self.open_cycle(
+            "--cycle", "7", "--title", "T", "--out", "../escaped", DOC_A
+        )
+        self.assertEqual(rc, 2, "stdout=%r stderr=%r" % (out, err))
+        self.assertFalse(
+            (self.repo.parent / "escaped").exists(), "the bundle escaped the repo root"
+        )
+
+    def test_co12_ordinary_relative_out_still_works(self):
+        """AC-CO-12: containment must not break the documented relative form."""
+        rc, out, err = self.open_cycle(
+            "--cycle", "7", "--title", "T", "--out", "uploads/cycle7", DOC_A
+        )
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        self.assertTrue((self.repo / "uploads/cycle7" / "policies__alpha.md").is_file())
 
 
 class TestDateAndSideEffects(CycleOpenTestCase):
