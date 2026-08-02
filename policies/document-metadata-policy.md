@@ -144,17 +144,33 @@ and it is the only one:
    document and no other tracked path. A second file — including a
    tracker or an adapter edited alongside — escalates, and so does a
    revision spread across two commits.
-2. The diff is **no more than ten changed lines** of document body,
-   added plus deleted, per `git diff --numstat`. The hook's own
-   frontmatter flip is not counted — it is four of those lines on every
-   revision, and charging them to the author would shrink the real
-   allowance without saying so. The threshold is arbitrary, which is the
-   point: a bright line cannot be negotiated with, and exceeding it
-   costs a full cycle rather than blocking the change.
-3. The document is not this policy. Enforcement reads its in-scope set
-   from the Scope section above, so an edit here can narrow what is
-   enforced — including enforcement of this document — in one commit.
-   This policy returns to `agreed` only through a full cycle.
+2. The diff is **no more than ten changed lines of document body**,
+   added plus deleted. Count the body only: exclude the frontmatter
+   block, which the hook rewrites on every revision — by two lines or
+   by four, depending on whether `last-reviewed` was already null. That
+   is a case analysis with a wrong answer in it, so there is no
+   constant to subtract; measure the body. The threshold itself is
+   arbitrary, which is the point: a bright line cannot be negotiated
+   with, and exceeding it costs a full cycle rather than blocking the
+   change.
+3. The document does not govern how documents are reviewed, agreed, or
+   released. Such a document can use this path to weaken the review
+   regime that authorizes the path, and the size ceiling cannot see the
+   difference — deleting a hard gate takes three lines. The class is
+   **enumerated, not judged**; a document not named here is not
+   excluded by this condition:
+   - `policies/document-metadata-policy.md` — this document.
+     Enforcement reads its in-scope set from the Scope section above,
+     so an edit here can narrow what is enforced, including enforcement
+     of this document.
+   - `policies/agent-review-policy.md`
+   - `policies/commit-and-change-control-policy.md`
+   - `roles/spec-reviewer-agent.md`
+   - `skills/spec-review-cycle.md`
+
+   These return to `agreed` only through a full cycle. A repo that adds
+   a document to this class names it here; a repo that organizes these
+   concerns under different paths substitutes its own.
 4. The document is not under `specs/`. Spec agreement is gated by the
    Spec Reviewer Agent (`roles/spec-reviewer-agent.md`); this path does
    not reach that gate and does not override it.
@@ -174,6 +190,11 @@ files and changed lines; it cannot see whether the diff was read.
 Conditions 1–4 bound how much an unread diff could do; condition 5 is
 what makes the path a review at all.
 
+The five conditions are necessary, not sufficient. A document may
+exclude its own revisions from this path, and one does:
+`skills/conversation-retro.md` routes anything a retrospective surfaces
+through a full cycle regardless of size.
+
 ### The record
 
 Each expedited agreement appends one line to `reviews/expedited-log.md`
@@ -190,7 +211,10 @@ the log exists permanently, so its existence no longer evidences that
 anything was reviewed. The rule carrying that weight instead: **the SHA
 cited in `last-reviewed` must appear in an entry in the log.** A pointer
 to a SHA the log does not name is a false claim of review, whether or
-not tooling currently catches it.
+not tooling currently catches it. Same commit and same form — an
+abbreviated pointer against a full-length entry is the same SHA and a
+different string, so a checker either requires both to match
+character-for-character or normalizes through `git rev-parse` first.
 
 The log is append-only. Entries are not edited or removed when a
 document is later revised or superseded: it records what was agreed and

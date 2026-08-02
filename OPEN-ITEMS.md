@@ -264,9 +264,10 @@ Surfaced because F6 eligibility condition 4 has to rest on the answer.
 
 `roles/spec-reviewer-agent.md` triggers the hard gate on "initial PRD or TRD
 authorship" and "any revision to a **spec** document"; `README.md`,
-`operating-model.md`, and `boundaries/human-review-boundary.md` all say the same
-in the same words. `skills/spec-review-cycle.md` scopes the cycle to "spec
-documents (PRD, TRD, **or any canonical document**)".
+`operating-model.md`, and `boundaries/human-review-boundary.md` all scope the
+hard gate to spec documents, in three different formulations.
+`skills/spec-review-cycle.md` scopes the cycle to "spec documents (PRD, TRD,
+**or any canonical document**)".
 
 **Practice follows the skill, not the role doc.** Every gate review in
 `reviews/` is over a non-`specs/` document — four cycles over the metadata

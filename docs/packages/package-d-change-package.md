@@ -142,14 +142,16 @@ lines on every revision, so charging them to the author would have silently
 reduced a ten-line allowance to six. The rider itself is two body lines; a real
 cosmetic fix has room.
 
-**The motivating example would not qualify under the rule it motivated.** B2's
-fix excludes `policies/document-metadata-policy.md` from the expedited path
-entirely, and the `TREE.txt` mention lived in that policy. So F6's own worked
-example — the thing Package C pointed at when it said "this is the cost F6
-exists to reduce" — still requires a full cycle. This is stated rather than
-glossed: the path covers every other in-scope document, and excluding the one
-document whose Scope section defines what enforcement checks is the right trade,
-but the headline example is not among the changes it makes cheaper.
+**The motivating example would not qualify under the rule it motivated.** The
+cycle-5 B2 fix excludes `policies/document-metadata-policy.md` from the
+expedited path entirely, and the `TREE.txt` mention lived in that policy. So
+F6's own worked example — the thing Package C pointed at when it said "this is
+the cost F6 exists to reduce" — still requires a full cycle. Stated rather than
+glossed: excluding the document whose Scope section defines what enforcement
+checks is the right trade, but the headline example is not among the changes it
+makes cheaper. Cycle 6 then extended the exclusion to four more documents (§5a),
+and the eligibility conditions are a statement about changes, not a claim about
+which documents exist — see §7 for what the path can actually reach today.
 
 **The `specs/` exclusion is kept and is not fully settled (N1/N2).** Condition 4
 defers to the Spec Reviewer hard gate rather than defining its reach. The
@@ -163,6 +165,41 @@ condition 4 at "documents the Spec Reviewer hard-gates" would rest it on that
 unsettled definition, which is worse than resting it on a path. Kept as-is,
 tracked in `OPEN-ITEMS.md` as a decision for Dave, and **surfaced at the gate**
 per `policies/source-of-truth-policy.md` rather than reconciled by the executor.
+
+## 5a. What cycle 6 changed, and one departure that should not have happened
+
+The second gate returned `changes-required` again — 3 blocking, 6 non-blocking,
+4 observations — and confirmed four of the six cycle-5 blocking fixes correct by
+re-execution. The two it did not confirm were both in the ten-line ceiling:
+correct in form, wrong in arithmetic, and under-scoped in blast radius.
+
+**The ceiling bounds size; the highest-consequence edits in this repo are
+small.** Deleting the hard-gate clause from `roles/spec-reviewer-agent.md`
+measures three changed body lines. Deleting the B3 carve-out this package just
+added to `skills/spec-review-cycle.md` measures nine. Both were inside the path.
+Condition 3 now excludes a named class — the documents governing how documents
+are reviewed, agreed, or released — enumerated rather than judged, on the same
+design as the grandfather clause's disposition list: a document not named is not
+excluded.
+
+**The stated hook-flip constant was wrong in the case adopting repos hit most.**
+Condition 2 said the flip costs four lines on every revision. On a grandfathered
+document — `agreed` with `last-reviewed: null`, which is exactly what the
+grandfather clause produces at adoption — the flip rewrites only `status:` and
+costs two, so an author following the arithmetic would have measured a
+twelve-line edit as ten. The constant is gone; the count is of document body,
+frontmatter excluded, no subtraction.
+
+**The departure, recorded as a departure.** That constant was introduced by the
+executor *after* triage, as a post-hoc correction to a threshold the directive
+dictated. `skills/spec-review-cycle.md` says an item that cannot be executed as
+written goes back rather than getting improvised on a canonical document. The
+observation behind it was right — charging the author four lines of hook output
+would have quietly reduced a ten-line allowance to six — but the route was
+wrong, and the improvised text is the one thing in the package that carried a
+false statement into the policy. The gate caught it in one cycle. Recorded here
+because §5 first presented it as a finding rather than as a deviation, which is
+the presentation that made it easy to miss.
 
 **N6 rejected.** Cycle 4 of this document removed cross-repo references for
 portability, and the new text adds three repo-relative pointers. But cycle 4
@@ -183,8 +220,13 @@ silently kept: cycle 4's removal was narrower than its wording reads.
 - **The hook flipped this policy itself.** Committing the F6 draft printed
   `FLIPPED policies/document-metadata-policy.md: agreed -> in-review (content
   edit)` — Package A's F1 hook, exercised on the document that defines its scope.
-- The four documents edited in the fix round are `draft` or out of frontmatter
-  scope, so no further status flip was triggered. Verified: statuses unchanged.
+- Counting basis, stated once and used throughout: **three** documents outside
+  F6's own deliverables (`policies/document-metadata-policy.md`,
+  `reviews/expedited-log.md`) and its cycle records (the directives and the
+  review artifacts) — `skills/spec-review-cycle.md`,
+  `skills/conversation-retro.md`, `OPEN-ITEMS.md`. All three are `draft` or out
+  of frontmatter scope, so no further status flip was triggered. Verified:
+  statuses unchanged.
 - Repo-wide `grep` for `TREE`: remaining hits are the frozen MANIFEST tombstone,
   dated cycle/review/package artifacts, and unrelated `EMPTY_TREE`/`WORKTREE`
   identifiers in `bin/`.
@@ -196,6 +238,24 @@ configuration, and it has not been exercised end-to-end here either — no
 document has yet been agreed through it. The first real use is unverified.
 
 ## 7. Known gaps and release risks
+
+**The path has nothing to apply to yet — not "no users," no addressable
+documents.** Found by cycle 6 and verified by enumerating the in-scope set:
+**38 in-scope documents, 39 `status: draft`, 1 `in-review` (this policy), 0
+`agreed`.** The expedited path is a *return* to `agreed`, so its addressable set
+is `{agreed documents} − {the condition-3 class} − {specs/}`. That is empty
+today, and it is **still empty on the day Package D is agreed**, because the
+agreement flip makes this policy the repo's only `agreed` document and condition
+3 excludes it. The path opens for real when a second document reaches `agreed`
+through a full cycle.
+
+This cuts both ways at the gate and both directions are stated rather than the
+convenient one: Package D's cost is a consequential-tier cycle over three
+documents and two review rounds, and its realizable benefit in this repo today
+is zero. It also means the B4 tooling gap below has an exposure of zero in the
+interim, which makes deferring it cheaper than that paragraph argues on its own.
+An earlier draft of this section said "the path has no users yet," which reads
+as *not yet exercised* when the accurate statement is *cannot be exercised*.
 
 **Release risk, named rather than absorbed — the log entry is unenforced (B4).**
 The policy now states the rule that carries the weight: the SHA cited in
@@ -279,12 +339,17 @@ it yet. A rule stated and unenforced is a gap; a rule unstated is a lie.
 
 **Recommend release, conditional on Dave's decision on the B4 tooling gap.**
 
-The change is internally consistent, its two canonical contradictions are
-reconciled in the same diff, the compounding check passes, and the mechanics were
-verified by execution rather than by reading. The open risk is that the path's
-one mechanical guarantee is currently hollow — recoverable at any time by a small
-`bin/` change, and bounded in the meantime by the fact that the path has no users
-yet.
+The change is internally consistent, its canonical contradictions are reconciled
+in the same diff, the compounding check passes, and the mechanics were verified
+by execution rather than by reading, across two gate rounds.
+
+The recommendation rests on a fact that has to be stated with it: **the path
+cannot be used on anything in this repo on the day it is agreed** (§7). Nothing
+is at risk in the interim, and nothing is gained either. Agreeing Package D buys
+a routing rule that activates the first time a second document reaches `agreed`;
+the alternative is to hold F6 until that day, and pay this cycle then instead.
+That trade is Dave's, and it is the one the earlier draft of this section
+obscured by describing the path as merely unexercised.
 
 Two things need Dave's judgment at the gate:
 
