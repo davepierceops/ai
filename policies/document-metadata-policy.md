@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/document-metadata-policy-cycle-4.md @ ea6b44e
+status: in-review
+last-reviewed: null
 audience: [all-roles, human]
 superseded-by: null
 ---
@@ -34,7 +34,7 @@ project artifacts.
 **Out of scope:**
 
 - State and tracker artifacts: `MANIFEST.md`, `OPEN-ITEMS.md`,
-  `COLLAB-STATE.md`, `TREE.txt`, `BACKLOG-v2.md`, review artifacts
+  `COLLAB-STATE.md`, `BACKLOG-v2.md`, review artifacts
   (`reviews/**`, `REVIEW-*.md`), merge history (`MERGE-NOTES-v0.4.md`).
   Their status is their content.
 - Adapters: `CLAUDE.md`, `AGENTS.md`, `.claude/**`. These are thin
@@ -119,10 +119,71 @@ lines, before any content.
   trivially auditable.
 - The document returns to `agreed` when Dave agrees the revision, and
   `last-reviewed` points at the new review artifact.
-- No exceptions for trivial edits. Enforcement cannot judge
-  meaningfulness, and an escape hatch invites misuse. A typo-fix
-  review cycle is cheap; a document falsely claiming review currency
-  is not.
+- No exceptions for trivial edits **on the way out**. Every content
+  edit to an `agreed` document flips it to `in-review`, whatever its
+  size. Enforcement cannot judge meaningfulness, and an escape hatch
+  there invites misuse. What can be shortened is the way back.
+
+## Expedited return to `agreed`
+
+A document falsely claiming review currency is expensive. A full review
+cycle over a one-line fix is merely tedious. The expedited path
+shortens the second without weakening the first: the document still
+flips to `in-review`, Dave still reads the change, and `agreed` still
+requires a review record that exists and is pointed at. What is dropped
+is the reviewer-gated cycle — the findings round-trip, the cycle
+directive, and the per-cycle review artifact.
+
+### Eligibility
+
+Every condition is a fact about the change, not a judgment about its
+importance:
+
+1. The revision commit touches **exactly one** in-scope document and no
+   other tracked path. A second file — including a tracker or an
+   adapter edited alongside — escalates.
+2. The document is not under `specs/`. Spec agreement is gated by the
+   Spec Reviewer Agent (`roles/spec-reviewer-agent.md`); this path does
+   not reach that gate and does not override it.
+3. The revision is not to this section. The expedited path may not be
+   the vehicle for widening, narrowing, or introducing itself.
+4. Dave reads the whole diff and agrees it **as-is**: zero findings, no
+   dictated wording, no requested change.
+
+Condition 4 is the load-bearing one. *Any* finding escalates, however
+small: the moment there is a finding there is a revision to review, and
+whoever wrote it is not its reviewer. An edit that acquires a finding
+does not get a second attempt at this path — it becomes a full cycle
+per `skills/spec-review-cycle.md`.
+
+Eligibility is Dave's to apply, and enforcement does not check it. A
+hook can see one staged file; it cannot see whether the diff was read.
+The mechanical rules are unchanged: `agreed` still requires a non-null
+`last-reviewed` naming an artifact that exists.
+
+### The record
+
+Each expedited agreement appends one line to `reviews/expedited-log.md`
+naming the document, the reviewed SHA, the date, and what changed;
+`last-reviewed` then reads `reviews/expedited-log.md @ <sha>`. The SHA
+is what makes that pointer resolve to a single entry — many documents
+point at one log, and the entry carrying the cited SHA is the one meant.
+
+The log is append-only. Entries are not edited or removed when a
+document is later revised or superseded: it records what was agreed and
+when, which is history, not current state.
+
+### Sequence
+
+1. The content edit commits; the hook flips `status: in-review` and
+   `last-reviewed: null`.
+2. Dave reads the diff and agrees it as-is.
+3. The log entry commits, naming the SHA from step 1.
+4. A frontmatter-only status-transition commit flips the document back
+   to `agreed` with `last-reviewed` pointing at the log.
+
+Steps 3 and 4 stay separate commits so that the status transition
+contains nothing but the transition, per the rule above.
 
 ## Excluded fields (do not add)
 
