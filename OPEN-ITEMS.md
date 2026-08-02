@@ -274,7 +274,29 @@ a glob that lost all its matches. Both items are one fix.
 
 ---
 
-## Settle condition 3's enumerated class before a second document reaches `agreed`
+## ~~Settle condition 3's enumerated class before a second document reaches `agreed`~~
+
+**RESOLVED** by `docs/cycles/triage-2026-08-02b-directive.md` (W-1), 2026-08-02,
+on Dave's decision at E2. Both open questions are answered in the same
+restatement:
+
+- **The borderline trio is in.** `policies/testing-policy.md`,
+  `policies/verification-boundary-policy.md`, and `roles/skeptic-risk-agent.md`
+  are named in condition 3's list. Each states a hard stop removable inside the
+  ten-line ceiling, and a gate over work carries the same
+  small-diff-removes-a-gate hazard as a gate over documents.
+- **Neither narrowed nor widened — the criterion is primary.** The class is no
+  longer "enumerated, not judged." A document stating a gate, a hard stop, or an
+  enforcement rule is ineligible whether or not it is named, the list is an
+  explicit floor ("at minimum"), and an added fail-safe clause makes an unclear
+  case ineligible — mirroring the commit policy's "when in doubt,
+  consequential."
+
+The forcing point the entry named is honoured, not bypassed: the settlement
+rides the same reviewer-gated cycle that returns
+`policies/document-metadata-policy.md` to `agreed`, and no flip has run.
+
+**Original entry, kept for the record:**
 
 **Source:** Package D cycle-7 gate review (B1/B2/N2), 2026-08-02. The expedited
 path's condition 3 excludes a named list of documents that state a gate, hard
