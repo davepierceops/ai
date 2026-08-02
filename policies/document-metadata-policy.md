@@ -1,6 +1,6 @@
 ---
-status: in-review
-last-reviewed: null
+status: agreed
+last-reviewed: reviews/document-metadata-policy-cycle-7.md @ fbbee63
 audience: [all-roles, human]
 superseded-by: null
 ---
