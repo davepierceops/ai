@@ -1,6 +1,10 @@
-# Skill: Release Readiness Review
+---
+status: draft
+last-reviewed: null
+audience: [release-manager-agent, skeptic-risk-agent, human]
+---
 
-Status: draft
+# Skill: Release Readiness Review
 
 ## Purpose
 

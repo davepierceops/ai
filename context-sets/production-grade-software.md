@@ -1,4 +1,7 @@
 ---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
 context-set: production-grade-software
 purpose: What operable, observable, recoverable software requires.
 include-when: Changes affecting reliability, ops, security, or release quality.
@@ -6,8 +9,6 @@ depends-on: [base]
 ---
 
 # Context Set: Production-Grade Software
-
-Status: draft
 
 ## Summary
 

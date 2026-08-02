@@ -1,6 +1,10 @@
-# Role: Skeptic/Risk Agent
+---
+status: draft
+last-reviewed: null
+audience: [skeptic-risk-agent, orchestrator-agent, human]
+---
 
-Status: draft
+# Role: Skeptic/Risk Agent
 
 ## Summary
 

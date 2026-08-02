@@ -1,6 +1,10 @@
-# Policy: Source of Truth
+---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
+---
 
-Status: draft
+# Policy: Source of Truth
 
 ## Purpose
 

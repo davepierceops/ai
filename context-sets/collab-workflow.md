@@ -1,4 +1,7 @@
 ---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
 context-set: collab-workflow
 purpose: How Dave and agents collaborate during document authorship and review.
 include-when: Any chat that involves writing, editing, or reviewing methodology or project documents.
@@ -6,8 +9,6 @@ depends-on: [base]
 ---
 
 # Context Set: Collaboration Workflow
-
-Status: draft
 
 This context set defines how Dave and agents work together when authoring,
 editing, and reviewing documents. It applies to methodology documents and

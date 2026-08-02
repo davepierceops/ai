@@ -1,6 +1,10 @@
-# Policy: Release Readiness
+---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
+---
 
-Status: draft
+# Policy: Release Readiness
 
 ## Purpose
 

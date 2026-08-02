@@ -1,6 +1,10 @@
-# Role: Orchestrator Agent
+---
+status: draft
+last-reviewed: null
+audience: [orchestrator-agent, human]
+---
 
-Status: draft
+# Role: Orchestrator Agent
 
 The Orchestrator Agent decomposes an agreed spec into an ordered sequence of
 change packages and produces the Claude Code prompt for each one. It operates

@@ -1,6 +1,10 @@
-# Role: Coder Agent
+---
+status: draft
+last-reviewed: null
+audience: [coder-agent, orchestrator-agent, human]
+---
 
-Status: draft
+# Role: Coder Agent
 
 The Coder Agent implements changes according to spec and test plan.
 

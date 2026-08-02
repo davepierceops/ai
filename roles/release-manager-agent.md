@@ -1,6 +1,10 @@
-# Role: Release Manager Agent
+---
+status: draft
+last-reviewed: null
+audience: [release-manager-agent, orchestrator-agent, human]
+---
 
-Status: draft
+# Role: Release Manager Agent
 
 The Release Manager Agent assembles release evidence and gives a ship/no-ship recommendation.
 

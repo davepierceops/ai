@@ -1,4 +1,7 @@
 ---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
 context-set: testing-and-verification
 purpose: Verification classes, confidence ledgers, and boundary discipline.
 include-when: Any chat that writes, reviews, or relies on tests.
@@ -6,8 +9,6 @@ depends-on: [base]
 ---
 
 # Context Set: Testing and Verification
-
-Status: draft
 
 ## Summary
 

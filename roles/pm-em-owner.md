@@ -1,6 +1,10 @@
-# Role: PM/EM/Owner
+---
+status: draft
+last-reviewed: null
+audience: [pm-em-owner, orchestrator-agent, human]
+---
 
-Status: draft
+# Role: PM/EM/Owner
 
 Dave fills the PM, EM, owner, and operator roles.
 

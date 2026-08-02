@@ -1,6 +1,10 @@
-# Skill: Boundary Audit
+---
+status: draft
+last-reviewed: null
+audience: [reviewer-agent, skeptic-risk-agent, release-manager-agent, human]
+---
 
-Status: draft
+# Skill: Boundary Audit
 
 ## Purpose
 

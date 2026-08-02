@@ -1,6 +1,10 @@
-# Role: Spec Reviewer Agent
+---
+status: draft
+last-reviewed: null
+audience: [spec-reviewer-agent, orchestrator-agent, human]
+---
 
-Status: draft
+# Role: Spec Reviewer Agent
 
 The Spec Reviewer Agent owns spec quality. It is a hard gate on spec agreement
 and revision, and the designated owner of spec continuity scanning.

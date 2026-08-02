@@ -1,6 +1,10 @@
-# Policy: Verification Boundaries
+---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
+---
 
-Status: draft
+# Policy: Verification Boundaries
 
 ## Purpose
 

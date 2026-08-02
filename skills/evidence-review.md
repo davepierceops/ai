@@ -1,6 +1,10 @@
-# Skill: Evidence Review
+---
+status: draft
+last-reviewed: null
+audience: [reviewer-agent, skeptic-risk-agent, release-manager-agent, human]
+---
 
-Status: draft
+# Skill: Evidence Review
 
 ## Purpose
 

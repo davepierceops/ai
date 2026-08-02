@@ -1,6 +1,10 @@
-# Policy: Commit and Change Control
+---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
+---
 
-Status: draft
+# Policy: Commit and Change Control
 
 ## Purpose
 

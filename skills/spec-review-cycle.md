@@ -1,6 +1,10 @@
-# Skill: Spec Review Cycle
+---
+status: draft
+last-reviewed: null
+audience: [spec-reviewer-agent, architect-agent, orchestrator-agent, human]
+---
 
-Status: draft
+# Skill: Spec Review Cycle
 
 ## Purpose
 

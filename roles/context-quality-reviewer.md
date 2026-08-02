@@ -1,6 +1,10 @@
-# Role: Context Quality Reviewer (Session Role)
+---
+status: draft
+last-reviewed: null
+audience: [context-quality-reviewer, orchestrator-agent, human]
+---
 
-Status: draft
+# Role: Context Quality Reviewer (Session Role)
 
 This is a **session role** — purpose-built for a specific review task. It is
 not a standing role in the operating model. Load this role when directed by

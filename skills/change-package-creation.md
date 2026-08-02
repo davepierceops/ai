@@ -1,6 +1,10 @@
-# Skill: Change Package Creation
+---
+status: draft
+last-reviewed: null
+audience: [coder-agent, release-manager-agent, orchestrator-agent, human]
+---
 
-Status: draft
+# Skill: Change Package Creation
 
 ## Purpose
 

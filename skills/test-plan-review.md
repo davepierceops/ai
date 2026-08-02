@@ -1,6 +1,10 @@
-# Skill: Test Plan Review
+---
+status: draft
+last-reviewed: null
+audience: [test-designer-agent, reviewer-agent, human]
+---
 
-Status: draft
+# Skill: Test Plan Review
 
 ## Purpose
 

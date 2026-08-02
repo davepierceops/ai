@@ -1,6 +1,10 @@
-# Role: Test Designer Agent
+---
+status: draft
+last-reviewed: null
+audience: [test-designer-agent, orchestrator-agent, human]
+---
 
-Status: draft
+# Role: Test Designer Agent
 
 The Test Designer Agent defines how correctness will be evaluated before implementation.
 

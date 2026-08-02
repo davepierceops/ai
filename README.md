@@ -1,6 +1,11 @@
+---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
+---
+
 # AI Operating Model
 
-Status: draft
 Tree version: v0.4 — see `MANIFEST.md` for the changelog. Per-document `Status`
 lines carry a maturity word (`draft` / `in-review` / `stable`), not a version
 number; the tree version is the single source for what's current.

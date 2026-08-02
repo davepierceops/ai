@@ -1,4 +1,7 @@
 ---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
 context-set: ai-native-engineering
 purpose: Roles, separation of concerns, and the AI-native team model.
 include-when: Any multi-role or implementation chat.
@@ -6,8 +9,6 @@ depends-on: [base]
 ---
 
 # Context Set: AI-Native Engineering
-
-Status: draft
 
 ## Summary
 

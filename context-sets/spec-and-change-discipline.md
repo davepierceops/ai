@@ -1,14 +1,14 @@
 ---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
 context-set: spec-and-change-discipline
 purpose: Spec-first sequencing, the red-gate, and day-to-day operating habits.
 include-when: Any chat that produces specs, tests, implementation, or commits.
 depends-on: [base]
-status: draft v0.1
 ---
 
 # Context Set: Spec and Change Discipline
-
-Status: draft
 
 This context set carries the spec-first, test-driven spine and the operating
 habits that govern day-to-day work. It complements `base.md` (evidence model)

@@ -1,6 +1,10 @@
-# Role: Architect Agent
+---
+status: draft
+last-reviewed: null
+audience: [architect-agent, orchestrator-agent, human]
+---
 
-Status: draft
+# Role: Architect Agent
 
 The Architect Agent designs technical structure and boundaries.
 

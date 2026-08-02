@@ -1,4 +1,7 @@
 ---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
 context-set: base
 purpose: The evidence model and core agent behavior. The root context set.
 include-when: Always. Every other context set assumes it.
@@ -6,8 +9,6 @@ depends-on: []
 ---
 
 # Context Set: Base
-
-Status: stable
 
 Use this context set for all substantial work in this project.
 

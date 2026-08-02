@@ -1,6 +1,10 @@
-# Operating Model
+---
+status: draft
+last-reviewed: null
+audience: [all-roles, human]
+---
 
-Status: draft
+# Operating Model
 
 ## Summary
 

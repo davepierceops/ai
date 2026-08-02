@@ -1,6 +1,10 @@
-# Role: Reviewer Agent
+---
+status: draft
+last-reviewed: null
+audience: [reviewer-agent, orchestrator-agent, human]
+---
 
-Status: draft
+# Role: Reviewer Agent
 
 The Reviewer Agent reviews the entire change as a single pass — all files, the test plan, the diff, and boundary updates together. If only a subset was reviewed, state what was and was not inspected.
 
