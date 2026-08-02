@@ -15,7 +15,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from aimeta import cli, frontmatter, repo  # noqa: E402
+from aimeta import cli, expedited, frontmatter, repo  # noqa: E402
 
 TRANSITION_STATUSES = ["agreed", "superseded", "deprecated"]
 
@@ -49,7 +49,14 @@ def build_parser():
 
 
 def check_review(ctx, review):
-    """AC-FA-5: format, artifact existence, and SHA resolution."""
+    """AC-FA-5: format, artifact existence, and SHA resolution.
+
+    AC-EL-1/2/3: when the artifact is the expedited log, existence is not
+    enough — the log exists permanently, so it is satisfied vacuously and
+    forever. The cited SHA must be named by an entry, compared after
+    normalization rather than as a string. Any other artifact keeps
+    existence-only behaviour.
+    """
     if not re.match(frontmatter.LAST_REVIEWED_RE, review):
         raise cli.ToolError(
             "review pointer %r is not `<reviews/path.md> @ <sha>`" % review,
@@ -62,6 +69,14 @@ def check_review(ctx, review):
     if code != 0:
         raise cli.ToolError(
             "review SHA %s does not resolve to a commit" % sha, cli.EXIT_POLICY
+        )
+    findings = expedited.check_pointer(ctx.root, review)
+    if findings:
+        cli.report(findings, artifact)
+        raise cli.ToolError(
+            "review pointer %r does not resolve to an entry in %s"
+            % (review, expedited.LOG_PATH),
+            cli.EXIT_POLICY,
         )
 
 

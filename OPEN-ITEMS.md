@@ -208,7 +208,35 @@ marker, so enforcement never read the prose; `check-frontmatter --all` and the
 
 ---
 
-## The expedited path's log entry is unenforced — `flip-agreed` checks existence, not content — HARD PRECONDITION ON THE NEXT AGREEMENT FLIP
+## ~~The expedited path's log entry is unenforced — `flip-agreed` checks existence, not content~~ — PRECONDITION SATISFIED
+
+**RESOLVED** by `docs/cycles/triage-2026-08-02b-directive.md` (W-2), 2026-08-02.
+Tests `2556226` (red: 15 tests, 6 failing); implementation `4e90b03` (green:
+336 tests, 0 failing). New `bin/aimeta/expedited.py` decides
+the rule; `bin/flip-agreed`'s `check_review` and `bin/check-frontmatter`'s
+`check_worktree` both consult it.
+
+All four ACs below are implemented and covered. Two notes on what was decided
+inside them, so the reading is not left to the next reader:
+
+- **What counts as an entry.** A Markdown list item carrying `@ <sha>`, per the
+  format the log documents. A SHA appearing only in the log's header prose does
+  not satisfy a pointer, and there is a test for that.
+- **`--staged` is deliberately not covered,** and this is the one place the
+  implementation is narrower than a maximal reading of "over the whole in-scope
+  set". The AC names `check-frontmatter`, and `check_worktree` serves both
+  `--all` and path mode; hook mode was left alone because the log rule is a fact
+  about the repository's review record rather than about the staged change, and
+  a blocking hook that consults a file outside the commit can refuse a commit
+  for a condition that commit did not cause. **Consequence, stated rather than
+  absorbed:** a hand-edited frontmatter pointer at a log SHA that does not exist
+  still commits, and is caught by the next `--all` run rather than at the hook.
+
+**The precondition on the next agreement flip is satisfied.** The flip itself
+remains gated: it needs the reviewer re-gate and Dave's approval, and this
+directive does not authorize it.
+
+**Original entry, kept for the record:**
 
 **Source:** Package D cycle-5 gate review (B4), 2026-08-02. Verified by
 running, in a scratch clone: with step 3 of the expedited sequence **skipped
@@ -274,7 +302,29 @@ a glob that lost all its matches. Both items are one fix.
 
 ---
 
-## Settle condition 3's enumerated class before a second document reaches `agreed`
+## ~~Settle condition 3's enumerated class before a second document reaches `agreed`~~
+
+**RESOLVED** by `docs/cycles/triage-2026-08-02b-directive.md` (W-1), 2026-08-02,
+on Dave's decision at E2. Both open questions are answered in the same
+restatement:
+
+- **The borderline trio is in.** `policies/testing-policy.md`,
+  `policies/verification-boundary-policy.md`, and `roles/skeptic-risk-agent.md`
+  are named in condition 3's list. Each states a hard stop removable inside the
+  ten-line ceiling, and a gate over work carries the same
+  small-diff-removes-a-gate hazard as a gate over documents.
+- **Neither narrowed nor widened — the criterion is primary.** The class is no
+  longer "enumerated, not judged." A document stating a gate, a hard stop, or an
+  enforcement rule is ineligible whether or not it is named, the list is an
+  explicit floor ("at minimum"), and an added fail-safe clause makes an unclear
+  case ineligible — mirroring the commit policy's "when in doubt,
+  consequential."
+
+The forcing point the entry named is honoured, not bypassed: the settlement
+rides the same reviewer-gated cycle that returns
+`policies/document-metadata-policy.md` to `agreed`, and no flip has run.
+
+**Original entry, kept for the record:**
 
 **Source:** Package D cycle-7 gate review (B1/B2/N2), 2026-08-02. The expedited
 path's condition 3 excludes a named list of documents that state a gate, hard

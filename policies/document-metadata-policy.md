@@ -160,9 +160,18 @@ judgment, and it is the only one:
    authorizes the path, and a size ceiling cannot see the difference:
    four changed lines take both hard gates out of `operating-model.md`,
    one takes the spec-review gate out of
-   `boundaries/human-review-boundary.md`. The class is **enumerated,
-   not judged** — a document not named here is not excluded by this
-   condition:
+   `boundaries/human-review-boundary.md`. **The criterion decides, and
+   the list below is a floor rather than a boundary.** A document
+   stating a gate, a hard stop, or an enforcement rule is ineligible
+   whether or not it is named here; being unnamed is not an exemption.
+   A gate over work and a gate over documents carry the same hazard —
+   a small diff removes a gate — so the class does not turn on which
+   of the two a document governs. **When it is unclear whether a
+   document states a gate, a hard stop, or an enforcement rule, it is
+   ineligible**, mirroring the commit policy's "when in doubt,
+   consequential."
+
+   The class includes, at minimum:
    - `policies/document-metadata-policy.md` — this document.
      Enforcement reads its in-scope set from the Scope section above,
      so an edit here can narrow what is enforced, including enforcement
@@ -171,6 +180,9 @@ judgment, and it is the only one:
    - `policies/commit-and-change-control-policy.md`
    - `policies/source-of-truth-policy.md`
    - `policies/release-readiness-policy.md`
+   - `policies/testing-policy.md` — the red-gate.
+   - `policies/verification-boundary-policy.md` — the
+     boundary-declaration rules.
    - `policies/project-setup-requirements.md` — effective when that document
      reaches `agreed`. It is `draft` today, so it has no expedited revision
      to exclude yet; it is named now because its content is exactly this
@@ -179,6 +191,7 @@ judgment, and it is the only one:
    - `roles/spec-reviewer-agent.md`
    - `roles/reviewer-agent.md`
    - `roles/release-manager-agent.md`
+   - `roles/skeptic-risk-agent.md` — a review step in the change flow.
    - `skills/spec-review-cycle.md`
    - `skills/release-readiness-review.md`
    - `skills/conversation-retro.md`
@@ -187,10 +200,11 @@ judgment, and it is the only one:
    - `README.md`
 
    These return to `agreed` only through a full cycle. The list is
-   normative and it is the cost of the design: enumeration cannot be
-   derived, so it has to be maintained. A repo that adds a governing
-   document names it here; a repo that organizes these concerns under
-   different paths substitutes its own.
+   normative where it names a document — naming settles the question in
+   advance, and a repo that adds a governing document names it here, or
+   substitutes its own paths for these. What the list cannot do is bound
+   the class: enumeration is not derivable, so it will lag, and the
+   criterion is what covers the lag.
 4. The document is not under `specs/`. Spec agreement is gated by the
    Spec Reviewer Agent (`roles/spec-reviewer-agent.md`); this path does
    not reach that gate and does not override it.

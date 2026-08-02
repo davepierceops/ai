@@ -21,7 +21,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from aimeta import cli, frontmatter, repo  # noqa: E402
+from aimeta import cli, expedited, frontmatter, repo  # noqa: E402
 
 USAGE_ERROR = cli.EXIT_USAGE
 
@@ -63,6 +63,16 @@ def findings_for(ctx, relpath, doc):
 
 
 def check_worktree(ctx, relpaths):
+    """Validate documents as they stand on disk.
+
+    AC-EL-4: this is where the expedited log's content rule is reported over
+    the in-scope set. It is deliberately not in `findings_for`, which
+    `--staged` also calls: the log rule is a fact about the repository's
+    review record rather than about the staged change, and a blocking hook
+    that consults a file outside the commit can refuse a commit for a reason
+    the commit did not cause. `--all` is the mode that answers "is the repo's
+    review record honest", and that is the question.
+    """
     failed = False
     for relpath in relpaths:
         path = ctx.root / relpath
@@ -75,7 +85,8 @@ def check_worktree(ctx, relpaths):
             cli.report([finding], relpath)
             failed = True
             continue
-        findings = findings_for(ctx, relpath, frontmatter.parse_text(text))
+        doc = frontmatter.parse_text(text)
+        findings = findings_for(ctx, relpath, doc) + expedited.check_document(ctx.root, doc)
         cli.report(findings, relpath)
         failed = failed or bool(findings)
     return cli.EXIT_POLICY if failed else cli.EXIT_OK
