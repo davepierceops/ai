@@ -1,7 +1,8 @@
 ---
-status: draft
+status: superseded
 last-reviewed: null
 audience: [orchestrator-agent, human]
+superseded-by: roles/chief-of-staff.md
 ---
 
 # Role: Orchestrator Agent
