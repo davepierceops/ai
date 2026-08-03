@@ -137,9 +137,6 @@ cycle directive, and the per-cycle review artifact.
 
 ### Eligibility
 
-Conditions 1–4 are facts about the change. Condition 5 is a human
-judgment, and it is the only one:
-
 1. The revision is a **single commit** touching **exactly one** in-scope
    document and no other tracked path. A second file — including a
    tracker or an adapter edited alongside — escalates, and so does a
@@ -221,8 +218,9 @@ second attempt at this path — it becomes a full cycle per
 
 Enforcement checks none of this and cannot. A hook can count staged
 files and changed lines; it cannot see whether the diff was read.
-Conditions 1–4 bound how much an unread diff could do; condition 5 is
-what makes the path a review at all.
+Conditions 1, 2 and 4 bound how much an unread diff could do;
+conditions 3 and 5 are judgments, and they are what make the path a
+review at all.
 
 The five conditions are necessary, not sufficient. A document may
 exclude its own revisions from this path, and one does:

@@ -31,29 +31,22 @@ the source of truth."
 The test: if swapping vendors would delete the sentence, it belongs here. If
 swapping vendors would leave it true, it belongs in the core doc set.
 
-## The lifecycle question is open
+## Lifecycle: governed and enforced
 
-`policies/document-metadata-policy.md` does not list `vendors/**` in its
-in-scope set, so:
+`policies/document-metadata-policy.md` lists `vendors/**` in its in-scope
+set as of `ef4438b`, so:
 
-- the pre-commit hook does not check these files
-- their frontmatter is written by hand and verified by nobody
-- per that policy's agent-behavior rules, a document with no governed status
-  is not clearly loadable as governing context
+- the pre-commit hook checks these files
+- their frontmatter is enforced on the same terms as everywhere else in the
+  in-scope set, not written by hand and verified by nobody
+- the `status` field on a document here means what it means anywhere else
 
-Documents here carry frontmatter anyway, so that extending the in-scope set
-later is a one-line policy edit rather than a migration. **But the frontmatter
-currently means less here than it does elsewhere, and that should not be
-mistaken for governance.**
+Documents here carried frontmatter from the start, which is why bringing the
+directory into scope was a one-line policy edit rather than a migration.
 
-This is precisely the open question in Q1b — "does the doc set need an
-environment-config class, and what governs its lifecycle?" — and it is
-**not answered here**. The v1 requirement was a usable, expandable answer,
-not the final taxonomy.
-
-Extending `policies/document-metadata-policy.md` to cover `vendors/**` is a
-revision to an `agreed` document and must go through a spec-review cycle. It
-was not done as part of this draft.
+That settles the lifecycle half of Q1b. The taxonomy half — "does the doc set
+need an environment-config class?" — is **not answered here**. The v1
+requirement was a usable, expandable answer, not the final taxonomy.
 
 ## Status of this draft
 

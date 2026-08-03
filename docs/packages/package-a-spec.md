@@ -216,9 +216,13 @@ class ScopeError(Exception)
 - **AC-SC-1** `parse_in_scope_globs` extracts the backticked entries of the
   bullet list that follows the line containing `In scope (frontmatter
   required)` and stops at the line containing `Out of scope`. For the current
-  `policies/document-metadata-policy.md` this yields exactly:
-  `policies/**`, `roles/**`, `context-sets/**`, `boundaries/**`, `skills/**`,
-  `specs/**`, `operating-model.md`, `README.md` — in document order.
+  `policies/document-metadata-policy.md` this yields exactly the backticked
+  entries of that list, in document order, whatever the set is at the time.
+  The policy's Scope section is the source of truth for the glob set; this
+  criterion does not restate it, because a second copy here is a list that
+  drifts from the one the enforcement actually reads. The test holds the
+  snapshot and asserts it against the real policy text, so a scope edit turns
+  the test red and forces an explicit update.
 - **AC-SC-2** If the in-scope section is absent, or contains no backticked
   entries, `parse_in_scope_globs` raises `ScopeError`. It never falls back to a
   built-in list — failing closed is required, because a silent fallback would
