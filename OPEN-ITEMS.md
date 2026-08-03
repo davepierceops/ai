@@ -8,6 +8,34 @@ Last updated: 2026-08-02
 
 ---
 
+## wne-crm migration to current methodology — ad hoc first, extract adoption skill after
+
+**DECIDED 2026-08-02 (chat), execution pending.** Bring wne-crm from the
+old-iteration methodology to current, running the migration ad hoc, then
+extract `skills/project-adoption.md` from the experience; catchable runs
+under the drafted skill as its first validation before the skill gates to
+`agreed`. Working plan (from the chat session; not yet a governed artifact):
+install the shim/hook via the sibling-directory convention; frontmatter
+migration of wne-crm governed docs with the grandfather-clause disposition
+list + adoption record; move the kickoff bundle to the current 7-file
+target; template reconciliation decision (existing PRD/TRD predate current
+templates); stand up `retros/`. Precondition satisfied 2026-08-02: the cos
+supersession package is fully landed.
+
+---
+
+## gh CLI TLS verification failure in the Claude Code sandbox — workaround used, cause unknown
+
+**OPEN.** During cos-supersession execution (PR #13), `gh` could not verify
+api.github.com's TLS certificate in the sandbox; the session created the PR
+via `curl` using gh's stored token. Unresolved: whether curl verified the
+cert (benign CA-bundle gap in gh) or ran unverified (token sent over an
+unauthenticated connection). Next session: `curl -v https://api.github.com`
+and inspect how the workaround was invoked. Until understood, treat
+extract-token-and-curl as a deliberate exception, not a habit.
+
+---
+
 ## Directive-execution mechanics are oral tradition — kickoff prompts restate governed rules
 
 **Source:** chat triage session, 2026-08-02, at the dispatch of
