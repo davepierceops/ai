@@ -1,6 +1,6 @@
 ---
-status: in-review
-last-reviewed: null
+status: agreed
+last-reviewed: reviews/chief-of-staff-cycle-1.md @ 6a7ea4f
 audience: [chief-of-staff, human]
 ---
 
