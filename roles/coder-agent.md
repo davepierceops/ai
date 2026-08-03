@@ -1,7 +1,7 @@
 ---
 status: draft
 last-reviewed: null
-audience: [coder-agent, orchestrator-agent, human]
+audience: [coder-agent, chief-of-staff, human]
 ---
 
 # Role: Coder Agent

@@ -1,7 +1,7 @@
 ---
 status: draft
 last-reviewed: null
-audience: [context-quality-reviewer, orchestrator-agent, human]
+audience: [context-quality-reviewer, chief-of-staff, human]
 ---
 
 # Role: Context Quality Reviewer (Session Role)

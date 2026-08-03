@@ -27,7 +27,7 @@ This does not mean agents are bad. It means their claims must be checked by evid
 The project may use these roles:
 
 - PM/EM/Owner
-- Orchestrator Agent
+- Chief of Staff
 - Architect Agent
 - Spec Reviewer Agent
 - Test Designer Agent
@@ -48,10 +48,11 @@ optional:
 
 ## Separation of concerns
 
-- The Orchestrator Agent decomposes an agreed spec into ordered change packages
-  and drafts the Claude Code prompt for each one; it operates in chat, not inside
-  a Claude Code session, and Dave approves the decomposition before any agentic
-  work begins.
+- The Chief of Staff assesses state, proposes tranches of an agreed spec, and
+  decomposes an approved tranche into ordered change packages; it operates in
+  chat, not inside a Claude Code session, and Dave approves the decomposition
+  before any agentic work begins. Prompts are generated from the decomposition
+  doc at execution time, not drafted in advance.
 - The Coder Agent creates implementation.
 - The Test Designer Agent defines how correctness will be evaluated.
 - The Spec Reviewer Agent gates spec quality before Dave agrees a spec, and
@@ -59,6 +60,10 @@ optional:
 - The Reviewer Agent checks maintainability, correctness, and consistency.
 - The Skeptic/Risk Agent looks for false confidence and hidden assumptions.
 - The Release Manager Agent assesses whether evidence is sufficient to ship.
+
+A **tranche** is a scope of agreed spec proposed for implementation as one body
+of work — the unit the Chief of Staff proposes and Dave approves before
+decomposition into change packages. See `roles/chief-of-staff.md`.
 
 ## Required discipline
 

@@ -1,7 +1,7 @@
 ---
 status: draft
 last-reviewed: null
-audience: [skeptic-risk-agent, orchestrator-agent, human]
+audience: [skeptic-risk-agent, chief-of-staff, human]
 ---
 
 # Role: Skeptic/Risk Agent

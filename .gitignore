@@ -3,6 +3,11 @@
 # a second, drifting copy of documents git already holds.
 .cycle-bundles/
 
+# Generated Claude Code prompts, drafted at execution time from a tranche's
+# decomposition doc. Regenerable from `docs/packages/<tranche>-decomposition.md`;
+# tracking a committed copy would create a second, drifting copy.
+.prompts/
+
 # Python bytecode from bin/ tooling and its tests.
 __pycache__/
 *.pyc

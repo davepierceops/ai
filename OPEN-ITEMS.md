@@ -94,7 +94,7 @@ in a project session and recorded here rather than written into
 
 **What's needed:** fold the rule into canonical text — likely
 `operating-model.md` "Relationship to tools" and/or a `boundaries/` doc,
-plus a line in `roles/orchestrator-agent.md` — via normal process. Until
+plus a line in `roles/chief-of-staff.md` — via normal process. Until
 then this entry is the binding statement.
 
 ---

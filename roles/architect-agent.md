@@ -1,7 +1,7 @@
 ---
 status: draft
 last-reviewed: null
-audience: [architect-agent, orchestrator-agent, human]
+audience: [architect-agent, chief-of-staff, human]
 ---
 
 # Role: Architect Agent

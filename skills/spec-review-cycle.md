@@ -1,7 +1,7 @@
 ---
 status: draft
 last-reviewed: null
-audience: [spec-reviewer-agent, architect-agent, orchestrator-agent, human]
+audience: [spec-reviewer-agent, architect-agent, chief-of-staff, human]
 ---
 
 # Skill: Spec Review Cycle
