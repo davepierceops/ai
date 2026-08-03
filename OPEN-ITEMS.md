@@ -4,7 +4,7 @@ This file tracks open questions, deferred decisions, and outstanding fixes
 for the AI operating model. Updated at defined checkpoints per
 `context-sets/spec-and-change-discipline.md`.
 
-Last updated: 2026-08-02
+Last updated: 2026-08-03
 
 ---
 
@@ -21,6 +21,54 @@ list + adoption record; move the kickoff bundle to the current 7-file
 target; template reconciliation decision (existing PRD/TRD predate current
 templates); stand up `retros/`. Precondition satisfied 2026-08-02: the cos
 supersession package is fully landed.
+
+**EXECUTED 2026-08-03,** wne-crm PR #31 (branch
+`methodology-migration-2026-08-03`, tip `a115431`, from ai @ `64a7ca8`),
+merged at `d705a8a`. All five plan items landed; the one-line kickoff held.
+Follow-ups completed same day: hook installed per clone, local `../ai`
+updated to main, and branch protection's unenforced state accepted and
+recorded (wne-crm `ACCEPTED-RISKS.md` #9 — free-plan private repo; revisit
+on org upgrade). Template reconciliation deferred by executor disposition
+(no agreed template target — both templates are `draft`), Dave's to
+override. The session retro at `wne-crm:retros/` is the extraction input
+for `skills/project-adoption.md` — that drafting, via normal review cycle,
+is what remains of this entry. catchable runs under the drafted skill as
+first validation before it gates.
+
+---
+
+## MCP write verification must cover content, not just landing — a success-shaped response can commit malformed content
+
+**Source:** wne-crm OPEN-ITEMS update, 2026-08-03 (chat cos session).
+A `create_or_update_file` call intended to append one item to
+`wne-crm:OPEN-ITEMS.md` was constructed with a placeholder string as the
+`content` parameter; the API faithfully committed it, replacing the ~64KB
+tracker with 19 bytes on `main` (`2606385`). The tool response was
+success-shaped in every respect except the `size` field, which is what
+triggered the catch; the file was restored with the intended addition four
+minutes later (`e04780d`), verified by fetching the content back and
+comparing against the pre-damage blob.
+
+**Why this is a distinct learning:** the existing verification rule (verify
+that MCP writes *landed* — fetch back before reporting) was written against
+phantom-success failures, where the response lies about the write. This
+failure is the mirror: the response is truthful, the *request* was wrong,
+and landing-verification alone would have "confirmed" a destroyed file as a
+successful commit. The check that works is content-shaped: response `size`
+(and stats on the follow-up `get_commit`) against expectation — the same
+stats-expectation guard the model-selection item records as invented
+mid-session for full-file MCP writes, now with a second incident
+demonstrating why it must be routine rather than improvised.
+
+**What's needed:** fold into canonical text where the write-verification
+rule lives (`policies/verification-boundary-policy.md` and/or the
+directive-execution skill when drafted): after any full-file MCP write,
+check the response's reported size/stats against expectation before
+reporting success — landing and content are separate verifications, and a
+diff-stats check (`get_commit`, expect append-only additions on an append)
+is the cheap strong form. Also a candidate input for the tracker-append
+pattern generally: full-file replacement as the only append mechanism is
+what makes this failure class possible.
 
 ---
 
