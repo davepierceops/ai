@@ -137,9 +137,6 @@ cycle directive, and the per-cycle review artifact.
 
 ### Eligibility
 
-Conditions 1–4 are facts about the change. Condition 5 is a human
-judgment, and it is the only one:
-
 1. The revision is a **single commit** touching **exactly one** in-scope
    document and no other tracked path. A second file — including a
    tracker or an adapter edited alongside — escalates, and so does a
