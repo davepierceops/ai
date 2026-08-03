@@ -1,6 +1,6 @@
 ---
-status: in-review
-last-reviewed: null
+status: agreed
+last-reviewed: reviews/document-metadata-policy-cycle-9.md @ 08f54fd
 audience: [all-roles, human]
 superseded-by: null
 ---
