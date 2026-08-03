@@ -1,7 +1,7 @@
 ---
 status: draft
 last-reviewed: null
-audience: [pm-em-owner, orchestrator-agent, human]
+audience: [pm-em-owner, chief-of-staff, human]
 ---
 
 # Role: PM/EM/Owner

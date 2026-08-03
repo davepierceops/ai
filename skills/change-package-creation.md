@@ -1,7 +1,7 @@
 ---
 status: draft
 last-reviewed: null
-audience: [coder-agent, release-manager-agent, orchestrator-agent, human]
+audience: [coder-agent, release-manager-agent, chief-of-staff, human]
 ---
 
 # Skill: Change Package Creation

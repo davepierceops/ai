@@ -1,7 +1,7 @@
 ---
 status: draft
 last-reviewed: null
-audience: [test-designer-agent, orchestrator-agent, human]
+audience: [test-designer-agent, chief-of-staff, human]
 ---
 
 # Role: Test Designer Agent

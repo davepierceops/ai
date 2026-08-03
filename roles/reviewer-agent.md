@@ -1,7 +1,7 @@
 ---
 status: draft
 last-reviewed: null
-audience: [reviewer-agent, orchestrator-agent, human]
+audience: [reviewer-agent, chief-of-staff, human]
 ---
 
 # Role: Reviewer Agent

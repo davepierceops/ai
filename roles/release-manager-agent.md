@@ -1,7 +1,7 @@
 ---
 status: draft
 last-reviewed: null
-audience: [release-manager-agent, orchestrator-agent, human]
+audience: [release-manager-agent, chief-of-staff, human]
 ---
 
 # Role: Release Manager Agent

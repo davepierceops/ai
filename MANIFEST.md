@@ -145,3 +145,10 @@ Merged the spec-first / test-driven methodology spine into this operating model.
   retrospective skill. Retros are per-project tracker-class artifacts
   (`retros/` in project repos, no lifecycle frontmatter); methodology
   changes they surface enter via spec-review cycles only.
+- Added `roles/chief-of-staff.md` (draft): supersedes
+  `roles/orchestrator-agent.md` (now `superseded`), carrying the
+  decomposition/handoff responsibility redesigned around state assessment,
+  pre-staging, and tranches. Repointed the audience field of 11 role/skill
+  docs, `README.md`'s role-loading guidance, `context-sets/ai-native-engineering.md`'s
+  team model, and `OPEN-ITEMS.md`'s live what's-needed entry from
+  `orchestrator-agent` to `chief-of-staff`.
