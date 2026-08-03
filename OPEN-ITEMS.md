@@ -8,6 +8,46 @@ Last updated: 2026-08-03
 
 ---
 
+## Chat-originated package prompts have no compliant write path — `.prompts/` assumes a filesystem the chat layer lacks
+
+**Source:** wne-crm cos session, 2026-08-03. The first package prompt drafted
+under the migrated methodology was delivered as a chat blob, old-orchestrator
+style — a straight process violation of `roles/chief-of-staff.md`'s prompt
+rule (standalone file at `.prompts/<tranche>-<package>.md`, path stated in
+chat), flagged by Dave, not self-caught.
+
+**The gap the violation exposed:** the rule is unsatisfiable from chat as
+written. `.prompts/` is gitignored in the local clone; chat's only write
+surface is GitHub MCP, which writes committed files — exactly what the role's
+"never committed" forbids for prompts. The mechanism implicitly assumes
+filesystem access (Claude Code) or Dave saving the file by hand. Chat-origin
+prompts therefore have no compliant path at all.
+
+**The "never committed" rationale is weaker than stated.** It rests on
+"regenerable artifacts are noise," but the repo's actual doctrine targets
+*derivable state* — "a second copy of a derivable fact drifts and then lies."
+An executed prompt is not state; it is an append-only record of what an agent
+was told, the same artifact class as cycle directives, review artifacts, and
+red-run logs, all of which are committed without controversy. The one real
+drift risk is narrower: prompts are drafts and Dave owns the final used in a
+session, so a committed *draft* can lie about what actually executed. That
+indicts committing drafts, not committing prompts.
+
+**Recommendation (chat, not decided):** the executor commits the prompt it
+actually ran, alongside its work — same pattern as red-run logs — rather
+than chat committing the draft. Accurate by construction; the record lands
+only if execution starts, which is the acceptable failure mode (an
+unexecuted draft is the one case where "regenerable, discard" is true).
+
+**What's needed:** a methodology decision, then amend
+`roles/chief-of-staff.md` (prompt-generation section) and the gitignore
+convention via normal review cycle. Interacts with the directive-execution
+skill item below — if `skills/directive-execution.md` gets drafted, the
+"record what you executed" rule is plausibly one line in it rather than a
+role-doc change.
+
+---
+
 ## wne-crm migration to current methodology — ad hoc first, extract adoption skill after
 
 **DECIDED 2026-08-02 (chat), execution pending.** Bring wne-crm from the
