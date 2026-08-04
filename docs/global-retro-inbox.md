@@ -74,3 +74,19 @@ schema/synthesis discipline applies later, when an entry is actually worked.
   the command replaces it.
   Not drafted yet — batching with the decision-log item and upcoming
   retros per the prior entry's disposition.
+
+### 2026-08-04 (3)
+
+- **Standing behavior: self-contained test paste-blocks from sandboxed
+  coder agents.** Dave repeatedly has to tell coder agents running inside
+  Claude Code sandboxes: give me a paste-block that writes to files you
+  control, not one that expects me to copy-paste output back to you. When
+  a coder agent asks Dave to run tests outside the sandbox (e.g. against a
+  live service, browser, or anything the sandbox can't reach), the
+  paste-block it hands him should write its own output to a file/log the
+  agent already has access to — not print to Dave's terminal for him to
+  relay back manually. Proposed as standard behavior, not a one-off
+  reminder each time.
+  Likely home: a required-behavior line in `context-sets/base.md` (agent
+  behavior, cross-role) or a role doc for the Coder specifically — not yet
+  decided, batching per prior entries' disposition.
