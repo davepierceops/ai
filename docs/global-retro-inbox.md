@@ -90,3 +90,20 @@ schema/synthesis discipline applies later, when an entry is actually worked.
   Likely home: a required-behavior line in `context-sets/base.md` (agent
   behavior, cross-role) or a role doc for the Coder specifically — not yet
   decided, batching per prior entries' disposition.
+
+### 2026-08-04 (4)
+
+- **Open question for retro consolidation: is GitHub MCP flakiness still
+  real?** A lot of existing directives (MCP write-verification via
+  independent fetch, timeout-recovery-by-reading-HEAD-first, small-writes-
+  only during spec-review cycles) exist to handle GitHub MCP being flaky.
+  Dave thinks this may have just been fixed but isn't sure. Action, not
+  just an observation: **at retro-consolidation time, ask Dave whether he
+  still believes it's fixed.** If yes, audit the above directives for ones
+  that only exist to work around a problem that no longer exists, and
+  propose removing/loosening them through the normal spec-review cycle.
+  Do not preemptively relax any of the existing verification directives
+  before that confirmation — this entry is a flag to revisit, not a
+  decision to relax anything yet.
+  (Mildly on the nose: GitHub MCP timed out three times in a row while
+  logging this exact entry, before succeeding on retry.)
