@@ -107,3 +107,16 @@ schema/synthesis discipline applies later, when an entry is actually worked.
   decision to relax anything yet.
   (Mildly on the nose: GitHub MCP timed out three times in a row while
   logging this exact entry, before succeeding on retry.)
+
+### 2026-08-05
+
+- **Ticket-system topic for next retro: near-zero-friction ticket capture.**
+  Dave needs a way to get small, quick items into a ticket system with
+  effort on the order of "open tool, type five words, leave" — not a
+  workflow that requires enough context-switch/ceremony that low-cycle
+  moments just get dropped instead of captured. Distinct from this
+  chat/inbox mechanism (which is for methodology-level retro material);
+  this is about day-to-day project ticket creation (presumably GitHub
+  Issues, per existing tooling, though the actual system isn't decided
+  here). Not scoped or drafted — parked as a discussion topic for the
+  next retro, not a design yet.
