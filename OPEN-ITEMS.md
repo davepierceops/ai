@@ -4,7 +4,7 @@ This file tracks open questions, deferred decisions, and outstanding fixes
 for the AI operating model. Updated at defined checkpoints per
 `context-sets/spec-and-change-discipline.md`.
 
-Last updated: 2026-08-03
+Last updated: 2026-08-06
 
 ---
 
@@ -739,3 +739,175 @@ regardless of other characteristics. Updated
 **RESOLVED (deferred).** Moved to `BACKLOG-v2.md`. Not blocking current
 work. When tackled, likely a new context set or policy doc that extends the
 definition of done in `context-sets/spec-and-change-discipline.md`.
+
+---
+
+## `LEXICON.md` frontmatter is unenforced — docroot is not in the in-scope glob list
+
+**Source:** Trivium, 2026-08-06. `bin/check-frontmatter` reports 45 files after
+the Trivium merge; `LEXICON.md` is not among them.
+
+The in-scope list in `policies/document-metadata-policy.md` globs `policies/**`,
+`roles/**`, `context-sets/**`, `boundaries/**`, `skills/**`, `specs/**`, and
+`vendors/**`, and names `operating-model.md` and `README.md` individually.
+Docroot is otherwise out of scope, and the out-of-scope list is explicitly for
+state and tracker artifacts — `MANIFEST.md`, `OPEN-ITEMS.md`, `BACKLOG-v2.md`.
+`LEXICON.md` is a governed definitional document sitting in tracker company.
+
+It carries `status`, `last-reviewed`, and `audience` today and nothing validates
+them. It also cannot reach `agreed` by tool: `bin/flip-agreed` refuses documents
+outside the in-scope set.
+
+**What's needed:** add `LEXICON.md` to the in-scope list. One line, but the
+metadata policy is `agreed`, so it is a review cycle. **Decided by Dave
+2026-08-06:** take the cycle and keep the file at docroot; `policies/lexicon.md`
+would misfile a lexicon as a policy.
+
+Note the interaction with the self-referential scope hazard recorded above: this
+edit *adds* a glob rather than removing one, so it cannot blind enforcement of
+itself in the same way. It does mean the document is unenforced for every commit
+before the edit lands.
+
+---
+
+## `handoff` at `skills/spec-review-cycle.md:57` contradicts the lexicon
+
+**Source:** Trivium, 2026-08-06. Recorded as known misuse in `LEXICON.md`.
+
+Line 57 reads `### 2. Directive (handoff artifact)`. The lexicon defines a
+handoff as the *transfer* of unfinished responsibility, and a directive as one
+mechanism by which a handoff is carried out — so naming the mechanism "the
+handoff artifact" collapses the distinction the term exists to preserve.
+
+Not fixed in Trivium: scope was cut to files already being edited, and
+`spec-review-cycle.md`'s only Trivium change was the one-line dictated-wording
+fix. Deliberately excluded from the touch rule on the grounds that a surgical
+one-line edit should not trigger a whole-file conformance pass.
+
+**What's needed:** rename the section. Trivial edit, but it is a canonical
+document and needs a cycle.
+
+---
+
+## A handoff into another decision session has no name
+
+**Source:** Trivium, 2026-08-06. Flagged as open work in `LEXICON.md`.
+
+The lexicon names the execution-session column completely — dispatch, directive,
+directive file, dispatch block. The decision-session column is empty: there is no
+term for the artifact that carries a handoff into a fresh chat, nor for the
+paste block that delivers it.
+
+`kickoff` is unavailable and actively ambiguous. `OPEN-ITEMS.md` uses it for the
+one-line prompt that starts an *execution* session — the thing the lexicon calls
+a dispatch block — while the working brief that opened the Trivium session is
+titled "Kickoff — AI-9" and is the other thing entirely. Same word, both senses,
+both live.
+
+**Candidates raised, none chosen:** `handover` (appears nowhere in the repo, so
+it cannot collide), `briefing`. Naming it also means deciding whether `kickoff`
+is retired or narrowed.
+
+---
+
+## Write-verification covers landing, not content
+
+**Source:** Trivium, 2026-08-06, on moving the policy out of `vendors/`.
+Duplicates the substance of the success-shaped-response item above; recorded
+here as the gap in the *policy document* specifically.
+
+`policies/remote-write-verification-policy.md` states three rules, all of which
+verify that a write **landed**. None verifies that what landed is what was
+intended. The policy now says so explicitly in a Known gap section rather than
+reading as complete.
+
+**What's needed:** a content-expectation check alongside the landing check —
+response `size` against expectation, and stats on the follow-up commit read.
+Specifying it is open work; the policy deliberately does not.
+
+---
+
+## Promote the write-verification principle into `context-sets/base.md`
+
+**Source:** flagged in the original 2026-08-02 draft; carried forward unchanged
+when the document moved to `policies/remote-write-verification-policy.md`,
+2026-08-06.
+
+The principle — *a write through an unreliable transport is not evidence that
+the write landed; verify before reporting, and read state before retrying* — is
+the same claim as `base.md`'s "agent claims require evidence," applied to the
+transport. `base.md` is always loaded; the policy is not.
+
+The move out of `vendors/` did **not** settle this. A rule in `base.md` plus a
+detailed procedure in the policy is the normal shape, and the two are not
+exclusive.
+
+**What's needed:** a cycle on `context-sets/base.md`.
+
+---
+
+## `name` and `description` frontmatter on the remaining six skills
+
+**Source:** Trivium, 2026-08-06.
+
+**Decided:** every skill carries `name` and `description` per Anthropic's skill
+authoring guidance
+(https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+`description` is what an agent matches a request against when choosing among
+skills, so a skill without one only fires for someone who already knew it
+existed — the population least in need of it. The motivating case: a
+skeptic/risk role needing to send a remediation to an execution session cannot
+discover `skills/directive-dispatch.md` by reading the directory.
+
+Done in Trivium: `skills/directive-dispatch.md`, `skills/command-blocks.md`.
+
+Remaining: `boundary-audit`, `change-package-creation`, `conversation-retro`,
+`evidence-review`, `release-readiness-review`, `spec-review-cycle`,
+`test-plan-review`.
+
+**Verified 2026-08-06:** `bin/check-frontmatter` passes with `name` and
+`description` present — the validator checks for required keys and carries a
+denylist for git-derivable fields, not an allowlist, so unknown keys pass.
+`bin/flip-agreed` shares the parser but was **not** exercised; its path only
+runs on an actual agreement flip.
+
+---
+
+## Skills conformance pass — rubric first, scope undecided
+
+**Source:** Trivium, 2026-08-06. The sequencing question was raised and never
+answered.
+
+A pass over all skills conforming them to: Anthropic's skill-authoring guidance,
+`LEXICON.md`, and this repo's frontmatter policy.
+
+**The unresolved call:** whether the standard lands as a committed rubric first
+and the pass runs against it, or whether the criteria live in the directive that
+executes the pass. A rubric is a governed document and a gate; a checklist in a
+directive is not. Reviewing eight skills against a web page that can change, and
+that is not in the repo, is the thing `context-sets/base.md`'s tooling rule
+forbids.
+
+**Substance worth keeping from the guidance:** brevity is not the rule. Cut what
+the model already knows; keep rationale that encodes a failure mode it cannot
+infer. Bare imperatives — all-caps MUST/NEVER — are flagged as an anti-pattern,
+because the model follows the letter and misses edge cases the author did not
+anticipate.
+
+---
+
+## Sync as a skill rather than a step inside every directive
+
+**Source:** Dave, Trivium, 2026-08-06. Parked mid-session, not developed.
+
+Today `skills/directive-dispatch.md` requires every dispatch to open with a sync
+step, and `skills/command-blocks.md` governs how that block is built. The
+proposal: make sync a skill that agent roles hold, so a directive reads "sync,
+then read and execute `<path>` @ `<sha>`" and carries no mechanics.
+
+**The argument for it:** the mechanics are version-control-specific. A project on
+something other than git would need every directive rewritten; a skill would
+need replacing once.
+
+Not analysed. Interacts with the dispatch block's two-step form and with what
+"self-contained" means for a directive.
