@@ -114,7 +114,10 @@ Documents in scope:
 Finding: <one-line restatement>
 Resolution: <instruction to the executor; for "modify", exact intent;
 for "reject", no action — recorded for audit>
-Dictated wording: <verbatim, if any — executor must use as-is>
+Dictated wording: <pointer to the committed source — <path> @ <sha>, plus
+field or section. Inline only where this directive is the origin of the
+wording, in which case it is the source and downstream artifacts point here.
+See `skills/directive-dispatch.md`.>
 
 ## Deferred / out of scope
 - <item> — <where it is tracked>
