@@ -911,3 +911,36 @@ need replacing once.
 
 Not analysed. Interacts with the dispatch block's two-step form and with what
 "self-contained" means for a directive.
+
+---
+
+## ~~A paste block must be copyable in the surface that delivers it~~
+
+**Source:** Trivium, 2026-08-06, found in use. A command block containing a
+heredoc rendered in the Claude desktop client **without a copy button** — the
+block could not be copied in its entirety. A second version of the same commit,
+using `-m` flags instead of a heredoc, rendered normally.
+
+**Why this is a distinct rule and not covered by existing ones.** `LEXICON.md`
+defines a paste block as one "intended to be copied in its entirety and pasted
+in its entirety somewhere else." A block the surface will not let the reader
+copy fails that definition before any conformance criterion applies.
+`skills/command-blocks.md` requires that a block "runs verbatim as pasted,"
+which presupposes the paste already happened. Neither document states the
+precondition: **the block must be copyable in the surface it is delivered to.**
+
+The failure is silent from the author's side. The block is well-formed, every
+command is valid, and nothing in the text signals the problem — it appears only
+in rendering, which the author does not see.
+
+**RESOLVED** 2026-08-06, same session. `skills/command-blocks.md` states the
+principle as a rule and names heredocs in the Claude desktop client as a *known
+instance* rather than as the rule itself, with adopting projects directed to
+substitute their own cases. Also added as a fifth conformance criterion.
+
+The alternative — principle only, no instance — was rejected as unenforceable:
+an author cannot check "does this render correctly" while writing, which is how
+this defect reached delivery in the first place. Naming a vendor instance inside
+a portable skill is a real cost; `context-sets/base.md`'s tooling rule forbids
+durable policy living *only* in a vendor surface, which this does not, and
+`skills/directive-dispatch.md` already names Claude Code by product.
