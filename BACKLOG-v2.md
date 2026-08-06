@@ -87,7 +87,11 @@ change unit. Noted as open during the spine review.
 Deferred from the 2026-08-02 doc review (`docs/cycles/doc-review-2026-08-02-questions.md`).
 
 ### `bin/dispatch`
-Enforce dispatch discipline: refuse to emit the paste block until the directive is committed and pushed, and stamp the git-read SHA into it (Q2; `skills/directive-dispatch.md`).
+Enforce dispatch discipline: refuse to emit the dispatch block until the directive file is committed, and stamp the git-read SHA into it (Q2; `skills/directive-dispatch.md`).
+
+**Two build triggers, added 2026-08-06.** Track B's step-4 command block is the same idea done in shell — `git commit && echo "sync, then read and execute <path> @ $(git rev-parse HEAD)"`. Build the tool when Track B has been exercised enough to know what the block actually needs, or the first time that block requires a hand-tweak before it runs. Building now means building against a design with zero uses behind it.
+
+Note the original entry said "committed and pushed." Track B establishes that a SHA exists at commit, with no remote required — which is what makes it usable when the forge is down. The tool should gate on commit, not push.
 
 ### `bin/state`
 Render current state for the Chief of Staff — computed from OPEN-ITEMS, recent commits, and pending gates; never a maintained register (Q3a; `roles/chief-of-staff.md`).
