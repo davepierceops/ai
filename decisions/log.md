@@ -55,3 +55,25 @@ working-practice obligation (consult the log), not a route to `agreed`, so it
 falls outside the class this entry protects. Size and multi-file freedom are
 retained for all other co-authored prose.
 Supersedes: DEC-000020
+
+## DEC-000040 — Doc-only cycle is single-document; multi-file override withdrawn
+Date: 2026-08-06
+Decision: Supersedes DEC-000030. The doc-only cycle overrides the expedited
+path's ≤10-line body cap for co-authored documents — a co-authored document may
+be any size — but does not override the single-in-scope-file rule: a doc-only
+agreement covers exactly one in-scope document, as the expedited path does.
+Several documents co-authored in one session are agreed as separate, sequential
+agreements. The gate/enforcement-doc exclusion carried by DEC-000030 stands
+unchanged: documents that state a gate, a hard stop, or an enforcement rule
+governing how work is reviewed, agreed, or released reach `agreed` only through
+the full reviewer-gated cycle, even when co-authored.
+Context: DEC-000030 also overrode the single-file rule, letting one content
+commit agree multiple documents under one shared content SHA. The cycle-11
+re-gate of `document-metadata-policy.md` (finding B1) found the shared SHA
+defeats the single-entry pointer resolution `### The record` relies on —
+`bin/flip-agreed` / `bin/aimeta/expedited.py` match a `last-reviewed` pointer on
+SHA alone, so document B's pointer is satisfied by document A's entry: a false
+claim of review in the one case the SHA is deliberately shared. Rather than make
+the checker path-aware (a `bin/` change), the single-file rule is restored; size
+freedom is retained.
+Supersedes: DEC-000030

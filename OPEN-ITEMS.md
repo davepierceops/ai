@@ -516,6 +516,8 @@ Package D's diff.
 
 The one bounded exception is now named in the role doc: the expedited path
 substitutes Dave's read for this gate under five stated conditions.
+(Update 2026-08-06: a second bounded exception, the doc-only cycle, landed with
+the cycle-10 revision of `document-metadata-policy.md`; the role doc names both.)
 
 **Original entry, kept for the record:**
 
@@ -944,3 +946,15 @@ this defect reached delivery in the first place. Naming a vendor instance inside
 a portable skill is a real cost; `context-sets/base.md`'s tooling rule forbids
 durable policy living *only* in a vendor surface, which this does not, and
 `skills/directive-dispatch.md` already names Claude Code by product.
+
+## `bundle base` red — stale AC after the decision-log citation
+
+`bin/tests/test_bundle.py::test_bn10_bundle_base_yields_exactly_itself` fails:
+`bundle base` returns 67 paths, not just `context-sets/base.md`. Cause, pinned in
+the cycle-11 re-gate (O3): `context-sets/base.md` gained the decision-log consult
+obligation under the AI-6 landing (`consult … decisions/log.md … cite the
+governing entry by ID`), so reference closure from `base` now pulls in the cited
+documents, and AC-BN-10(a)'s "declares `depends-on: []` and cites no documents"
+premise is stale. Not a flake, not a reason to hold any flip. Fix is a `bin/`
+change (Reviewer Agent territory): correct the AC, or confirm the citation-closure
+behavior is intended and rewrite the assertion.
