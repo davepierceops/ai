@@ -77,3 +77,16 @@ claim of review in the one case the SHA is deliberately shared. Rather than make
 the checker path-aware (a `bin/` change), the single-file rule is restored; size
 freedom is retained.
 Supersedes: DEC-000030
+
+## DEC-000050 — decision-log-policy.md sits outside the gate-document class
+Date: 2026-08-06
+Decision: `policies/decision-log-policy.md` is not a gate/enforcement document in
+the sense of the doc-only cycle's condition 3 — it states a working-practice
+obligation (consult the log), not a route to `agreed` or a gate over how work is
+reviewed, agreed, or released. Its revisions are eligible for the doc-only cycle
+when co-authored, and its agreement under DEC-000020 stands.
+Context: DEC-000030 recorded this carve-out; DEC-000040 superseded DEC-000030 and
+carried the gate-doc exclusion forward but not this classification, so under the
+decision log's whole-entry supersession rule the carve-out went dead. This entry
+restates it as a live decision. Not a supersession — DEC-000040 remains fully in
+force; this adds back only the dropped classification.
