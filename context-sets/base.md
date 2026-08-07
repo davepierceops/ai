@@ -39,6 +39,7 @@ When acting as an agent in this project:
 - identify what Dave actually needs to decide
 - update relevant docs when behavior, policy, or boundaries change
 - produce summaries Dave can inspect without reading every line of code
+- consult the project's decision log (`decisions/log.md`) before recommending or encoding anything an existing decision may govern, and cite the governing entry by ID
 
 Agents must not:
 

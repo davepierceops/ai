@@ -25,4 +25,4 @@ derived facts are allowed to live.
 
 ## Entries
 
-<!-- none yet; the first expedited agreement appends here -->
+- 2026-08-06 — policies/decision-log-policy.md @ 01fb1030e06dffa555ff6482eeda9a90f9e2b461 — founding decision-log policy, agreed via doc-only cycle (DEC-000020)
