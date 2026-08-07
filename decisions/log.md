@@ -31,3 +31,27 @@ off under the doc-only cycle. `bin/flip-agreed` enforces only a frontmatter-only
 transition and that the cited SHA resolves to a log entry — not the eligibility
 conditions — so this agreement lands cleanly. Amending the metadata-policy prose
 is queued as follow-up.
+
+## DEC-000030 — Doc-only cycle excludes review-regime documents; they keep independent review
+Date: 2026-08-06
+Decision: Narrows DEC-000020. The doc-only cycle still overrides the expedited
+path's ≤10-line body cap and single-in-scope-file rule for co-authored
+documents, but it does not override the gate/enforcement-doc exclusion.
+Documents that state a gate, a hard stop, or an enforcement rule governing how
+work is reviewed, agreed, or released — the class defined in
+`policies/document-metadata-policy.md`, "Expedited return to `agreed`",
+condition 3 — reach `agreed` only through the full reviewer-gated cycle
+(`skills/spec-review-cycle.md`), even when co-authored. The doc-only cycle's
+verbal sign-off is not sufficient for that class.
+Context: DEC-000020 overrode the gate-doc exclusion alongside the size and
+single-file limits, which was too broad. The doc-only cycle trades away
+independent review, and the one class where independence is load-bearing is the
+set of documents that define the routes to `agreed`: a self-serving change there
+would propagate to every future agreement with only its author having read it.
+Prompted by the pending `document-metadata-policy.md` amendment, which under
+this entry routes through the full cycle. This does not unwind the agreement of
+`policies/decision-log-policy.md` under DEC-000020 — that document states a
+working-practice obligation (consult the log), not a route to `agreed`, so it
+falls outside the class this entry protects. Size and multi-file freedom are
+retained for all other co-authored prose.
+Supersedes: DEC-000020
