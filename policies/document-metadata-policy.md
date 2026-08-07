@@ -1,6 +1,6 @@
 ---
-status: in-review
-last-reviewed: null
+status: agreed
+last-reviewed: reviews/expedited-log.md @ 1f5b7153dc3140f500ceb5575f459f1098b23de0
 audience: [all-roles, human]
 superseded-by: null
 ---
