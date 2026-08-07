@@ -31,9 +31,16 @@ agent instance that drafted the document under review.
 
 The gate's reach is **any canonical document, not `specs/` only**. This matches
 `skills/spec-review-cycle.md` and the review record: every gate review in
-`reviews/` is over a non-`specs/` document. The one bounded exception is the
-expedited path in `policies/document-metadata-policy.md`, which substitutes
-Dave's own read of a diff for this gate under five stated conditions.
+`reviews/` is over a non-`specs/` document. There are two bounded exceptions,
+both in `policies/document-metadata-policy.md`. The **expedited path**
+substitutes Dave's own read of a diff for this gate, bounded to a single-commit,
+single-in-scope-file revision of no more than ten body lines, over a document
+that states no gate and is not under `specs/`. The **doc-only cycle**
+substitutes co-authoring with Dave plus a consistency sweep and his sign-off,
+bounded to co-authored prose he asks to route this way, in the frontmatter
+in-scope set, stating no gate and not under `specs/` — unbounded in size, which
+is the point of it. Both carry five stated conditions; neither reaches a
+document that states a gate, a hard stop, or an enforcement rule.
 
 ### 2. Continuity scan
 Triggered on:

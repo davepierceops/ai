@@ -229,8 +229,10 @@ through a full cycle regardless of size.
 
 ### The record
 
-Each expedited agreement appends one line to `reviews/expedited-log.md`
-naming the document, the reviewed SHA, the date, and what changed;
+Each expedited or doc-only agreement appends one line to
+`reviews/expedited-log.md` naming the document, the reviewed SHA, the
+date, and what changed — or, where the document is new and nothing
+changed, what the document is;
 `last-reviewed` then reads `reviews/expedited-log.md @ <sha>`. The SHA
 is what makes that pointer resolve to a single entry — many documents
 point at one log, and the entry carrying the cited SHA is the one meant.
@@ -272,16 +274,23 @@ contains nothing but the transition, per the rule above. Step 3 before
 step 4, so the entry the pointer resolves to already exists when the
 pointer is written.
 
-## Doc-only agreement
+## Doc-only cycle
 
 A document co-authored with Dave in the artifact pane reaches `agreed` on his
-sign-off, with no separate reviewer — the co-authoring *is* the read a reviewer
-would perform. It records like the expedited path (a line in
-`reviews/expedited-log.md`, `last-reviewed` citing the log and reviewed SHA — see
-"The record"), but carries a co-authored document of **any size, new or
-revised**, where the expedited path is capped at a ten-line single-file revision.
+sign-off, with no separate reviewer. The co-authoring supplies the *read* a
+reviewer would perform; what it does not supply is an *independent* reader,
+and that is the trade — which is why condition 3 below excludes the documents
+that define the routes to `agreed`. It records like the expedited path (a line
+in `reviews/expedited-log.md`, `last-reviewed` citing the log and reviewed SHA
+— see "The record"), but carries co-authored work of **any size, new or
+revised, across more than one document**, where the expedited path is capped
+at a ten-line single-file revision.
 
-### Eligible when all four hold
+The route reaches only documents in the frontmatter in-scope set above.
+`agreed` is a frontmatter state, so a document outside that set has no status
+for this route to move.
+
+### Eligible when all five hold
 
 1. **Prose, not a program.** Methodology or governance text in any format; a
    script or executable is out — a consistency read is not the verification code
@@ -291,15 +300,39 @@ revised**, where the expedited path is capped at a ten-line single-file revision
 3. **Not a gate document.** Nothing stating a gate, hard stop, or enforcement
    rule over how work is reviewed, agreed, or released — the condition-3 class
    above. That class takes the full reviewer cycle even when co-authored.
-4. **Agreed as-is.** At least one consistency sweep run; Dave signs off with no
-   open findings. Any finding escalates to a full cycle.
+4. **Asked for, and agreed as-is.** Dave asks for this route; at least one
+   consistency sweep is run; Dave signs off with no open findings. Any finding
+   escalates to a full cycle.
+
+   A **consistency sweep** checks the document — and the documents it
+   cross-references and that reference it — for any value or cross-reference
+   the change has made stale. It extends the within-document consistency check
+   `context-sets/spec-and-change-discipline.md` already requires to the
+   document's neighbours, because a change to one document routinely falsifies
+   a claim in another. The co-authoring agent runs it before sign-off; "at
+   least one" means the most recent sweep post-dates the final edit.
+   Completion is attested by Dave's sign-off, not a separate artifact.
+5. **Not under `specs/`.** Spec agreement is gated by the Spec Reviewer Agent
+   (`roles/spec-reviewer-agent.md`); this route neither reaches that gate nor
+   overrides it.
+
+Enforcement checks none of this either, and for the same reason: `bin/flip-agreed`
+verifies the pointer's format, that the cited SHA resolves to an entry in the
+log, and that the transition commit is frontmatter-only — it cannot see whether
+a document was co-authored, swept, or asked for.
+
+The five conditions are necessary, not sufficient, here as on the expedited
+path, and a document may exclude its own revisions from this route.
 
 ### Sequence
 
 As the expedited path — content commit, then the log entry naming that SHA, then
-a frontmatter-only flip to `agreed`, log entry before flip. One difference: a new
+a frontmatter-only flip to `agreed`, log entry before flip. Two differences. A new
 document's content commit lands it at `draft`, where an edit to an already-agreed
-document flips it to `in-review`.
+document flips it to `in-review`. And the content commit may touch more than one
+in-scope document: the log then takes one entry per document, each document's
+`last-reviewed` cites that same content SHA, and a separate frontmatter-only flip
+lands per document — `bin/flip-agreed` touches exactly one path per commit.
 
 ## Excluded fields (do not add)
 

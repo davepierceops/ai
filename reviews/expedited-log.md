@@ -1,7 +1,8 @@
 # Expedited Review Log
 
-One line per expedited agreement, per the "Expedited return to `agreed`"
-section of `policies/document-metadata-policy.md`. Documents agreed this way
+One line per expedited or doc-only agreement, per the "Expedited return to
+`agreed`" and "Doc-only cycle" sections of
+`policies/document-metadata-policy.md`. Documents agreed either way
 carry `last-reviewed: reviews/expedited-log.md @ <sha>`; the SHA selects the
 entry.
 
@@ -16,6 +17,10 @@ belongs in canonical policy text.
 Format — one Markdown list item per entry:
 
 `- <YYYY-MM-DD> — <document path> @ <sha> — <what changed, one clause>`
+
+Where the document is new — which the doc-only cycle admits and the expedited
+path does not — nothing changed, so the last clause states what the document
+is instead.
 
 The SHA is authoritative. The date and the one-clause summary are reader
 convenience — both are derivable from the commit it names, and on any conflict
