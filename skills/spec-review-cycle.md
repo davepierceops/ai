@@ -165,8 +165,8 @@ already agreed, and rewriting a record of what happened to match a later format
 would be the drift this repo exists to prevent.
 
 One thing `last-reviewed:` points at is **not** an artifact in this sense:
-`reviews/expedited-log.md`. The expedited path in
-`policies/document-metadata-policy.md` produces one line per agreement in a
+`reviews/expedited-log.md`. The expedited path and the doc-only cycle in
+`policies/document-metadata-policy.md` produce one line per agreement in a
 shared append-only log, not a per-cycle document, and the header block above
 would be absurd applied per line. The log's own format is specified where the
 path is. The rule generalizes: this schema governs artifacts produced by a

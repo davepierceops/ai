@@ -282,9 +282,8 @@ reviewer would perform; what it does not supply is an *independent* reader,
 and that is the trade — which is why condition 3 below excludes the documents
 that define the routes to `agreed`. It records like the expedited path (a line
 in `reviews/expedited-log.md`, `last-reviewed` citing the log and reviewed SHA
-— see "The record"), but carries co-authored work of **any size, new or
-revised, across more than one document**, where the expedited path is capped
-at a ten-line single-file revision.
+— see "The record"), but carries a co-authored document of **any size, new or
+revised**, where the expedited path is capped at a ten-line revision.
 
 The route reaches only documents in the frontmatter in-scope set above.
 `agreed` is a frontmatter state, so a document outside that set has no status
@@ -298,8 +297,9 @@ for this route to move.
 2. **Co-authored with Dave in the artifact pane** — drafted together, not
    finished elsewhere and presented for sign-off.
 3. **Not a gate document.** Nothing stating a gate, hard stop, or enforcement
-   rule over how work is reviewed, agreed, or released — the condition-3 class
-   above. That class takes the full reviewer cycle even when co-authored.
+   rule over how work is reviewed, agreed, or released — the gate-document class
+   defined by the expedited path's condition 3. That class takes the full
+   reviewer cycle even when co-authored.
 4. **Asked for, and agreed as-is.** Dave asks for this route; at least one
    consistency sweep is run; Dave signs off with no open findings. Any finding
    escalates to a full cycle.
@@ -327,12 +327,15 @@ path, and a document may exclude its own revisions from this route.
 ### Sequence
 
 As the expedited path — content commit, then the log entry naming that SHA, then
-a frontmatter-only flip to `agreed`, log entry before flip. Two differences. A new
+a frontmatter-only flip to `agreed`, log entry before flip. One difference: a new
 document's content commit lands it at `draft`, where an edit to an already-agreed
-document flips it to `in-review`. And the content commit may touch more than one
-in-scope document: the log then takes one entry per document, each document's
-`last-reviewed` cites that same content SHA, and a separate frontmatter-only flip
-lands per document — `bin/flip-agreed` touches exactly one path per commit.
+document flips it to `in-review`.
+
+A doc-only agreement covers exactly one in-scope document, as the expedited path
+does; several documents co-authored in one session are agreed as separate,
+sequential agreements. The content commit touches only that document — a
+companion tracked path (a `decisions/log.md` entry, an `OPEN-ITEMS.md` update)
+lands in its own commit, per the expedited path's "no other tracked path" rule.
 
 ## Excluded fields (do not add)
 
