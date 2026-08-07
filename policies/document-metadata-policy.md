@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/document-metadata-policy-cycle-12.md @ 67b586a
+status: in-review
+last-reviewed: null
 audience: [all-roles, human]
 superseded-by: null
 ---
@@ -31,6 +31,7 @@ project artifacts.
 - `vendors/**`
 - `operating-model.md`
 - `README.md`
+- `LEXICON.md`
 
 **Out of scope:**
 
