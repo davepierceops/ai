@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/document-metadata-policy-cycle-9.md @ 08f54fd
+status: in-review
+last-reviewed: null
 audience: [all-roles, human]
 superseded-by: null
 ---
@@ -271,6 +271,35 @@ Steps 3 and 4 stay separate commits so that the status transition
 contains nothing but the transition, per the rule above. Step 3 before
 step 4, so the entry the pointer resolves to already exists when the
 pointer is written.
+
+## Doc-only agreement
+
+A document co-authored with Dave in the artifact pane reaches `agreed` on his
+sign-off, with no separate reviewer — the co-authoring *is* the read a reviewer
+would perform. It records like the expedited path (a line in
+`reviews/expedited-log.md`, `last-reviewed` citing the log and reviewed SHA — see
+"The record"), but carries a co-authored document of **any size, new or
+revised**, where the expedited path is capped at a ten-line single-file revision.
+
+### Eligible when all four hold
+
+1. **Prose, not a program.** Methodology or governance text in any format; a
+   script or executable is out — a consistency read is not the verification code
+   needs.
+2. **Co-authored with Dave in the artifact pane** — drafted together, not
+   finished elsewhere and presented for sign-off.
+3. **Not a gate document.** Nothing stating a gate, hard stop, or enforcement
+   rule over how work is reviewed, agreed, or released — the condition-3 class
+   above. That class takes the full reviewer cycle even when co-authored.
+4. **Agreed as-is.** At least one consistency sweep run; Dave signs off with no
+   open findings. Any finding escalates to a full cycle.
+
+### Sequence
+
+As the expedited path — content commit, then the log entry naming that SHA, then
+a frontmatter-only flip to `agreed`, log entry before flip. One difference: a new
+document's content commit lands it at `draft`, where an edit to an already-agreed
+document flips it to `in-review`.
 
 ## Excluded fields (do not add)
 
