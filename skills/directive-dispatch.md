@@ -118,32 +118,50 @@ the file as an artifact Dave downloads into the clone. The desktop client writes
 to `~/Downloads` and appends a collision suffix (`name (1).md`) when a file of
 that name is already there.
 
-**Invariant: exactly one matching file in `~/Downloads`.** The pre-flight
-establishes it; the relocate block trusts it and does not re-derive it.
+**Invariant: the canonical file is the only `directive-dispatch`-style match in
+`~/Downloads` that the relocate block will move.** The relocate block moves an
+*exact* filename, so stray siblings do not corrupt a commit — but a stale copy
+of the *canonical* name from a prior session would. The pre-flight surfaces
+what is there; Dave judges. It is not a machine "count equals one" check.
 
 1. Draft the file in an artifact. Title the artifact with the exact filename it
-   should download as.
-2. **Pre-flight** — emit a command block listing the download target:
+   should download as. **Present that exact artifact in the same reply as the
+   pre-flight/relocate blocks** — the pane holds whatever was shown last, and
+   blocks that reference "the file" while a different file is displayed are a
+   silent wrong-file hazard. Artifact and blocks ship together or not at all.
+2. **Pre-flight** — emit a command block listing every download that shares the
+   stem. Glob on the **stem**, not the full filename: the collision suffix lands
+   *before* the extension (`directive-dispatch (1).md`), so a glob anchored after
+   `.md` misses the copies. `<stem>` is the canonical filename without its
+   extension.
 
    ```
-   ls ~/Downloads/<canonical-name>*
+   ls ~/Downloads/<stem>*
    ```
 
-   Dave runs it and downloads the artifact (either order). Nothing before
-   download → clean. Exactly one → proceed. More than one → Dave clears
-   (`rm ~/Downloads/<canonical-name>*`) and re-downloads. The `*` catches the
-   ` (n)` suffix.
-3. **Relocate, commit, echo** — one block:
+   Dave runs it and downloads the artifact (either order), then reads the
+   listing. A single canonical file → proceed. Collision copies (`<stem> (1).md`)
+   or a stale canonical file present → Dave clears what should not be there
+   (`rm ~/Downloads/<stem>*` clears all of them) and re-downloads. The listing is
+   for Dave's eye; he judges what belongs, because a stem glob also catches
+   legitimately-different files that share the stem.
+3. **Relocate, commit, echo** — one block. `<canonical-name>` is `<stem>` with
+   its extension; the relocate moves the exact filename, so no glob here. The
+   echo has **two forms** — use the one that fits:
+   - *Dispatch* (the commit is a directive a fresh session will execute next):
+     `echo "sync, then read and execute <dest-path> @ $(git rev-parse HEAD)"`
+   - *Plain commit* (nothing to execute — a doc, a tracker, an inbox entry):
+     `echo "committed <dest-path> @ $(git rev-parse HEAD)"`
 
    ```
    test -f ~/Downloads/<canonical-name> || { echo "STOP: ~/Downloads/<canonical-name> not found — run the pre-flight ls, then re-download." >&2; exit 1; }
    mv -f ~/Downloads/<canonical-name> <dest-path> && \
      git add -- <dest-path> && \
      { git diff --cached --quiet -- <dest-path> || git commit -q -m "<message>" -- <dest-path>; } && \
-     echo "sync, then read and execute <dest-path> @ $(git rev-parse HEAD)"
+     echo "<echo form per above>"
    ```
 
-   Dave pastes the echoed line into the execution session.
+   For a dispatch, Dave pastes the echoed line into the execution session.
 
 - **Both blocks emit in the same turn.** The one-per-turn relay rule does not
   bind: the relocate block reads the same whatever the pre-flight prints. Dave
@@ -167,6 +185,30 @@ establishes it; the relocate block trusts it and does not re-derive it.
 - **Routing:** work needing git *history* (blast-radius, `git log -S`, resolving
   a `last-reviewed` SHA, staleness guards) is Track A — a downloaded snapshot
   carries no history. Drafting over current file contents fits Track B.
+- **Emit the canonical filename as its own paste block** — nothing else on the
+  line — for operator-assembled inspection steps (`ls`, `rm`, `cp`). A sharp
+  operator assembles the verb around the name faster than reading a supplied
+  block, but only if the name is copyable as an atom; bare inline text forces a
+  hand-select, which is the friction the atom removes. Reserve whole tested
+  blocks for load-bearing steps (relocate/commit).
+- **Append vs. replace.** The relocate block *replaces* a file (`mv`). Appending
+  to an existing tracker (an inbox, a log) is a different operation: naive
+  `cat >>` run twice appends twice. Guard it with the entry's own marker (e.g. a
+  dated heading) — skip the append if the marker is already in the target — and
+  `rm` the source after, since `cat >>` leaves it in place where `mv` would not:
+
+  ```
+  test -f ~/Downloads/<canonical-name> || { echo "STOP: ~/Downloads/<canonical-name> not found." >&2; exit 1; }
+  if grep -qF "<marker>" <dest-path>; then
+    echo "SKIP: <marker> already present — not appending again."
+  else
+    cat ~/Downloads/<canonical-name> >> <dest-path> && \
+    rm -f ~/Downloads/<canonical-name> && \
+    git add -- <dest-path> && \
+    git commit -q -m "<message>" -- <dest-path> && \
+    echo "committed <dest-path> @ $(git rev-parse HEAD)"
+  fi
+  ```
 
 ## Writing the directive file
 
@@ -239,5 +281,6 @@ executing Q2. Extended 2026-08-05 (sync step, directive-authoring constraints,
 executor obligations; AI-9 rule set). Conformed to `LEXICON.md` (draft)
 2026-08-06. Track B mechanics rewritten 2026-08-07 (pre-flight for the
 `~/Downloads` collision-suffix problem; destination-blind relocate block;
-standalone sync block dropped). Compressed to directive register 2026-08-07.
-Nothing here is agreed.
+standalone sync block dropped). Compressed to directive register, and Track B mechanics extended (same-turn
+artifact rule, stem glob, name-as-atom, append-vs-replace, two echo forms)
+2026-08-07. Nothing here is agreed.
