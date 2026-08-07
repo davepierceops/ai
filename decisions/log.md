@@ -90,3 +90,17 @@ carried the gate-doc exclusion forward but not this classification, so under the
 decision log's whole-entry supersession rule the carve-out went dead. This entry
 restates it as a live decision. Not a supersession — DEC-000040 remains fully in
 force; this adds back only the dropped classification.
+
+## DEC-000060 — LEXICON.md brought into metadata in-scope set by owner override
+Date: 2026-08-07
+Decision: The single-line additive edit naming `LEXICON.md` in the in-scope set
+of `policies/document-metadata-policy.md` is agreed without a review cycle, on
+owner authority. That document is agreed and its in-scope set is an enforcement
+rule, so the doc-only cycle's condition 3 would otherwise force a full review
+cycle; the owner overrides condition 3 for this revision only. This does not
+create a general owner-flip route for enforcement-rule documents.
+Context: The edit is additive — it brings a governed definitional document under
+enforcement it already claims via its frontmatter — so it cannot blind
+enforcement of itself. `bin/check-frontmatter --all` was verified green with
+LEXICON in scope. A full multi-agent gate is disproportionate to a one-line
+additive scope change.

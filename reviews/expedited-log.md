@@ -31,3 +31,4 @@ derived facts are allowed to live.
 ## Entries
 
 - 2026-08-06 — policies/decision-log-policy.md @ 01fb1030e06dffa555ff6482eeda9a90f9e2b461 — founding decision-log policy, agreed via doc-only cycle (DEC-000020)
+- 2026-08-07 — policies/document-metadata-policy.md @ 1f5b7153dc3140f500ceb5575f459f1098b23de0 — LEXICON.md added to in-scope set; owner override of doc-only condition 3, no review cycle (DEC-000060)
