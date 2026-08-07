@@ -37,9 +37,10 @@ substitutes Dave's own read of a diff for this gate, bounded to a single-commit,
 single-in-scope-file revision of no more than ten body lines, over a document
 that states no gate and is not under `specs/`. The **doc-only cycle**
 substitutes co-authoring with Dave plus a consistency sweep and his sign-off,
-bounded to co-authored prose he asks to route this way, in the frontmatter
-in-scope set, stating no gate and not under `specs/` — unbounded in size, which
-is the point of it. Both carry five stated conditions; neither reaches a
+bounded to a single co-authored document he asks to route this way, in the
+frontmatter in-scope set, stating no gate and not under `specs/` — one document
+per agreement as on the expedited path, but unbounded in size, which is the
+point of it. Both carry five stated conditions; neither reaches a
 document that states a gate, a hard stop, or an enforcement rule.
 
 ### 2. Continuity scan

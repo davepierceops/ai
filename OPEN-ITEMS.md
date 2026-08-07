@@ -958,3 +958,25 @@ documents, and AC-BN-10(a)'s "declares `depends-on: []` and cites no documents"
 premise is stale. Not a flake, not a reason to hold any flip. Fix is a `bin/`
 change (Reviewer Agent territory): correct the AC, or confirm the citation-closure
 behavior is intended and rewrite the assertion.
+
+## document-metadata-policy.md doc-only cycle — advisory clarity items (cycle-12)
+
+Accepted as advisory at the cycle-12 agreement, deferred rather than spun into a
+cycle 13. Each is a clarity edit to the now-agreed gate document, so each would
+take the full reviewer cycle:
+- **N1** — the doc-only `### Sequence` imports two of the expedited path's
+  condition-1 clauses ("exactly one in-scope document", "no other tracked path")
+  and is silent on the third, single-commit. On an unbounded-size route a
+  multi-commit content revision is expected; the intended reading is that
+  `last-reviewed` cites the final content commit. State it.
+- **N3** — the single-document rule is stated under `### Sequence`, not among the
+  five eligibility conditions, though it is eligibility-shaped. Consider
+  promoting it to a numbered condition.
+
+## bin/aimeta/expedited.py is path-blind (benign under the single-document rule)
+
+`check_pointer` matches a `last-reviewed` pointer on SHA alone, not on document
+path. Harmless now that every route admits one in-scope document per content
+commit (one SHA selects one entry), but untracked. If a future decision ever
+re-admits multi-document shared-SHA agreements, this must become path-aware
+first. Surfaced at cycle-11 B1.
