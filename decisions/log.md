@@ -109,3 +109,22 @@ additive scope change.
 Date: 2026-08-07
 Decision: The tranche decomposition doc pins the PRD/TRD SHAs it derives from; acceptance criteria are consumed at package execution time and are not part of what the decomp pins. Staleness-check strictness (block vs. flag on spec movement past the pin) is left unsettled, to be learned by doing.
 Context: Raised while adding a spec-drift guard to roles/chief-of-staff.md. The decomp is a derived artifact and can drift from canonical specs; pinning the PRD/TRD SHA gives a staleness signal. ACs sit between agreed spec and execution and are better re-read live than pinned into a derived doc that later work references in place of the spec.
+
+## DEC-000080 — Flakiness-workaround directives retained; Track B auto-propose trigger kept as contention detector
+Date: 2026-08-07
+Decision: An audit of the "special MCP-handling" directives — remote-write
+verification, the spec-review-cycle small-writes rule, remote/sync hygiene, and
+the Track B auto-propose-after-two-failures trigger — removes none of them. The
+trigger is retained specifically as a contention detector: its two-failure fire
+is how contention between concurrent Claude Desktop chats gets noticed, and that
+diagnostic value holds independent of whether the underlying cause is random
+flakiness or contention.
+Context: GitHub MCP is not fixed; the real failure mode is concurrent-Desktop
+contention, which Track B sidesteps. An audit (per the global-retro-inbox
+2026-08-04 entry) tested whether any directive existed only to work around
+now-nonexistent flakiness and found none: remote-write verification is
+transport-general evidence discipline, and the spec-review-cycle small-writes
+rule rests on the decision/execution layer boundary. The trigger was nearly cut
+as cruft this session before Dave noted it had already surfaced an accidental
+contention event once; skills/directive-dispatch.md frames it only as a Track B
+on-ramp, so its keep-reason is recorded here.

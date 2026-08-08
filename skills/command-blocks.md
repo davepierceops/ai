@@ -48,9 +48,15 @@ inconvenience the relay, it commits to an untested assumption and hides that it
 did so. This binds blocks handed to a human intermediary; it does not bind a
 sequence an agent runs itself with no one in the loop.
 
+**A block pasted into an interactive shell must not terminate it.** `exit`,
+`exec`, `logout`, and `|| { …; exit; }` end the shell the block runs in — on most
+terminals closing its window. Guard preconditions by branching
+(`if…elif…else…fi`) so a failed check prints and the block ends without ending
+the session.
+
 ## Conformance criteria
 
-Every command block satisfies all four. An untested block is still a command
+Every command block satisfies all six. An untested block is still a command
 block, and still non-conformant.
 
 - Every command is valid and non-harmful.
@@ -61,3 +67,6 @@ block, and still non-conformant.
   rule unfollowable.)
 - Any command producing evidence captures its output to a named path.
 - The block renders with its delivery surface's copy control intact.
+- The block cannot terminate the shell it is pasted into: no `exit`, `exec`, or
+  `logout`, and no `|| { …; exit; }` guard. Preconditions fall through via
+  `if…elif…else…fi`.
