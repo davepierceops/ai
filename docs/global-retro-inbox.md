@@ -212,3 +212,26 @@ schema/synthesis discipline applies later, when an entry is actually worked.
   `bin/` drift check, not a one-shot. Compression of operating-model and
   spec-and-change-discipline is deliberately deferred behind this — compressing
   text you are about to de-duplicate is wasted motion. Not scoped; own tranche.
+
+- **`bin/bundle` should emit the full pinned-header bundle, not just the body.**
+  Regenerating the methodology context bundle is currently a hand-assembled
+  shell block: `bin/bundle --format concat` produces only the body with a
+  `===== path @ sha =====` separator, while the uploaded artifact needs the
+  header (title, "do not edit", `Source: @ <repo-sha>`, `Generated: <stamp>`,
+  the file-set rule statement), the numbered file list with per-file blob
+  short-SHAs, and `<!-- FILE n/N: path @ sha -->` separators. That wrapper is
+  reconstructed by hand each regen, which is how a stale bundle cut from the
+  wrong commit (`4e4e01b`, pre-merge) got uploaded earlier this session, and how
+  a shell history-expansion `!` corrupted all 33 separators in another attempt.
+  Both are failure modes a script removes. Proposed: a `bin/bundle` mode (or new
+  `bin/bundle-methodology`) that takes the fixed spine + the audience-keyed
+  skills rule, resolves current HEAD, and writes the complete
+  `methodology-context-bundle-<YYYY-MM-DD-HHMM>.md` in one command — filename
+  timestamp and blob SHAs correct-by-construction. The file-set rule is already
+  encoded in the header prose; the script makes it executable. Timestamped
+  filename is intentional (project-view version visibility; overrides the
+  no-derived-metadata-in-names default — Dave). Still a manual step after:
+  upload to each project's Context and delete the prior bundle, since uploads
+  are per-project and same-name re-upload does not propagate across projects
+  (observed this session). Not scoped; candidate for the same tooling tranche as
+  the drift-audit `bin/` check.
