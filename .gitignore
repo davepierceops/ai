@@ -11,3 +11,4 @@
 # Python bytecode from bin/ tooling and its tests.
 __pycache__/
 *.pyc
+.DS_Store
