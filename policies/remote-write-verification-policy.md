@@ -1,6 +1,6 @@
 ---
-status: draft
-last-reviewed: null
+status: agreed
+last-reviewed: reviews/remote-write-verification-policy-cycle-2.md @ 5e1dc1fb78d4c4a670d5ec749971e7b766d5924f
 audience: [all-roles, human]
 ---
 
