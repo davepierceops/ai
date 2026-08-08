@@ -1001,3 +1001,7 @@ path. Harmless now that every route admits one in-scope document per content
 commit (one SHA selects one entry), but untracked. If a future decision ever
 re-admits multi-document shared-SHA agreements, this must become path-aware
 first. Surfaced at cycle-11 B1.
+
+## MANIFEST.md carries an embedded changelog contrary to git-SHA versioning
+
+Header says it holds only the context-set bundle definitions ("everything else removed"), yet it still carries a changelog (`### v0.5 changes`, `### Post-v0.5 changes`). Repo rule is git-SHA-is-the-version / git-log-is-the-changelog (`policies/document-metadata-policy.md`; the version number dropped in Package C). The embedded changelog is a second copy of git history. Symptom: `MANIFEST.md:129` carries the "handoff artifact" misuse corrected in cycle-1 D6, left as historical. Fix is removal of the changelog, not correction of the line. Source: Trivium gate cycle-1 triage, 2026-08-08.
