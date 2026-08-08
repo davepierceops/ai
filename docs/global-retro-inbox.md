@@ -181,3 +181,34 @@ schema/synthesis discipline applies later, when an entry is actually worked.
   (this session), and the run reshaped the relocate block. Claim corrected in
   the doc; build triggers restated (block stabilises across enough runs, or
   first hand-tweak needed).
+
+- **Cross-corpus duplication / drift audit — its own tranche.** Noticed while
+  compressing base + operating-model: the same rules are restated across base,
+  operating-model, and spec-and-change-discipline (evidence vocabulary,
+  meaningful-change definition, the canonical change-flow sequence). The right
+  question is not "make operating-model shorter" but "what is duplicated, and
+  is each duplication intentional?" Three bins for every restated rule:
+  (1) **load-bearing repetition** — restated on purpose so a rule stays salient
+  when an agent reaches the moment from different entry points; keep, possibly
+  mark as intentional so it is not later "helpfully" de-duped. LLM adherence can
+  genuinely benefit from repetition — do not reflexively DRY.
+  (2) **coincidental restatement** — same fact in two docs because they grew
+  independently; pure drift-risk (edit one, the other goes stale and
+  contradicts); eliminate to one canonical home + pointer.
+  (3) **should-differ** — looks duplicated but the instances differ subtly and
+  should, or one is wrong; the valuable finds — latent contradictions surfaced.
+  Test for (1) vs (2): "is this worth enforcing hard enough to hit the agent
+  from multiple angles?" yes → intentional; no reason → coincidental.
+  Scope is the full governed set (~30 docs: context-sets, roles, policies,
+  skills, boundaries, operating-model, README, LEXICON), not just the three
+  noticed in passing — those three were where the spidey-sense fired, not the
+  boundary of the problem. Method must be **mechanical-first**: a script
+  extracts candidate duplications (normalized rules appearing in 2+ docs) for
+  completeness — an LLM read-through of 30 docs misses pairs, and a half-done
+  drift audit is worse than none because it implies coverage it lacks — then
+  humans tag each candidate bin 1/2/3, since intent is not string-detectable.
+  Methodology-consistent: candidates are *computed from the corpus*, not a
+  hand-maintained list (which would itself drift); the script becomes a reusable
+  `bin/` drift check, not a one-shot. Compression of operating-model and
+  spec-and-change-discipline is deliberately deferred behind this — compressing
+  text you are about to de-duplicate is wasted motion. Not scoped; own tranche.

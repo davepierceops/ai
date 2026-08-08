@@ -10,36 +10,36 @@ depends-on: []
 
 # Context Set: Base
 
-Use this context set for all substantial work in this project.
-
 ## Core identity
 
-This project is built using an AI-native engineering model.
-
-Dave is the PM, EM, owner, and operator. LLMs and LLM agents are the implementation team. Dave does not default to human line-by-line code review.
+An AI-native engineering model. Dave is PM, EM, owner, and operator; LLMs and
+LLM agents are the implementation team. Dave does not default to human
+line-by-line code review.
 
 ## Core rule
 
 > Agent claims require evidence.
 
-Agent output is not trusted because it sounds plausible. It is trusted only to the degree that it is supported by explicit, inspectable evidence.
+Output is trusted to the degree explicit, inspectable evidence supports it — not
+because it sounds plausible.
 
 ## Required behavior
 
 When acting as an agent in this project:
 
-- know which role you are filling; if the role has not been specified, ask before proceeding
+- know which role you are filling; if unspecified, ask before proceeding
 - preserve Dave's intent
 - keep scope explicit; do not silently broaden it
 - state assumptions; make them visible
 - prefer small, reviewable changes
-- distinguish evidence from inference; avoid broad claims unsupported by evidence
+- distinguish evidence from inference; avoid claims evidence does not support
 - distinguish mocked, contract, live, browser, and production verification
-- state what remains unverified; call out risks, gaps, and deferred verification explicitly
+- state what remains unverified; call out risks, gaps, and deferred verification
 - identify what Dave actually needs to decide
 - update relevant docs when behavior, policy, or boundaries change
 - produce summaries Dave can inspect without reading every line of code
-- consult the project's decision log (`decisions/log.md`) before recommending or encoding anything an existing decision may govern, and cite the governing entry by ID
+- consult the decision log (`decisions/log.md`) before recommending or encoding
+  anything an existing decision may govern, and cite the governing entry by ID
 
 Agents must not:
 
@@ -55,21 +55,22 @@ Agents must not:
 
 Use these terms precisely:
 
-- **Mock-verified**: verified against controlled or simulated inputs.
-- **Contract-verified**: verified against a documented or encoded interface contract.
-- **Live-verified**: verified against a real external system or deploy-like service.
-- **Browser-verified**: verified in a real browser environment.
-- **Production-verified**: verified through deployed telemetry, monitoring, synthetic checks, or real production signals.
+- **Mock-verified**: against controlled or simulated inputs.
+- **Contract-verified**: against a documented or encoded interface contract.
+- **Live-verified**: against a real external system or deploy-like service.
+- **Browser-verified**: in a real browser environment.
+- **Production-verified**: through deployed telemetry, monitoring, synthetic
+  checks, or real production signals.
 - **Unverified**: known but not yet checked.
-- **Deferred verification**: intentionally postponed verification with a named future mechanism.
+- **Deferred verification**: intentionally postponed, with a named future mechanism.
 - **Accepted risk**: an explicit decision to proceed despite a known gap.
 
 ## Standard response shape for meaningful work
 
-A **meaningful change** is any change that warrants a change package — any
-change affecting behavior, interfaces, tests, dependencies, boundaries, or
-documentation of substance. Trivial changes (typo fixes, comment edits,
-purely mechanical formatting) are not meaningful in this sense.
+A **meaningful change** warrants a change package — any change affecting
+behavior, interfaces, tests, dependencies, boundaries, or documentation of
+substance. Trivial changes (typo fixes, comment edits, mechanical formatting)
+are not meaningful in this sense, and use a lighter shape.
 
 For substantial implementation, review, or release work, include:
 
@@ -81,15 +82,13 @@ For substantial implementation, review, or release work, include:
 6. **Recommendation**: what should happen next.
 7. **Dave decision points**: what requires human judgment.
 
-Use a lighter shape for trivial work.
-
 ## Verification rule
 
 A green test suite means only:
 
 > The tested scenarios passed under the conditions represented by the tests.
 
-It does not automatically mean:
+It does not by itself mean:
 
 - the product is shippable
 - external integrations work
@@ -100,9 +99,8 @@ It does not automatically mean:
 
 ## Mock rule
 
-A mock is a claim with a deferred proof.
-
-When a meaningful boundary is mocked, state:
+A mock is a claim with a deferred proof. When a meaningful boundary is mocked,
+state:
 
 - what the mock verifies
 - what the mock does not verify
@@ -111,12 +109,11 @@ When a meaningful boundary is mocked, state:
 
 ## Tooling rule
 
-Portable context lives in `/ai/`.
+Portable context lives in `/ai/`. Vendor-specific artifacts are adapters — do
+not make Claude, Codex, ChatGPT, IDE settings, or local memory the only home for
+durable project policy.
 
-Vendor-specific artifacts are adapters. Do not create durable project policy only inside Claude, Codex, ChatGPT, IDE settings, local memory, or another tool-specific surface.
+## When uncertain
 
-## Required behavior when uncertain
-
-When uncertain, say what is uncertain and what evidence would resolve it.
-
-Do not fill gaps with confidence.
+Say what is uncertain and what evidence would resolve it. Do not fill gaps with
+confidence.
