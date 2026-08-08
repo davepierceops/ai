@@ -24,10 +24,23 @@ equivalent), and the block or its surrounding instruction names the path.
 Output that only reaches the terminal scrolls and is gone. If the output is not
 worth capturing, it was not evidence.
 
-**Name remotes explicitly; do not rely on the `origin` alias.** `origin`'s
-protocol is environment state, and when the environment cannot authenticate it,
-the failure surfaces as a downstream symptom — missing work, empty results —
-rather than as an auth error.
+*Evidence* here is scoped: output that is cited later or that leaves the session
+— a test run, a verification, anything a report will rest on. Output consumed
+in-the-moment by the person running the block, and never referred to again, is
+not evidence in this sense and needs no capture. A listing someone reads to
+decide what to do next is the standard case; the Track B pre-flight `ls` in
+`skills/directive-dispatch.md` is the tree's live instance, and that document
+says so where the block is defined.
+
+**A sync or remote command names its remote and ref, and fails loudly.** State
+both rather than leaning on branch-upstream configuration or an implied default:
+a block runs in a clone whose config the author cannot see, and a `git pull`
+resolved through the wrong upstream is silent about it. `origin` is a remote
+*name*, not a protocol — it is a valid explicit remote and using it is fine.
+What the rule is guarding is the other half: a bad sync fails loudly (non-zero
+exit), so nothing downstream may act on the tree the sync produced without that
+exit status having been checked. An unverified sync followed by unconditional
+work is how a stale tree gets reported as current.
 
 **The block must be copyable in the surface that delivers it.** A block the
 reader cannot copy whole is not a paste block at all — it fails the definition
@@ -48,15 +61,21 @@ inconvenience the relay, it commits to an untested assumption and hides that it
 did so. This binds blocks handed to a human intermediary; it does not bind a
 sequence an agent runs itself with no one in the loop.
 
-**A block pasted into an interactive shell must not terminate it.** `exit`,
-`exec`, `logout`, and `|| { …; exit; }` end the shell the block runs in — on most
-terminals closing its window. Guard preconditions by branching
+**A block pasted into an interactive shell must not terminate it.** The rule is
+stated by effect: no construct that can end the shell the block runs in — on
+most terminals closing its window. Guard preconditions by branching
 (`if…elif…else…fi`) so a failed check prints and the block ends without ending
 the session.
 
+*Known instances, not the rule:* `exit`, `exec`, `logout`, `|| { …; exit; }`,
+and `set -e` — which ends an interactive shell on the next failing command
+exactly as `exit` does, while being the idiomatic opening line of a careful
+multi-command block. The list is open; adopting projects should add the
+constructs their own shells terminate on.
+
 ## Conformance criteria
 
-Every command block satisfies all six. An untested block is still a command
+Every command block satisfies all seven. An untested block is still a command
 block, and still non-conformant.
 
 - Every command is valid and non-harmful.
@@ -65,8 +84,15 @@ block, and still non-conformant.
   re-run*, not *idempotent* — a block containing a commit, an issue creation,
   or an append to a log cannot be idempotent, and demanding it would make the
   rule unfollowable.)
-- Any command producing evidence captures its output to a named path.
+- Any command producing evidence captures its output to a named path, where
+  *evidence* is output cited later or leaving the session.
 - The block renders with its delivery surface's copy control intact.
-- The block cannot terminate the shell it is pasted into: no `exit`, `exec`, or
-  `logout`, and no `|| { …; exit; }` guard. Preconditions fall through via
-  `if…elif…else…fi`.
+- The block cannot terminate the shell it is pasted into — no construct with
+  that effect. Known instances: `exit`, `exec`, `logout`, `|| { …; exit; }`,
+  `set -e`. Preconditions fall through via `if…elif…else…fi`.
+- Every sync or remote command names its remote and ref, and its exit status is
+  checked before anything downstream acts on the result.
+
+New criteria are appended rather than slotted into body order. These are cited
+by ordinal — `skills/directive-dispatch.md` points at criterion 6 — so the
+existing numbering has to hold.

@@ -128,3 +128,105 @@ rule rests on the decision/execution layer boundary. The trigger was nearly cut
 as cruft this session before Dave noted it had already surfaced an accidental
 contention event once; skills/directive-dispatch.md frames it only as a Track B
 on-ramp, so its keep-reason is recorded here.
+
+## DEC-000090 — Track B carries the sync step in the echoed line; the sync block is Track A only
+Date: 2026-08-08
+Decision: `LEXICON.md`'s `Sync block` is narrowed to precede every **Track A**
+execution block, not every execution block. Track B has no sync block: it carries
+the sync step in the echoed dispatch line, and what that line asks for is a
+working-tree-current check in the same clone — HEAD at the echoed SHA, no
+uncommitted edits to the files in scope — not a remote fetch. The alternative
+direction, restoring a sync command block to the Track B sequence, is rejected.
+Context: Trivium cycle-1 gate, `reviews/LEXICON-cycle-1.md` B1 ≡
+`reviews/directive-dispatch-cycle-1.md` B1 — two canonical documents disagreed
+with no tiebreak, `81bd2de` having dropped the standalone Track B sync block. The
+tracks differ for a reason worth stating: Track B is same-machine and
+commit-not-push, so the executor runs in the clone that already holds the
+unpushed commit. A Track A remote fetch has no remote to fetch the directive from
+and could check out a tree lacking it. This closes `OPEN-ITEMS.md`'s "Sync as a
+skill rather than a step inside every directive", whose proposed phrasing the
+tree had already adopted ahead of its own analysis. It does **not** decide that
+item's broader proposal — sync as a role-held skill so directives carry no
+version-control mechanics — which is untouched and reopens on its own if wanted.
+
+## DEC-000100 — The shell-termination rule is stated by effect, not by enumeration
+Date: 2026-08-08
+Decision: `skills/command-blocks.md`'s interactive-shell rule and its conformance
+criterion are stated by effect — no construct that can terminate the shell the
+block is pasted into — with `exit`, `exec`, `logout`, `|| { …; exit; }`, and
+`set -e` named as known instances and adopting projects directed to add their
+own. `skills/directive-dispatch.md`'s restatement of the same enumeration is
+replaced by a pointer to that criterion, so the rule lives in one document and
+cannot drift.
+Context: `reviews/command-blocks-cycle-1.md` B1 ≡
+`reviews/directive-dispatch-cycle-1.md` B2. `set -e` ends an interactive shell on
+the next failing command exactly as `exit` does (verified by running under both
+`bash -i` and `zsh -i`), and is the idiomatic opening line of a careful block —
+so the enumeration that `ed7d904` added passed the construct the rule exists to
+stop. Choosing effect over enumeration also settles the document against itself:
+the copy-control rule at the same file already used the "known instance, not the
+rule" pattern, so the document held two patterns for the same kind of rule. No
+prior decision governs the enumeration — it entered in `ed7d904` with no entry —
+so this reverses nothing.
+
+## DEC-000110 — Reviewer-gated cycle directives fix route and model by class; track is required
+Date: 2026-08-08
+Decision: A reviewer-gated cycle directive states its **track** and its execution
+block per directive, and takes **route** (fresh) and **model** (Opus 5) as fixed
+by its class, stated once in `skills/spec-review-cycle.md` rather than restated
+per cycle. This is a bounded exception to `skills/directive-dispatch.md`'s
+all-four-every-time rule, mirrored there and in `LEXICON.md`'s `Directive`
+definition so the general statement admits it rather than contradicting it.
+Context: `reviews/spec-review-cycle-cycle-1.md` B1 ≡ `reviews/LEXICON-cycle-1.md`
+N1. The cycle-directive format required none of route/model/track and licensed
+the omission ("Everything else as needed"), while two other canonical documents
+called each unstated part a defect. Route and model genuinely do not vary for
+this class — one conversation per cycle with execution in a fresh session, and
+directive execution over canonical documents is the row the model table already
+decides — so restating them per directive adds no information. Track does vary,
+so it is carried. The matching change to `bin/cycle-open`'s generated skeleton
+(`:116`) is deliberately **not** in this doc cycle: it is a code change needing
+acceptance criteria, tests, and a red gate, filed as its own package. Until it
+ships, the author hand-adds Track, as this cycle's own directive did.
+
+## DEC-000120 — The command-block remote rule is rewritten; `origin` was never the hazard
+Date: 2026-08-08
+Decision: `skills/command-blocks.md`'s "Name remotes explicitly; do not rely on
+the `origin` alias" rule is replaced rather than enforced. The rule now targets
+the real hazard: a sync or remote command in a pasted block names its remote and
+ref explicitly, does not lean on branch-upstream configuration, and has its exit
+status checked before anything downstream acts on the tree it produced. `origin`
+is a valid explicit remote name and using it is fine. The false rationale — that
+an auth failure surfaces as missing work rather than as an auth error — is
+removed. A seventh conformance criterion is added for the rewritten rule.
+Context: `reviews/command-blocks-cycle-1.md` B2 reported the rule as the one body
+rule with no conformance criterion. On inspection the rule itself was unsound:
+`origin` is a remote *name*, not a protocol, and a `git fetch`/`push` that cannot
+authenticate exits non-zero rather than returning empty results silently. It
+entered in a bulk drafting commit (`c4baefe`) with no decision or incident behind
+it. Adding a criterion would have hardened an incorrect rule. The criterion
+question was left to ride with the rewrite; the criterion is added because the
+finding's underlying gap — a body rule invisible to the checklist a reviewer
+actually runs down — survives the rewrite, and the rewritten rule is per-block
+and mechanically checkable, which is the shape the other criteria have.
+
+## DEC-000130 — Remote-write Rule 3 is about provenance; SHA abbreviation is out of its scope
+Date: 2026-08-08
+Decision: `policies/remote-write-verification-policy.md` Rule 3 drops "Never
+abbreviate a SHA that will be used as a pointer" and keeps the provenance rule
+(state SHAs read from git; never invent one), with a pointer to
+`skills/directive-dispatch.md`, which carries the narrow, correctly-scoped
+abbreviation rule for dispatch blocks. Complementary: the policy's Scope now
+reaches the case where the agent cannot read its own write back — Track B —
+where verification is the operator's and the agent reports only what the operator
+reported.
+Context: `reviews/remote-write-verification-policy-cycle-1.md` B1 and N1. The
+abbreviation clause contradicted `policies/document-metadata-policy.md`, which is
+`agreed` and contemplates abbreviated `last-reviewed` pointers, and
+`bin/aimeta/expedited.py`, which is shipped specifically to normalize them
+through `git rev-parse`. A draft policy contradicting an agreed one is the
+serious direction: an agent holding both cannot tell which to satisfy. Rule 3's
+surrounding sentences are about provenance, so the clause read as a scoping slip
+rather than a disagreement, and it is dropped rather than promoted — widening it
+would have been an edit to an agreed policy and to shipped tooling, and belongs
+in a cycle over those.

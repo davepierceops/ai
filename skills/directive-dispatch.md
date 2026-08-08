@@ -20,13 +20,19 @@ Any time work moves from a triage/decision session to an execution session.
 
 Reviewer-gated spec review cycles are governed by `skills/spec-review-cycle.md`
 (one conversation per cycle, documents as uploads, reviewed SHAs recorded). The
-rules here apply to that file too. Where both state the same requirement, this
-is the general statement; reconciling the duplication is open work.
+rules here apply to that file too, with one bounded exception: a reviewer-gated
+cycle directive states its **track** and its execution block per directive, and
+takes **route** and **model** as fixed by its class — route *fresh*, model
+*Opus 5* — stated once in `skills/spec-review-cycle.md` (Cycle directive format)
+rather than restated on every cycle. Where both documents state the same
+requirement, this is the general statement; reconciling the rest of the
+duplication is open work.
 
 ## The four requirements
 
 Every dispatch states all four, explicitly, every time. An unstated one is a
-defect.
+defect — except where a class fixes a part in advance and says so, which today
+is the reviewer-gated cycle directive above.
 
 ### 1. Route — fresh or existing context
 
@@ -54,14 +60,18 @@ State which model, and why. Table (v1, deliberately crude; moves to a
 tooling; the execution block cites it by path and SHA.
 
 **Track B** — the no-repository-tooling path: private repos without a
-credentialed connector, degraded tooling, or an absent connector. Mechanics
-below.
+credentialed connector, degraded tooling, an absent connector, or contention
+between concurrent sessions competing for the same transport. Mechanics below.
 
 **Track B is operator-invoked. The agent never infers it.** Default to A; use B
 only when Dave names it.
 
 **Exception: the agent may propose Track B after two consecutive qualifying
-tooling failures** — evidence it directly observed.
+tooling failures** — evidence it directly observed. The trigger is kept as much
+for what it detects as for the track it opens: a two-failure fire is how
+contention between concurrent sessions gets noticed at all, and that diagnostic
+value holds whatever the underlying cause turns out to be (`decisions/log.md`
+`DEC-000080`).
 
 - **Qualifying:** write timeouts; writes returning success but unconfirmable on
   read-back; transport errors (5xx, connection reset, connector absent
@@ -103,7 +113,9 @@ Plus any companion documents, each with its own path and SHA.
 
 - **State the sync step every time**, even when the clone should be current: a
   stale clone reporting missing work is evidence about the clone, not the repo.
-  Construct it per `skills/command-blocks.md`.
+  In Track A that step is a sync command block preceding the execution block;
+  construct it per `skills/command-blocks.md`. Track B carries the step
+  differently — see Track B mechanics.
 - **Do not paste the directive's contents alongside the citation.** One copy
   exists, in git. A pasted copy will be the stale one.
 - **Inline fallback:** where the file cannot be committed (no tooling, no
@@ -144,7 +156,9 @@ what is there; Dave judges. It is not a machine "count equals one" check.
    or a stale canonical file present → Dave clears what should not be there
    (`rm ~/Downloads/<stem>*` clears all of them) and re-downloads. The listing is
    for Dave's eye; he judges what belongs, because a stem glob also catches
-   legitimately-different files that share the stem.
+   legitimately-different files that share the stem. The listing is deliberately
+   *not* captured to a file: it is consumed in-the-moment and never cited again,
+   which is the exempt case in `skills/command-blocks.md`'s evidence rule.
 3. **Relocate, commit, echo** — one block. `<canonical-name>` is `<stem>` with
    its extension; the relocate moves the exact filename, so no glob here. The
    echo has **two forms** — use the one that fits:
@@ -173,11 +187,17 @@ what is there; Dave judges. It is not a machine "count equals one" check.
   or an edit to an existing file alike. The source-existence check is the only
   guard: a missing source (forgotten pre-flight) prints STOP and runs no git
   command.
-- **Guards fall through; they never `exit`.** These blocks are pasted into an
-  interactive shell, where `exit` (including `|| { …; exit; }`) terminates that
-  shell and usually closes its window. Preconditions branch with `if…else…fi`, so
-  a failed check prints and ends the block without ending the session. See
-  `skills/command-blocks.md`.
+- **Guards fall through; they never terminate the shell.** These blocks are
+  pasted into an interactive shell. Preconditions branch with `if…else…fi`, so a
+  failed check prints and ends the block without ending the session. The rule and
+  the constructs it covers live in `skills/command-blocks.md`, criterion 6.
+- **Run from the clone root.** `<dest-path>` in the relocate and append blocks is
+  repo-relative, and neither block states nor checks the working directory, so
+  the prose that ships with them carries the assumption: Dave pastes them into a
+  shell already sitting in the correct clone. A structural guard would need the
+  *expected* clone path, which the block does not carry generically, and a bare
+  "am I in a repo" check would pass in the wrong clone — the case that actually
+  bites.
 - **Safe to re-run.** A second run finds the source gone and stops at the guard —
   correct, since an empty `~/Downloads` cannot distinguish "already committed"
   from "never downloaded." `git diff --cached --quiet` makes the commit a no-op
@@ -188,6 +208,14 @@ what is there; Dave judges. It is not a machine "count equals one" check.
   quotes only. A block needing hand-repair has failed the command-block rule.
 - **Same-machine only.** An unpushed commit resolves in that clone and nowhere
   else.
+- **Sync is carried by the echoed line, not by a sync block, and it is not a
+  remote fetch.** The tracks differ here because Track B is same-machine and
+  commit-not-push (above): the execution session runs in the clone that already
+  holds the unpushed commit, so a Track A fetch has no remote to fetch the
+  directive from and could check out a tree that does not contain it. What the
+  word `sync` asks for on that line is a working-tree-current check *in that same
+  clone* — HEAD at the echoed SHA, no uncommitted edits to the files in scope.
+  `LEXICON.md` scopes the sync block to Track A for this reason.
 - **Verification moves to Dave.** The agent must not report a Track B write as
   verified — only what Dave reported.
 - **Routing:** work needing git *history* (blast-radius, `git log -S`, resolving
@@ -273,9 +301,9 @@ likely to want revision.
 
 Intended end state: a `bin/dispatch` that refuses to emit the dispatch block
 until the directive is committed and pushed, and stamps the git-read SHA into
-it — discipline made unskippable. Deferred to `BACKLOG-v2.md`: seven cycles have
-run without a slip, so the failure mode is theoretical and the skill can be run
-manually.
+it — discipline made unskippable. Deferred to `BACKLOG-v2.md`: the skill can be
+run manually. What ends the deferral is stated below — the two build triggers,
+and the expiry condition.
 
 Track B's relocate/commit/echo block is the same idea in shell. Track B has now
 been run once (2026-08-07), which reshaped the block. **Two triggers to build:**
@@ -292,4 +320,8 @@ executor obligations; AI-9 rule set). Conformed to `LEXICON.md` (draft)
 `~/Downloads` collision-suffix problem; destination-blind relocate block;
 standalone sync block dropped). Compressed to directive register, and Track B mechanics extended (same-turn
 artifact rule, stem glob, name-as-atom, append-vs-replace, two echo forms)
-2026-08-07. Nothing here is agreed.
+2026-08-07. Revised 2026-08-08 per `docs/cycles/trivium-gate-cycle-1-directive.md`
+(D1, D2, D3, D9, D10, D11): Track B sync semantics, the shell-termination rule
+reduced to a pointer, the cycle-directive bounded exception, the `bin/dispatch`
+count dropped, the clone-root assumption stated, and the two-failure trigger's
+keep-reason cited. Nothing here is agreed.
