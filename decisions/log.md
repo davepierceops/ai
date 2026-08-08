@@ -230,3 +230,65 @@ surrounding sentences are about provenance, so the clause read as a scoping slip
 rather than a disagreement, and it is dropped rather than promoted — widening it
 would have been an edit to an agreed policy and to shipped tooling, and belongs
 in a cycle over those.
+
+## DEC-000140 — methodology-context-bundle: filename format, file-set rule, interim generation procedure, script deferred to tooling tranche
+Date: 2026-08-08
+Decision: The uploaded chat-context bundle is named
+`methodology-context-bundle-<YYYY-MM-DD-HHMM>.md` — timestamped deliberately,
+overriding the no-derived-metadata-in-filenames default, for project-view
+version visibility (Dave). File set: the fixed decision-layer spine
+(`context-sets/base.md`, `context-sets/spec-and-change-discipline.md`,
+`context-sets/collab-workflow.md`, `operating-model.md`,
+`roles/chief-of-staff.md`, `policies/commit-and-change-control-policy.md`) plus
+every `skills/*.md` whose `audience` frontmatter contains `all-roles` or
+`chief-of-staff`. The bundle pins `Source: @ <repo HEAD>` and a per-file blob
+short-SHA (each file's own blob, `git rev-parse --short HEAD:<path>` — not the
+repo HEAD), with `<!-- FILE n/N: path @ sha -->` separators. Building
+`bin/bundle-methodology` is folded into the tooling tranche alongside the
+drift-audit `bin/` check (`docs/global-retro-inbox.md`) — not built as its own
+package. Until it exists, regenerate with the procedure below, which computes
+the file set from the audience rule (not a hardcoded list) so a skill's
+audience change or a new skill is picked up automatically.
+
+Context: this filename format and a working generator were reached 2026-08-08
+(chat "AI retro: Methodology bugs") but recorded only as an aspiration in
+`docs/global-retro-inbox.md` — "should be a script." The decision and the
+artifact went nowhere durable, and were re-derived from scratch the same day,
+the second regen opening with "there is no generator." That re-derivation is
+the drift the log exists to stop; hence this entry carries the runnable
+procedure, not just a pointer.
+
+Interim generation procedure — run from the `ai` clone root on a synced `main`;
+writes the timestamped bundle to `~/code/`:
+
+```
+python3 - <<'PY'
+import subprocess, glob, re, os, datetime
+sh=lambda *a: subprocess.check_output(a).decode()
+repo=sh("git","rev-parse","HEAD").strip()
+blob=lambda p: sh("git","rev-parse","--short","HEAD:%s"%p).strip()
+stamp=datetime.datetime.now().strftime("%Y-%m-%d-%H%M")
+spine=["context-sets/base.md","context-sets/spec-and-change-discipline.md",
+ "context-sets/collab-workflow.md","operating-model.md",
+ "roles/chief-of-staff.md","policies/commit-and-change-control-policy.md"]
+def aud(p):
+    m=re.search(r'^audience:\s*\[([^\]]*)\]',open(p,encoding="utf-8").read(),re.M)
+    return {x.strip() for x in m.group(1).split(",")} if m else set()
+skills=sorted(p for p in glob.glob("skills/*.md") if aud(p)&{"all-roles","chief-of-staff"})
+files=spine+skills; N=len(files); bar="<!-- "+"="*60+" -->"
+o=["# methodology-context-bundle\n",
+ "**Derived artifact — do not edit.** Regenerate from davepierceops/ai; the repo is canonical.\n",
+ "- Source: davepierceops/ai @ %s"%repo, "- Generated: %s"%stamp,
+ "- File set: fixed decision-layer spine + every skills/*.md whose audience includes all-roles or chief-of-staff (rule; Dave 2026-08-07).\n"]
+o+=["  %d. %s (blob %s)"%(i,p,blob(p)) for i,p in enumerate(files,1)]; o.append("")
+for i,p in enumerate(files,1):
+    o+=["",bar,"<!-- FILE %d/%d: %s @ %s -->"%(i,N,p,blob(p)),bar,"",open(p,encoding="utf-8").read().rstrip("\n"),""]
+dest=os.path.expanduser("~/code/methodology-context-bundle-%s.md"%stamp)
+open(dest,"w",encoding="utf-8").write("\n".join(o)+"\n")
+print("WROTE",dest,"| source",repo[:7],"| files",N)
+PY
+```
+
+Then upload the written file to each project's Context and delete the prior
+bundle (uploads are per-project; same-name re-upload does not propagate across
+projects).
