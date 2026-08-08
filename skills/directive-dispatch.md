@@ -1,9 +1,9 @@
 ---
+status: agreed
+last-reviewed: reviews/directive-dispatch-cycle-2.md @ 5e1dc1fb78d4c4a670d5ec749971e7b766d5924f
+audience: [all-roles, human]
 name: directive-dispatch
 description: Hands work from a decision session to an execution session as a committed directive cited by path and SHA, with explicit route, model, and track. Use when work moves from chat to an execution session — including when a reviewer, skeptic, or risk role sends a fix, re-check, or remediation to Claude Code — and when writing a directive or the block that starts a session executing it.
-status: draft
-last-reviewed: null
-audience: [all-roles, human]
 ---
 
 # Skill: Directive Dispatch
