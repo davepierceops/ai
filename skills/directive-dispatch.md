@@ -154,11 +154,14 @@ what is there; Dave judges. It is not a machine "count equals one" check.
      `echo "committed <dest-path> @ $(git rev-parse HEAD)"`
 
    ```
-   test -f ~/Downloads/<canonical-name> || { echo "STOP: ~/Downloads/<canonical-name> not found — run the pre-flight ls, then re-download." >&2; exit 1; }
-   mv -f ~/Downloads/<canonical-name> <dest-path> && \
+   if [ ! -f ~/Downloads/<canonical-name> ]; then
+     echo "STOP: ~/Downloads/<canonical-name> not found — run the pre-flight ls, then re-download."
+   else
+     mv -f ~/Downloads/<canonical-name> <dest-path> && \
      git add -- <dest-path> && \
      { git diff --cached --quiet -- <dest-path> || git commit -q -m "<message>" -- <dest-path>; } && \
      echo "<echo form per above>"
+   fi
    ```
 
    For a dispatch, Dave pastes the echoed line into the execution session.
@@ -167,10 +170,15 @@ what is there; Dave judges. It is not a machine "count equals one" check.
   bind: the relocate block reads the same whatever the pre-flight prints. Dave
   reads the pre-flight, not the next block.
 - **The relocate block never inspects the destination.** It works for a new path
-  or an edit to an existing file alike. The `test -f` on the *source* is the only
-  guard: a missing source (forgotten pre-flight) is a hard stop before any git
-  command runs.
-- **Safe to re-run.** A second run finds the source gone and halts on `test -f` —
+  or an edit to an existing file alike. The source-existence check is the only
+  guard: a missing source (forgotten pre-flight) prints STOP and runs no git
+  command.
+- **Guards fall through; they never `exit`.** These blocks are pasted into an
+  interactive shell, where `exit` (including `|| { …; exit; }`) terminates that
+  shell and usually closes its window. Preconditions branch with `if…else…fi`, so
+  a failed check prints and ends the block without ending the session. See
+  `skills/command-blocks.md`.
+- **Safe to re-run.** A second run finds the source gone and stops at the guard —
   correct, since an empty `~/Downloads` cannot distinguish "already committed"
   from "never downloaded." `git diff --cached --quiet` makes the commit a no-op
   when nothing changed.
@@ -198,8 +206,9 @@ what is there; Dave judges. It is not a machine "count equals one" check.
   `rm` the source after, since `cat >>` leaves it in place where `mv` would not:
 
   ```
-  test -f ~/Downloads/<canonical-name> || { echo "STOP: ~/Downloads/<canonical-name> not found." >&2; exit 1; }
-  if grep -qF "<marker>" <dest-path>; then
+  if [ ! -f ~/Downloads/<canonical-name> ]; then
+    echo "STOP: ~/Downloads/<canonical-name> not found — re-download, then re-run."
+  elif grep -qF "<marker>" <dest-path>; then
     echo "SKIP: <marker> already present — not appending again."
   else
     cat ~/Downloads/<canonical-name> >> <dest-path> && \
