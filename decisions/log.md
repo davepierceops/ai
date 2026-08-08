@@ -104,3 +104,8 @@ enforcement it already claims via its frontmatter — so it cannot blind
 enforcement of itself. `bin/check-frontmatter --all` was verified green with
 LEXICON in scope. A full multi-agent gate is disproportionate to a one-line
 additive scope change.
+
+## DEC-000070 — ACs are an execution-time input, not pinned by the decomposition doc
+Date: 2026-08-07
+Decision: The tranche decomposition doc pins the PRD/TRD SHAs it derives from; acceptance criteria are consumed at package execution time and are not part of what the decomp pins. Staleness-check strictness (block vs. flag on spec movement past the pin) is left unsettled, to be learned by doing.
+Context: Raised while adding a spec-drift guard to roles/chief-of-staff.md. The decomp is a derived artifact and can drift from canonical specs; pinning the PRD/TRD SHA gives a staleness signal. ACs sit between agreed spec and execution and are better re-read live than pinned into a derived doc that later work references in place of the spec.
