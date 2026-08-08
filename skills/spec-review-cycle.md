@@ -54,7 +54,7 @@ reviewer-gated cycle only.
    at a time where judgment is required; batch the mechanical ones.
 3. Record any wording or constraints Dave dictates verbatim.
 
-### 2. Directive (handoff artifact)
+### 2. Directive
 
 4. Produce the cycle directive (format below). Commit it to the project repo
    at `docs/cycles/cycle-<n>-directive.md` — one small MCP write.
@@ -104,6 +104,7 @@ and pushes. Full-file pushes through MCP remain prohibited.
 # Cycle <n> Directive — <project>
 
 Date: <date>
+Track: <A | B>
 Documents in scope:
 - <path> @ <reviewed commit SHA>
 - <path> @ <reviewed commit SHA>
@@ -126,8 +127,20 @@ See `skills/directive-dispatch.md`.>
 <constraints on how edits are made, if any>
 ```
 
-Required fields: cycle number, documents in scope with SHAs, one decision
+Required fields: cycle number, track, documents in scope with SHAs, one decision
 entry per finding (including rejections). Everything else as needed.
+
+**Route and model are fixed by class here, and are not restated per directive.**
+`skills/directive-dispatch.md` requires every dispatch to state route, model,
+track, and the execution block. A reviewer-gated cycle directive is a bounded
+exception to two of the four: **route is fresh** — one conversation per cycle,
+and execution starts a session that holds none of it (Hard constraints above,
+and `skills/directive-dispatch.md` §1 Route) — and **model is Opus 5**, the
+selection that document's table makes for directive execution over canonical
+documents (§2 Model). Both hold for every directive of this class, so stating
+them per cycle adds no information. Track is required because it genuinely
+varies. The carve-out is mirrored at `skills/directive-dispatch.md` (Use when)
+and `LEXICON.md` (`Directive`).
 
 ## Review artifact schema
 
@@ -158,6 +171,17 @@ Note the entry field is `Fix`, not `Recommendation`.
 `policies/agent-review-policy.md` uses "Recommendation" for the overall ship
 call, and one word meaning two things across two canonical documents is the
 ambiguity this table exists to remove.
+
+**Filenames.** A review artifact is `reviews/<stem>-cycle-<n>.md`, where
+`<stem>` is the reviewed document's basename without its extension and `<n>` is
+the cycle number: `policies/document-metadata-policy.md` →
+`reviews/document-metadata-policy-cycle-7.md`. The convention is mechanical on
+purpose — `last-reviewed:` points at these paths and `bin/flip-agreed` validates
+the pointer, so the path a reader needs is derivable from the document path
+without looking it up. Where the stem already ends in `-cycle` or a digit, apply
+the rule unchanged and let it repeat: this document's own artifacts are
+`reviews/spec-review-cycle-cycle-1.md`. A special case would cost more than the
+repetition does.
 
 The schema governs artifacts written after it lands. **Existing artifacts in
 `reviews/` are not retrofitted** — they are the review record of documents

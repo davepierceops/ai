@@ -772,7 +772,13 @@ before the edit lands.
 
 ---
 
-## `handoff` at `skills/spec-review-cycle.md:57` contradicts the lexicon
+## ~~`handoff` at `skills/spec-review-cycle.md:57` contradicts the lexicon~~
+
+**RESOLVED** by `docs/cycles/trivium-gate-cycle-1-directive.md` (D6), 2026-08-08.
+The heading now reads `### 2. Directive`; `LEXICON.md`'s "Known misuse to
+correct" paragraph is struck in the same commit, since the misuse it named is
+gone. Three records — the skill, the lexicon, and this entry — reconciled
+together, which is what the finding asked for.
 
 **Source:** Trivium, 2026-08-06. Recorded as known misuse in `LEXICON.md`.
 
@@ -898,7 +904,22 @@ anticipate.
 
 ---
 
-## Sync as a skill rather than a step inside every directive
+## ~~Sync as a skill rather than a step inside every directive~~
+
+**RESOLVED** by `docs/cycles/trivium-gate-cycle-1-directive.md` (D1), 2026-08-08,
+on direction (a): narrow the rule rather than restore a block. `LEXICON.md`
+scopes the sync block to Track A; `skills/directive-dispatch.md` states that
+Track B carries the sync step in the echoed dispatch line, and says what that
+line asks for — a working-tree-current check in the same clone, not a remote
+fetch — and why the tracks differ (same-machine, commit-not-push).
+
+Closed rather than left "Not analysed": the tree had already adopted this item's
+proposed phrasing ahead of the analysis, and the cycle-1 gate settled the
+question. What this entry does **not** decide is the broader proposal it also
+carried — making sync a role-held skill so directives carry no version-control
+mechanics. That argument (the mechanics are git-specific; a non-git project
+would need every directive rewritten) is untouched and unrefuted here. If it is
+wanted, it opens as its own item.
 
 **Source:** Dave, Trivium, 2026-08-06. Parked mid-session, not developed.
 

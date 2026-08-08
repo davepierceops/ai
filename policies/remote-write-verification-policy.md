@@ -50,8 +50,11 @@ Where a local clone exists, `git log` against the fetched remote is the
 authority on what landed — not the tool's response, and not the agent's
 recollection of what it sent.
 
-State SHAs read from git. Never abbreviate a SHA that will be used as a
-pointer, and never invent one.
+State SHAs read from git. Never invent one.
+
+Whether a pointer SHA may be abbreviated is not this policy's question — Rule 3
+is about provenance. `skills/directive-dispatch.md` carries the narrow rule
+where it applies, for dispatch blocks.
 
 ## Scope
 
@@ -64,6 +67,15 @@ has it.
 Rule 3 assumes git. Where a project uses another version control system, the
 rule is that the repository's own log is authoritative over the tool's response.
 
+**Where the agent cannot read its own write back**, the three rules have nothing
+to verify with, and the obligation changes rather than lapsing: verification is
+the operator's, and the agent reports only what the operator reported — never as
+verified on its own authority. Track B in `skills/directive-dispatch.md` is that
+case, the write landing in a local clone (`mv`, `git add`, `git commit`) the
+agent cannot reach. This is the same failure family the policy owns — an agent
+reporting a write it did not verify — resolved in the only direction available
+when read-back is impossible.
+
 ## Relationship to existing rules
 
 `skills/spec-review-cycle.md` already constrains *how much* goes through the
@@ -75,6 +87,11 @@ the gap.
 The same skill requires that reviewed commit SHAs are recorded in the directive
 file and calls one without SHAs invalid — which only holds if the SHAs recorded
 are ones somebody actually read back.
+
+`skills/directive-dispatch.md` is the other side of the same topic. It cites
+this policy for the writes an agent *can* verify, and carries the operative rule
+for the one it cannot: Track B's "verification moves to Dave." Read the two
+together; neither is complete alone.
 
 ## Known gap — landing is verified, content is not
 
@@ -113,5 +130,7 @@ not been done.
 
 Drafted 2026-08-02 as `vendors/claude-code/mcp-write-verification.md` per the
 doc-review directive, executing Q5. Moved and generalised 2026-08-06; the
-transport-specific framing was the only vendor-bound content. Nothing here is
-agreed.
+transport-specific framing was the only vendor-bound content. Revised 2026-08-08
+per `docs/cycles/trivium-gate-cycle-1-directive.md` (D7, D14): Rule 3 scoped back
+to provenance, and Scope extended to the case where the agent cannot read its own
+write back. Nothing here is agreed.

@@ -36,10 +36,11 @@ Keeping them separate is the whole point of this section.
 3. **Shell** — commands run in a `bash`-type shell.
 
 `execute` and `execution` belong to layer 2, always. This matches every
-existing use in the repo: `skills/spec-review-cycle.md` names Claude Code the
-execution layer, and `roles/orchestrator-agent.md` describes executing change
-packages as its work. **Never** use `execute` or `execution` for layer 3. Shell
-work is done by *command blocks*, and that term is reserved for it.
+existing use in the repo: `roles/chief-of-staff.md` uses "execution" for layer-2
+Claude Code work ("execution belongs to Claude Code"), and
+`skills/spec-review-cycle.md` names Claude Code the execution layer. **Never**
+use `execute` or `execution` for layer 3. Shell work is done by *command
+blocks*, and that term is reserved for it.
 
 ## Sessions
 
@@ -64,6 +65,10 @@ directive specifies happens elsewhere.
 **Directive** — the complete package handed to an execution session. Four
 parts, all four stated every time: **route** (fresh session or existing
 context), **model**, **track** (A or B), and the **execution block**.
+*Bounded exception:* a reviewer-gated cycle directive states track and the
+execution block, and takes route (fresh) and model (Opus 5) as fixed by its
+class rather than restating them per directive
+(`skills/spec-review-cycle.md`, Cycle directive format).
 
 **Dispatch** — the act of handing a directive to an execution session.
 
@@ -103,7 +108,11 @@ run as given. Governed by `skills/command-blocks.md`.
 executing or being executed.
 
 **Sync block** — the command block that brings a clone current from an
-explicitly named remote. Precedes every execution block in a dispatch.
+explicitly named remote and ref. Precedes every **Track A** execution block in
+a dispatch. Track B has no sync block: it is same-machine and commit-not-push,
+so the executor already holds the commit and there is no remote to fetch from —
+the sync step is carried by the echoed dispatch line instead
+(`skills/directive-dispatch.md`, Track B mechanics).
 
 ## Handoff
 
@@ -119,11 +128,9 @@ Established uses consistent with this: the end-of-session flush of open items
 work on (`roles/coder-agent.md`), debt a change package deliberately did not
 touch and passes forward (`docs/packages/package-c-change-package.md`).
 
-Known misuse to correct: `skills/spec-review-cycle.md` labels the cycle
-directive a "handoff artifact."
-
 A handoff into another *decision* session has no term yet. Naming it is open
-work.
+work, tracked at `OPEN-ITEMS.md:800` ("A handoff into another decision session
+has no name").
 
 ## Prompt
 
