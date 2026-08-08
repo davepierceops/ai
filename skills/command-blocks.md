@@ -1,9 +1,9 @@
 ---
+status: agreed
+last-reviewed: reviews/command-blocks-cycle-2.md @ 5e1dc1fb78d4c4a670d5ec749971e7b766d5924f
+audience: [all-roles, human]
 name: command-blocks
 description: Constrains fenced shell-command blocks handed to a human or agent to run as given — copyable as rendered, verbatim, captured output, explicit remotes, safe to re-run. Use when emitting a shell block, command, or command sequence for someone or something else to run, including the sync block preceding an execution block.
-status: draft
-last-reviewed: null
-audience: [all-roles, human]
 ---
 
 # Skill: Command Blocks
