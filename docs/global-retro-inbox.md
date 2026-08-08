@@ -120,3 +120,64 @@ schema/synthesis discipline applies later, when an entry is actually worked.
   Issues, per existing tooling, though the actual system isn't decided
   here). Not scoped or drafted — parked as a discussion topic for the
   next retro, not a design yet.
+
+### 2026-08-07
+
+- **Skill docs drift into persuasive register at a length that may hurt
+  adherence.** `directive-dispatch.md` was long and persuasive rather than
+  brief and directive — rules followed by paragraph-long justifications, war
+  stories, meta-commentary. Dave's real-world observation: CoS often does not
+  follow the skill closely, and length may be part of why. A compression pass
+  this session ("make things less persuasive, shorter, and more directive")
+  cut it ~46% (3071→1653 words) with every rule, the model table, and both
+  command blocks preserved. Method: state the rule directively, cut the
+  argument for it; where a rule's only record of a real failure was its war
+  story, cut the story and rely on the external pointer (decision log, retro,
+  the policy the rule already cites). Hypothesis to test: if CoS follows the
+  compressed version noticeably better, that is evidence the *whole skill
+  corpus* wants this pass. Candidate batch item: a directive-register
+  compression sweep across all skills, with a shared "state the rule, cut the
+  argument" convention captured somewhere governing (LEXICON or a meta-skill
+  on how skills are written). The compressed `directive-dispatch.md` landed
+  this session (commit 3e2487a).
+
+- **Track B procedure gaps found by running it for real (first real Track B
+  run).** Four distinct fixes, all landed in `directive-dispatch.md` this
+  session except where noted:
+  - *Download relocation.* The desktop client ignores chosen download location
+    and writes to `~/Downloads`, appending a collision suffix (`name (1).md`)
+    on name clash. Old mechanics assumed a chosen path. New flow: pre-flight
+    `ls` establishes what is present, relocate block moves the exact filename
+    into place and never inspects the destination (so it is correct for edits
+    to existing files, not just new files), standalone sync block dropped.
+  - *Pre-flight glob was wrong.* Globbed `<name>.md*` — but the collision
+    suffix lands *before* the extension (`directive-dispatch (1).md`), so that
+    glob misses every collision copy. Fix: glob on the **stem**
+    (`<stem>*`). Dave's test caught this: four files present, the buggy glob
+    matched one. Also reframed: the pre-flight surfaces state for Dave to
+    judge, it is not a machine "count equals one" check, because a stem glob
+    also catches legitimately-different files sharing the stem.
+  - *Stale-artifact-in-pane hazard.* The reply carrying the pre-flight/relocate
+    blocks must ALSO present the exact file those blocks move, in the same
+    turn. Across a long session the artifact pane holds whatever was shown
+    last; blocks referencing "the file" while a different file is displayed is
+    a silent wrong-file hazard. Rule: artifact and blocks ship together or not
+    at all. (Not yet written into the doc — batch item.)
+  - *Emit the canonical filename as a copyable atom.* For a sharp operator,
+    handing just the filename (its own paste-box, nothing else) is often more
+    useful than a canned `ls`/`rm`/`cp` block — they assemble the verb around
+    it faster than they can read a supplied block. Split: hand the name as an
+    atom for operator-judged inspection steps; reserve whole tested blocks for
+    load-bearing steps (the relocate/commit). (Not yet in the doc — batch
+    item.)
+  - *Append vs. replace.* The doc's Track B mechanics only cover whole-file
+    replacement (`mv`). Appending to an existing tracker (like this inbox) is a
+    different operation with a different re-run hazard: naive `cat >>` run
+    twice appends twice. Needs a marker-guarded append (skip if the entry's
+    dated heading already present). (Not yet in the doc — batch item.)
+
+- **`bin/dispatch` deferral reasoning updated.** The doc previously said "Track
+  B has never been run" as grounds not to build tooling. It has now been run
+  (this session), and the run reshaped the relocate block. Claim corrected in
+  the doc; build triggers restated (block stabilises across enough runs, or
+  first hand-tweak needed).
