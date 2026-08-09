@@ -142,7 +142,11 @@ none of it (Hard constraints above, and `skills/directive-dispatch.md` §1 Route
 — and **model Opus 5**, the selection that document's table makes for directive
 execution over canonical documents (§2 Model). These are defaults, not fixities:
 a cycle that needs existing context or a different model states that instead, and
-the stated field governs. The same framing is mirrored at
+the stated field governs. What route selects is the **execution** session
+(`LEXICON.md`, the three layers): `existing context` names an already-running
+*execution* session, and never releases the Hard constraints above or step 5's
+prohibition on continuing into execution in the conversation that produced the
+directive — whatever route is stated. The same framing is mirrored at
 `skills/directive-dispatch.md` (Use when) and `LEXICON.md` (`Directive`).
 
 ## Review artifact schema
