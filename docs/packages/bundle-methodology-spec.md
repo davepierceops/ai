@@ -164,8 +164,7 @@ plausible-looking but wrong bundle, which is worse than refusing.
 Given `HEAD` = `abc123fullsha`, `context-sets/base.md` at blob `e1e2e3f`
 containing `file a\ncontent\n`, and `skills/x.md` at blob `a1b2c3d` containing
 `file b content, no trailing newline` (no trailing newline in the source), and
-`--stamp`-equivalent generation time `2026-08-09-1200`, the byte-exact output
-is:
+`--stamp`-equivalent generation time `2026-08-09-1200`, the byte-exact output is:
 
 ```
 # methodology-context-bundle
@@ -193,6 +192,7 @@ content
 <!-- ============================================================ -->
 
 file b content, no trailing newline
+
 ```
 
 (File body trailing newlines are always normalized to exactly one blank line
