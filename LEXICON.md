@@ -1,6 +1,6 @@
 ---
-status: in-review
-last-reviewed: null
+status: agreed
+last-reviewed: reviews/LEXICON-cycle-3.md @ a7a915cddf3ca1fef774c17942f1e9406cc3715a
 audience: [all-roles, human]
 ---
 
