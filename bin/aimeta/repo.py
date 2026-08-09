@@ -111,6 +111,20 @@ def blob_at_rev(root, rev, relpath):
     return out
 
 
+def short_blob_sha(root, rev, relpath):
+    """Short SHA of `relpath`'s own blob at `rev` (`:` for the index), or None.
+
+    This is the file's own content hash (`git rev-parse --short <rev>:<path>`),
+    never the commit SHA at `rev` — callers that want the commit SHA already
+    have `git rev-parse <rev>` or `last_commit_sha` for that.
+    """
+    spec = "%s%s" % (rev, relpath) if str(rev).endswith(":") else "%s:%s" % (rev, relpath)
+    code, out, _ = run(["rev-parse", "--short", spec], cwd=root)
+    if code != 0:
+        return None
+    return out.decode("utf-8", "replace").strip()
+
+
 def file_at_rev(root, rev, relpath):
     """Content of `relpath` at `rev` (`:` for the index), or None if absent.
 
