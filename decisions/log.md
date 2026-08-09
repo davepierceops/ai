@@ -292,3 +292,29 @@ PY
 Then upload the written file to each project's Context and delete the prior
 bundle (uploads are per-project; same-name re-upload does not propagate across
 projects).
+
+## DEC-000150 — Reviewer-gated cycle directives state all four; fresh and Opus 5 are defaults, not fixed by class
+Date: 2026-08-08
+Decision: A reviewer-gated cycle directive states **all four** dispatch
+requirements — route, model, track, and the execution block — like every other
+dispatch. Route *fresh* and model *Opus 5* are the class **defaults**: stated per
+directive and overridable. This reverses the route/model half of `DEC-000110`.
+Its other half is carried forward unchanged and restated here so it stays live
+under whole-entry supersession: **track is required per directive**, because it
+genuinely varies. The carve-out is removed from `skills/spec-review-cycle.md`
+(Cycle directive format), `skills/directive-dispatch.md` (Use when, The four
+requirements), and `LEXICON.md` (`Directive`).
+Context: owner override (Dave), per
+`docs/cycles/trivium-gate-cycle-2-directive.md` R1, after `DEC-000110` had landed
+agreed. The finding `DEC-000110` answered
+(`reviews/spec-review-cycle-cycle-1.md` B1 ≡ `reviews/LEXICON-cycle-1.md` N1) is
+still answered, by the other route that review named: with all four stated,
+nothing is omitted, so `skills/directive-dispatch.md`'s "an unstated part is a
+defect" is satisfied by statement rather than by exemption. That review called it
+the smaller change and the one not requiring a new exception class. Restating the
+track half is deliberate — `policies/decision-log-policy.md` supersedes whole
+entries, which is how `DEC-000030`'s carve-out went dead under `DEC-000040`, and
+a half-reversal expressed as a pointer to a superseded entry would repeat it.
+Consequence for tooling: `bin/cycle-open` (TP-1) must emit Route, Model, and
+Track, not Track alone; the Track-only PR is superseded and held.
+Supersedes: DEC-000110
