@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/spec-review-cycle-cycle-2.md @ 5e1dc1fb78d4c4a670d5ec749971e7b766d5924f
+status: in-review
+last-reviewed: null
 audience: [spec-reviewer-agent, architect-agent, chief-of-staff, human]
 ---
 
@@ -104,6 +104,8 @@ and pushes. Full-file pushes through MCP remain prohibited.
 # Cycle <n> Directive — <project>
 
 Date: <date>
+Route: <fresh | existing context>
+Model: <model — default Opus 5>
 Track: <A | B>
 Documents in scope:
 - <path> @ <reviewed commit SHA>
@@ -127,20 +129,21 @@ See `skills/directive-dispatch.md`.>
 <constraints on how edits are made, if any>
 ```
 
-Required fields: cycle number, track, documents in scope with SHAs, one decision
-entry per finding (including rejections). Everything else as needed.
+Required fields: cycle number, route, model, track, documents in scope with SHAs,
+one decision entry per finding (including rejections). Everything else as needed.
 
-**Route and model are fixed by class here, and are not restated per directive.**
-`skills/directive-dispatch.md` requires every dispatch to state route, model,
-track, and the execution block. A reviewer-gated cycle directive is a bounded
-exception to two of the four: **route is fresh** — one conversation per cycle,
-and execution starts a session that holds none of it (Hard constraints above,
-and `skills/directive-dispatch.md` §1 Route) — and **model is Opus 5**, the
-selection that document's table makes for directive execution over canonical
-documents (§2 Model). Both hold for every directive of this class, so stating
-them per cycle adds no information. Track is required because it genuinely
-varies. The carve-out is mirrored at `skills/directive-dispatch.md` (Use when)
-and `LEXICON.md` (`Directive`).
+**All four requirements are stated per directive; fresh and Opus 5 are this
+class's defaults.** `skills/directive-dispatch.md` requires every dispatch to
+state route, model, track, and the execution block, and a reviewer-gated cycle
+directive is no exception to that — it states all four, like any other dispatch.
+What is specific to the class is which values it normally selects: **route
+fresh** — one conversation per cycle, and execution starts a session that holds
+none of it (Hard constraints above, and `skills/directive-dispatch.md` §1 Route)
+— and **model Opus 5**, the selection that document's table makes for directive
+execution over canonical documents (§2 Model). These are defaults, not fixities:
+a cycle that needs existing context or a different model states that instead, and
+the stated field governs. The same framing is mirrored at
+`skills/directive-dispatch.md` (Use when) and `LEXICON.md` (`Directive`).
 
 ## Review artifact schema
 

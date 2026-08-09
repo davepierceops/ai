@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/LEXICON-cycle-2.md @ 5e1dc1fb78d4c4a670d5ec749971e7b766d5924f
+status: in-review
+last-reviewed: null
 audience: [all-roles, human]
 ---
 
@@ -64,11 +64,11 @@ directive specifies happens elsewhere.
 
 **Directive** — the complete package handed to an execution session. Four
 parts, all four stated every time: **route** (fresh session or existing
-context), **model**, **track** (A or B), and the **execution block**.
-*Bounded exception:* a reviewer-gated cycle directive states track and the
-execution block, and takes route (fresh) and model (Opus 5) as fixed by its
-class rather than restating them per directive
-(`skills/spec-review-cycle.md`, Cycle directive format).
+context), **model**, **track** (A or B), and the **execution block**. No class
+is exempt from stating a part. A class may have defaults: a reviewer-gated cycle
+directive defaults to route *fresh* and model *Opus 5*, states them like any
+other dispatch, and may override them (`skills/spec-review-cycle.md`, Cycle
+directive format).
 
 **Dispatch** — the act of handing a directive to an execution session.
 

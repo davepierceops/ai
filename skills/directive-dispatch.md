@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/directive-dispatch-cycle-2.md @ 5e1dc1fb78d4c4a670d5ec749971e7b766d5924f
+status: in-review
+last-reviewed: null
 audience: [all-roles, human]
 name: directive-dispatch
 description: Hands work from a decision session to an execution session as a committed directive cited by path and SHA, with explicit route, model, and track. Use when work moves from chat to an execution session — including when a reviewer, skeptic, or risk role sends a fix, re-check, or remediation to Claude Code — and when writing a directive or the block that starts a session executing it.
@@ -20,19 +20,19 @@ Any time work moves from a triage/decision session to an execution session.
 
 Reviewer-gated spec review cycles are governed by `skills/spec-review-cycle.md`
 (one conversation per cycle, documents as uploads, reviewed SHAs recorded). The
-rules here apply to that file too, with one bounded exception: a reviewer-gated
-cycle directive states its **track** and its execution block per directive, and
-takes **route** and **model** as fixed by its class — route *fresh*, model
-*Opus 5* — stated once in `skills/spec-review-cycle.md` (Cycle directive format)
-rather than restated on every cycle. Where both documents state the same
-requirement, this is the general statement; reconciling the rest of the
-duplication is open work.
+rules here apply to that file too, without exception: a reviewer-gated cycle
+directive states all four requirements per directive, like any other dispatch.
+Route *fresh* and model *Opus 5* are the usual selection for that class — the
+defaults `skills/spec-review-cycle.md` records (Cycle directive format), stated
+per directive and overridable — not an exemption from stating them. Where both
+documents state the same requirement, this is the general statement; reconciling
+the rest of the duplication is open work.
 
 ## The four requirements
 
 Every dispatch states all four, explicitly, every time. An unstated one is a
-defect — except where a class fixes a part in advance and says so, which today
-is the reviewer-gated cycle directive above.
+defect. A class may have a usual selection for a part; that is a default to
+state, not a licence to omit it.
 
 ### 1. Route — fresh or existing context
 
@@ -322,6 +322,10 @@ standalone sync block dropped). Compressed to directive register, and Track B me
 artifact rule, stem glob, name-as-atom, append-vs-replace, two echo forms)
 2026-08-07. Revised 2026-08-08 per `docs/cycles/trivium-gate-cycle-1-directive.md`
 (D1, D2, D3, D9, D10, D11): Track B sync semantics, the shell-termination rule
-reduced to a pointer, the cycle-directive bounded exception, the `bin/dispatch`
+reduced to a pointer, the cycle-directive track requirement, the `bin/dispatch`
 count dropped, the clone-root assumption stated, and the two-failure trigger's
-keep-reason cited. Nothing here is agreed.
+keep-reason cited. Revised 2026-08-08 per
+`docs/cycles/trivium-gate-cycle-2-directive.md` (R1): D3's route/model half is
+reversed — the cycle-directive carve-out is removed, and a reviewer-gated cycle
+directive states all four requirements with fresh and Opus 5 as its defaults.
+Nothing here is agreed.
