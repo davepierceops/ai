@@ -131,10 +131,10 @@ role:
 - **Mid-delta directives cite the spec branch.** A directive drafted while a
   delta is open pins the spec branch and its SHA, not the default branch, and its
   sync block names that ref (`skills/directive-dispatch.md`).
-- **Propose at most two concurrent tracks, on different tranches, over disjoint
-  spec territory.** A document already appearing in one open delta's diff is
-  claimed and may not be claimed by a second. Before proposing a second track,
-  check the claim; where the territory overlaps, propose serial execution or a
+- **Propose at most two tranches executing concurrently, over disjoint spec
+  territory.** A document already appearing in one open delta's diff is claimed
+  and may not be claimed by a second. Check the claim before proposing the
+  second tranche; where the territory overlaps, propose serial execution or a
   different project. Never propose merging two deltas' edits to the same
   document — that case is refused, not scheduled.
 

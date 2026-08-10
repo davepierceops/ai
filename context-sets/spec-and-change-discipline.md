@@ -93,11 +93,17 @@ made while building, by the person with the hot context, and the spec has to
 absorb them. Gating each of those edits on a review cycle spends the operator's
 attention at the rate the work generates questions, which is the wrong rate.
 
-**The branch is the state.** During a tranche's execution, spec documents are
-edited freely on a dedicated branch, `spec/<tranche-slug>`, with no reviewer gate
-and no per-edit ceremony; commits land as they are made. This interval is an
+**The branch is the state.** During a tranche's execution, **Dave** edits spec
+documents freely on a dedicated branch, `spec/<tranche-slug>`, with no reviewer
+gate and no per-edit ceremony; commits land as he makes them. This interval is an
 **open spec delta**. There is no new status value and no register — the branch
 existing, with commits on it, is the whole of the machinery.
+
+The licence is his, not the room's. Agents propose spec edits exactly as before,
+and an agent that edits a spec document without being told to has not found a
+loophole here — what an open delta removes is the *gate* on the owner's own
+edits, not the rule about who authors canonical text
+(`roles/spec-reviewer-agent.md`; `context-sets/collab-workflow.md`).
 
 **Reconciliation closes the delta.** The spec is brought to full agreement with
 what was actually built, and the accumulated diff goes through the reviewer gate
@@ -119,9 +125,12 @@ truth-at-handoff. Provenance survives — the SHA resolves, and what the executo
 read is recoverable (`skills/directive-dispatch.md`).
 
 **Concurrency is achieved by disjoint territory, never by merging.** At most two
-tracks run at once, always on different tranches, chosen so their spec territory
-does not overlap. A spec document is **claimed** by appearing in an open delta's
-diff, and a claimed document may not be claimed by a second delta. The
+tranches execute concurrently — never two deltas over one tranche — and they are
+chosen so that their spec territory does not overlap. (The word for a concurrent
+workstream is *tranche*, not *track*: `track` is fixed to the executor's
+repository environment, `LEXICON.md`.) A spec document is **claimed** by
+appearing in an open delta's diff, and a claimed document may not be claimed by a
+second delta. The
 convergent-edit case — two deltas editing one document and merging the result —
 is **refused, not tooled**: a merge of two ungated spec edits is exactly the
 unreviewed text on the default branch that this design exists to prevent. Where a

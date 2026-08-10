@@ -243,10 +243,11 @@ section has the convention of not having one. Every edit is legible from
 Rely on it, or set the frontmatter explicitly?
 
 **Chosen.** Set explicitly: `status: in-review`, `last-reviewed: null`, on all
-five previously-`agreed` documents revised
-(`skills/directive-dispatch.md`, `skills/command-blocks.md`,
-`skills/spec-review-cycle.md`, `roles/chief-of-staff.md`, `LEXICON.md`,
-`policies/remote-write-verification-policy.md` — six).
+six previously-`agreed` documents revised — `skills/directive-dispatch.md`,
+`skills/command-blocks.md`, `skills/spec-review-cycle.md`,
+`roles/chief-of-staff.md`, `LEXICON.md`, and
+`policies/remote-write-verification-policy.md`. The other six documents changed
+were already `draft`, and trackers carry no frontmatter.
 
 **Why.** The result is identical and the intent is explicit in the diff rather
 than applied to it. `bin/check-frontmatter --all` exits 0 on the result. Note
@@ -390,7 +391,50 @@ is unmodified. `gh` was not invoked. No force-push.
 
 ---
 
-## D15 — What was *not* done, and why
+## D16 — Trackers get no review artifact
+
+**Question.** The directive says one review artifact per document over the full
+changed set. `BACKLOG-v2.md` and `OPEN-ITEMS.md` were changed. Do they get
+`reviews/BACKLOG-v2-cycle-1.md` and the like?
+
+**Chosen.** No. Twelve artifacts were written, covering the twelve canonical
+documents changed; the two trackers were reviewed as cross-checks within them.
+
+**Why.** `policies/document-metadata-policy.md` puts trackers out of the
+frontmatter scope on the grounds that "their status is their content", and
+`skills/spec-review-cycle.md` says review artifacts are what `last-reviewed:`
+points at. A tracker has no `last-reviewed:` to point, so the artifact would be a
+document nothing references, in a directory whose entire purpose is to be
+referenced. The changes themselves are small and mechanical — one struck backlog
+entry, three new open items.
+
+---
+
+## D17 — Self-review found six blocking findings; all were fixed in cycle 2
+
+Recorded because the directive asks for the judgment calls, and "what did the
+self-review actually catch" is the question that decides whether the exercise
+was real. Cycle 1 verdicts and the fixes are in `reviews/`; the substantive
+catches were:
+
+- **The word `track` collided with itself.** D2.5's phrase "at most two tracks"
+  reused a term `LEXICON.md` had just been made to fix. Resolved by not using
+  Dave's word: "at most two tranches executing concurrently."
+- **The delta's editing licence named nobody.** D2.1 says *Dave* may edit spec
+  documents freely; the transcription dropped the subject, which in a context set
+  loaded into every implementation chat reads as licensing any agent to edit spec
+  ungated. That was the worst defect found and it was introduced by this
+  execution, not by the directive.
+- **"Once, as a single cycle" forbade its own re-gate.** Fixed by stating what
+  "once" quantifies.
+- **The agreement flip had no stated position relative to the merge**, while
+  `policies/commit-and-change-control-policy.md` asserted a structural guarantee
+  that depends on it. Fixed by stating post-merge, on the default branch, with
+  the reason.
+
+---
+
+## D18 — What was *not* done, and why
 
 - **`policies/verification-boundary-policy.md`** — `OPEN-ITEMS.md` proposes
   folding the content-check rule there. Untouched: that is a pre-existing open

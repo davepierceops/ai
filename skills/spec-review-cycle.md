@@ -109,8 +109,12 @@ and pushes. Full-file pushes through MCP remain prohibited.
 
 During a tranche's execution, spec edits land on the tranche's spec branch with
 no reviewer gate per edit (`context-sets/spec-and-change-discipline.md`, Open
-spec delta). **Reconciliation** is the single cycle that closes the delta, and it
-is this cycle, run once over the accumulated diff:
+spec delta). **Reconciliation** closes the delta, and it is this cycle, run over
+the accumulated diff.
+
+**What "once" quantifies:** the delta is gated once — as against once per edit —
+not that a reconciliation may run only one cycle. A reconciliation that produces
+blocking findings re-gates per step 10, exactly as any cycle does.
 
 1. Bring the spec to full agreement with what was actually built. Reconciliation
    is not a review of intentions — a spec that still describes something the
@@ -120,8 +124,13 @@ is this cycle, run once over the accumulated diff:
 3. Run the cycle from step 1 of the Procedure, with the spec-branch SHAs as the
    reviewed revisions. Findings are triaged and executed against the spec
    branch; the PR updates in place.
-4. On a clean gate, Dave's agreement lands as it always does — a
-   frontmatter-only status transition — and the PR merges.
+4. On a clean gate, the pull request merges, and **then** Dave's agreement lands
+   on the default branch as it always does: a frontmatter-only status transition,
+   `last-reviewed` citing the review artifact and the reviewed spec-branch SHA.
+   The order is load-bearing. Flipping on the spec branch first would set
+   `agreed` on a branch that has not merged and might not, which is precisely the
+   claim this design exists to make impossible; and the cited SHA still resolves
+   after the merge, being an ancestor of the default branch.
 
 **Why this holds `agreed` honest.** The default branch never carries unreviewed
 spec text, so a document reading `agreed` there has in fact been through the
