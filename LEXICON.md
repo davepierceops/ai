@@ -131,8 +131,9 @@ its tranche and never spans two.
 
 **Reconciliation** — closing a delta: the spec is brought to full agreement with
 what was actually built, and the whole accumulated diff goes through the reviewer
-gate **once, as a single cycle**, arriving on the default branch as a pull
-request. Agreement attaches here, to the version of record, which is why
+gate **once** — once per delta, not once per edit — arriving on the default
+branch as a pull request. Agreement attaches here, to the version of record,
+which is why
 `agreed` on the default branch never lies
 (`context-sets/spec-and-change-discipline.md`, `skills/spec-review-cycle.md`).
 

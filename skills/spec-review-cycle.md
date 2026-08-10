@@ -109,8 +109,8 @@ and pushes. Full-file pushes through MCP remain prohibited.
 
 During a tranche's execution, spec edits land on the tranche's spec branch with
 no reviewer gate per edit (`context-sets/spec-and-change-discipline.md`, Open
-spec delta). **Reconciliation** closes the delta, and it is this cycle, run over
-the accumulated diff.
+spec delta). **Reconciliation** closes the delta, and it is this cycle, gating the
+accumulated diff **once**.
 
 **What "once" quantifies:** the delta is gated once — as against once per edit —
 not that a reconciliation may run only one cycle. A reconciliation that produces

@@ -107,9 +107,10 @@ edits, not the rule about who authors canonical text
 
 **Reconciliation closes the delta.** The spec is brought to full agreement with
 what was actually built, and the accumulated diff goes through the reviewer gate
-**once, as a single cycle**, arriving on the default branch as a pull request
-(`skills/spec-review-cycle.md`, Reconciliation). The default branch therefore
-never carries unreviewed spec text, and `agreed` there never lies.
+**once — once per delta, not once per edit** — arriving on the default branch as
+a pull request (`skills/spec-review-cycle.md`, Reconciliation). The default
+branch therefore never carries unreviewed spec text, and `agreed` there never
+lies.
 
 **A delta is bounded by its tranche and never spans two.** Reconciliation blocks
 the next tranche's decomposition: decomposing from unreviewed spec is prohibited,
@@ -130,12 +131,11 @@ chosen so that their spec territory does not overlap. (The word for a concurrent
 workstream is *tranche*, not *track*: `track` is fixed to the executor's
 repository environment, `LEXICON.md`.) A spec document is **claimed** by
 appearing in an open delta's diff, and a claimed document may not be claimed by a
-second delta. The
-convergent-edit case — two deltas editing one document and merging the result —
-is **refused, not tooled**: a merge of two ungated spec edits is exactly the
-unreviewed text on the default branch that this design exists to prevent. Where a
-project has no disjoint territory to claim, tracks go cross-project, or the work
-goes serial.
+second delta. The convergent-edit case — two deltas editing one document and
+merging the result — is **refused, not tooled**: a merge of two ungated spec
+edits is exactly the unreviewed text on the default branch that this design
+exists to prevent. Where a project has no disjoint territory to claim, the second
+tranche goes cross-project, or the work goes serial.
 
 ## Definition of done (spec discipline view)
 
