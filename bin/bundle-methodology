@@ -1,0 +1,179 @@
+#!/usr/bin/env python3
+"""Regenerate the `methodology-context-bundle` chat-upload artifact.
+
+Contract: `docs/packages/bundle-methodology-spec.md` §§2, 4-7. This is a
+correct-by-construction replacement for the hand-run interim procedure
+recorded in `decisions/log.md` `DEC-000140` — same file set, same header,
+list, and `<!-- FILE n/N -->` separator byte layout, but every SHA and every
+embedded file body come from a git read against `HEAD` (§5), rather than the
+worktree the interim procedure read bodies from.
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime
+import os
+import pathlib
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from aimeta import cli, frontmatter, repo  # noqa: E402
+
+# Fixed decision-layer spine, in this order (spec §4 / DEC-000140).
+SPINE = [
+    "context-sets/base.md",
+    "context-sets/spec-and-change-discipline.md",
+    "context-sets/collab-workflow.md",
+    "operating-model.md",
+    "roles/chief-of-staff.md",
+    "policies/commit-and-change-control-policy.md",
+]
+
+MATCHING_AUDIENCE = {"all-roles", "chief-of-staff"}
+
+FILE_SET_RULE = (
+    "fixed decision-layer spine + every skills/*.md whose audience includes "
+    "all-roles or chief-of-staff (rule; Dave 2026-08-07)."
+)
+
+BAR = "<!-- " + "=" * 60 + " -->"
+
+
+def build_parser():
+    p = argparse.ArgumentParser(
+        prog="bundle-methodology",
+        description=(
+            "Regenerate the methodology-context-bundle: fixed spine + "
+            "audience-filtered skills, correct-by-construction (DEC-000140)."
+        ),
+    )
+    p.add_argument(
+        "--out", required=True, metavar="DIR", help="directory to write the bundle into"
+    )
+    return p
+
+
+def audience_values(text):
+    """`{value, ...}` from a document's `audience` frontmatter field."""
+    doc = frontmatter.parse_text(text)
+    value = doc.fields.get("audience")
+    if value is None:
+        return set()
+    if isinstance(value, (list, tuple)):
+        return set(value)
+    return {value}
+
+
+def matching_skills(root):
+    """`skills/*.md` paths, sorted, whose audience matches the rule (§4).
+
+    Candidates are discovered and their `audience` field is read from the
+    **worktree** — this is how the rule can select a path that has no blob at
+    `HEAD` yet (AC-BM-9: an uncommitted matching skill must be selected by the
+    rule, then fail loudly when its content is sourced from `HEAD`, rather
+    than being silently skipped here).
+    """
+    skills_dir = pathlib.Path(root) / "skills"
+    matches = []
+    if not skills_dir.is_dir():
+        return matches
+    for path in sorted(skills_dir.glob("*.md")):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        if audience_values(text) & MATCHING_AUDIENCE:
+            matches.append("skills/%s" % path.name)
+    return matches
+
+
+def file_set(root):
+    """The fixed spine plus every matching skill, computed fresh every run."""
+    return SPINE + matching_skills(root)
+
+
+def render(root, files, stamp):
+    """The bundle text, or raises `cli.ToolError` (exit 3) on a missing blob.
+
+    Both the per-file blob SHA and the embedded body are read from the git
+    blob at `HEAD` (§5) — never the working tree — so a labeled SHA and its
+    body can never diverge, and a path the rule selected but that has no
+    blob at `HEAD` is a hard failure (AC-BM-9) rather than a silent omission.
+    """
+    repo_sha = repo.git("rev-parse", "HEAD", cwd=root)
+
+    shas = {}
+    bodies = {}
+    missing = []
+    for path in files:
+        sha = repo.short_blob_sha(root, "HEAD", path)
+        if sha is None:
+            missing.append(path)
+            continue
+        shas[path] = sha
+        bodies[path] = repo.file_at_rev(root, "HEAD", path)
+
+    if missing:
+        raise cli.ToolError(
+            "not found at HEAD (needed by the file-set rule): %s"
+            % ", ".join(missing),
+            cli.EXIT_PRECONDITION,
+        )
+
+    count = len(files)
+    lines = [
+        "# methodology-context-bundle\n",
+        "**Derived artifact — do not edit.** Regenerate from davepierceops/ai; "
+        "the repo is canonical.\n",
+        "- Source: davepierceops/ai @ %s" % repo_sha,
+        "- Generated: %s" % stamp,
+        "- File set: %s\n" % FILE_SET_RULE,
+    ]
+    lines += [
+        "  %d. %s (blob %s)" % (i, path, shas[path])
+        for i, path in enumerate(files, 1)
+    ]
+    lines.append("")
+    for i, path in enumerate(files, 1):
+        lines += [
+            "",
+            BAR,
+            "<!-- FILE %d/%d: %s @ %s -->" % (i, count, path, shas[path]),
+            BAR,
+            "",
+            bodies[path].rstrip("\n"),
+            "",
+        ]
+    return "\n".join(lines) + "\n"
+
+
+def resolve_out_dir(argument):
+    """`--out DIR`, resolved against the invoking cwd (spec §2), not the repo root."""
+    path = pathlib.Path(argument)
+    if not path.is_absolute():
+        path = pathlib.Path.cwd() / path
+    return path
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
+    root = cli.load_root()
+
+    files = file_set(root)
+    stamp = datetime.datetime.now().strftime("%Y-%m-%d-%H%M")
+
+    # Rendered fully in memory before anything touches disk: a missing blob
+    # (AC-BM-9) must leave no partial bundle and no created --out directory.
+    text = render(root, files, stamp)
+
+    out_dir = resolve_out_dir(args.out)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    dest = out_dir / ("methodology-context-bundle-%s.md" % stamp)
+    dest.write_text(text, encoding=cli.ENCODING)
+    return cli.EXIT_OK
+
+
+if __name__ == "__main__":
+    sys.exit(cli.run(main))
