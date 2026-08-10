@@ -434,6 +434,58 @@ catches were:
 
 ---
 
+## D19 — Cycle 3 was scoped to the documents cycle 2 changed
+
+**Question.** The directive says one review artifact per document, per cycle.
+Cycle 3 is a confirmation pass. Do the nine documents that reached verdict `ready`
+at cycle 2 and were not edited since get a cycle-3 artifact each?
+
+**Chosen.** No. Cycle 3 covers the three documents the cycle-2 fixes touched —
+`context-sets/spec-and-change-discipline.md`, `skills/spec-review-cycle.md`,
+`LEXICON.md`. The other nine stand at their cycle-2 verdict.
+
+**Why.** A confirmation artifact over an unedited document that already passed
+records nothing and points `last-reviewed` at a review that inspected no change.
+`skills/spec-review-cycle.md` is explicit that a review format expensive to write
+is a review that gets skipped, and that the clean case is kept cheap on purpose.
+The regression risk the extra pass would cover was already covered: every cycle-2
+artifact for those nine states in its Scope what it cross-checked against the
+cycle-1 fixes.
+
+**Where this could be wrong.** If Dave wants a per-document artifact at the final
+cycle regardless, the nine are unedited since `7d4d03a` and the pass is cheap to
+run.
+
+**Cycle count:** three cycles run, of the five permitted. Cycle 3 closed with no
+blocking findings outstanding.
+
+---
+
+## D20 — Two undocumented red tests were reported, not recorded
+
+**Question.** `bin/tests/run` finishes 347/350. One failure,
+`test_bn10_bundle_base_yields_exactly_itself`, is already tracked in
+`OPEN-ITEMS.md`. The other two —
+`test_sc1_extracts_the_in_scope_list_in_document_order` and
+`test_sc1_load_globs_reads_the_policy_from_the_methodology_home` — are tracked
+nowhere. Do they get an open item?
+
+**Chosen.** No. Reported in the final report instead.
+
+**Why.** Both are pre-existing and unrelated: `policies/document-metadata-policy.md`
+is byte-identical to `origin/main` on this branch (`git diff origin/main --` is
+empty), and the tests assert a hardcoded in-scope list that omits `LEXICON.md`,
+which entered the policy at `1f5b715` — a stale assertion from that change, not
+from this one. Recording it would be the general cleanup pass the directive
+excludes; leaving it silent would be worse, so it goes in the report where Dave
+triages it.
+
+**Diagnosis, for whoever picks it up:** the fix is to the test, not the policy —
+the policy is `agreed` and correct, and the expected list in
+`bin/tests/test_scope.py` was not updated when `LEXICON.md` was added to it.
+
+---
+
 ## D18 — What was *not* done, and why
 
 - **`policies/verification-boundary-policy.md`** — `OPEN-ITEMS.md` proposes
