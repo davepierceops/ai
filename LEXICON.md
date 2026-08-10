@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/LEXICON-cycle-3.md @ a7a915cddf3ca1fef774c17942f1e9406cc3715a
+status: in-review
+last-reviewed: null
 audience: [all-roles, human]
 ---
 
@@ -72,22 +72,26 @@ directive format).
 
 **Dispatch** — the act of handing a directive to an execution session.
 
-**Track A / Track B** — the two paths a directive takes to become citable.
-Track A commits the directive file through repository tooling and cites it by
-SHA. Track B produces it in an artifact, and Dave commits it from a local clone
-using command blocks. Track B is operator-invoked; agents never infer it
+**Track A / Track B** — the executor's repository environment, and so the two
+paths a directive takes to become citable. Track A: the executor has a reachable
+remote, and commits and pushes the directive. Track B: it has none, and commits
+locally — a SHA exists at commit, but resolves in that clone alone until it is
+pushed. Track B is operator-invoked; agents never infer it
 (`skills/directive-dispatch.md`).
+*Not:* a delivery choice. Every directive is delivered the same way, as a paste
+block.
 
 **Execution block** — the instructions an LLM agent session is to carry out.
-Deliberately silent on delivery: the primary form cites a committed directive
-file by path and SHA; the fallback carries the instructions inline. Both are
+Delivered as a paste block carrying the directive itself; where the directive
+already exists in git, the block cites it by path and SHA instead. Both are
 execution blocks.
 *Not:* shell commands. Those are command blocks.
 
-**Directive file** — the committed markdown file holding the instructions,
-cited by path and the SHA of the commit that landed it. One per intended
-execution session; self-contained, meaning the executor needs the file and the
-repository and nothing from the conversation that produced it.
+**Directive file** — the markdown file holding the instructions, written and
+committed by the **executor** as its first act, and thereafter cited by path and
+the SHA of the commit that landed it. One per intended execution session;
+self-contained, meaning the executor needs the paste block and the repository
+and nothing from the conversation that produced it.
 
 **Instruction** — one direction within a directive file. Individually
 executable, and individually refusable: an instruction that cannot be executed
@@ -109,10 +113,32 @@ executing or being executed.
 
 **Sync block** — the command block that brings a clone current from an
 explicitly named remote and ref. Precedes every **Track A** execution block in
-a dispatch. Track B has no sync block: it is same-machine and commit-not-push,
-so the executor already holds the commit and there is no remote to fetch from —
-the sync step is carried by the echoed dispatch line instead
-(`skills/directive-dispatch.md`, Track B mechanics).
+a dispatch. Track B has no sync block: there is no reachable remote to fetch
+from, so the step is a working-tree-current check in the executor's own clone
+instead (`skills/directive-dispatch.md`, §3 Track and §4 Execution block).
+
+## Spec state
+
+**Spec branch** — the branch a tranche's spec edits land on, named
+`spec/<tranche-slug>`. Git is the machinery; there is no status value for this
+and no register recording it. The branch existing, with commits on it, is the
+state.
+
+**Open spec delta** — the interval during which a tranche's spec branch carries
+edits that the default branch does not. During it Dave edits spec documents
+freely, with no reviewer gate and no per-edit ceremony. A delta is bounded by
+its tranche and never spans two.
+
+**Reconciliation** — closing a delta: the spec is brought to full agreement with
+what was actually built, and the whole accumulated diff goes through the reviewer
+gate **once, as a single cycle**, arriving on the default branch as a pull
+request. Agreement attaches here, to the version of record, which is why
+`agreed` on the default branch never lies
+(`context-sets/spec-and-change-discipline.md`, `skills/spec-review-cycle.md`).
+
+**Claimed** — of a spec document: appearing in an open delta's diff. A claimed
+document may not be claimed by a second open delta. Concurrency comes from
+claiming disjoint territory, never from merging convergent edits.
 
 ## Handoff
 

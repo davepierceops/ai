@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/spec-review-cycle-cycle-4.md @ 2fe299cade4325e80a3d51d3e2513c970f921b20
+status: in-review
+last-reviewed: null
 audience: [spec-reviewer-agent, architect-agent, chief-of-staff, human]
 ---
 
@@ -33,10 +33,13 @@ reviewer-gated cycle only.
 - **Documents enter chat as uploads, never as mid-conversation fetches.**
   Upload the exact reviewed revision as attachments on the first message.
 - **Full documents never leave chat.** No full-file pushes through MCP tools
-  during a cycle. The only MCP write is the cycle directive (small).
+  during a cycle. The cycle directive leaves as a paste block, so a cycle
+  performs no tool-mediated write at all
+  (`skills/directive-dispatch.md`; `policies/remote-write-verification-policy.md`).
 - **Reviewed commit SHAs are recorded in the directive.** This is the
   staleness guard for uploads and the audit link from directive to reviewed
-  state. A directive without SHAs is invalid.
+  state. A directive without SHAs is invalid. Mid-delta, those SHAs are on the
+  tranche's spec branch, not the default branch (Reconciliation, below).
 
 ## Inputs
 
@@ -56,15 +59,19 @@ reviewer-gated cycle only.
 
 ### 2. Directive
 
-4. Produce the cycle directive (format below). Commit it to the project repo
-   at `docs/cycles/cycle-<n>-directive.md` — one small MCP write.
+4. Produce the cycle directive (format below) and emit it as a **paste block**.
+   Chat does not commit it; the executor does, as its first act
+   (`skills/directive-dispatch.md`). The directive names its own destination —
+   `docs/cycles/cycle-<n>-directive.md`.
 5. The cycle chat is done. Do not continue into execution in the same
    conversation.
 
 ### 3. Execution (Claude Code)
 
-6. In the project clone, instruct Claude Code: execute the directive against
-   the documents per this skill.
+6. In the project clone, Claude Code writes the pasted directive verbatim to
+   the named path, commits it, and reads the SHA back from git. It reports that
+   SHA with its result — *"executed `<path>`, landed as `<sha>`"* — which is
+   what the decision record cites.
 7. Claude Code verifies the working tree matches the reviewed SHAs (or
    contains them in history with no intervening edits to the documents in
    scope); makes targeted edits per the directive; commits referencing the
@@ -97,6 +104,38 @@ hard-precondition disposition after Package D — see the resolved entry in
 
 Claude outputs the edit set as old→new hunks in chat; Dave applies locally
 and pushes. Full-file pushes through MCP remain prohibited.
+
+## Reconciliation — the cycle that closes an open spec delta
+
+During a tranche's execution, spec edits land on the tranche's spec branch with
+no reviewer gate per edit (`context-sets/spec-and-change-discipline.md`, Open
+spec delta). **Reconciliation** is the single cycle that closes the delta, and it
+is this cycle, run once over the accumulated diff:
+
+1. Bring the spec to full agreement with what was actually built. Reconciliation
+   is not a review of intentions — a spec that still describes something the
+   tranche did not build is not reconciled.
+2. Open a pull request from `spec/<tranche-slug>` to the default branch. The
+   diff under review is the whole delta, not one edit within it.
+3. Run the cycle from step 1 of the Procedure, with the spec-branch SHAs as the
+   reviewed revisions. Findings are triaged and executed against the spec
+   branch; the PR updates in place.
+4. On a clean gate, Dave's agreement lands as it always does — a
+   frontmatter-only status transition — and the PR merges.
+
+**Why this holds `agreed` honest.** The default branch never carries unreviewed
+spec text, so a document reading `agreed` there has in fact been through the
+gate. What moved is *when* agreement attaches: to the version of record at
+reconciliation, not to a version approved before building. Between deltas the
+spec is true at rest, which is what the recreate-from-spec goal actually needs;
+during one it is descriptive of decisions being made with hot context, and the
+executor's requirement is truth-at-handoff, not agreement-in-advance.
+
+**A reconciliation may be invoked early.** Dave may close a delta mid-tranche at
+will, and frequent small reconciliations are the encouraged norm — the tranche
+boundary is a deadline, not a target. A cycle over a small diff is cheap; a cycle
+over a tranche's worth of accumulated edits is the expensive case this note
+exists to discourage.
 
 ## Cycle directive format
 
@@ -278,6 +317,7 @@ write is a review that gets skipped.
 
 ## Output
 
-- A committed cycle directive (audit trail)
+- A cycle directive, landed in git by the executor and cited by the SHA it
+  reports back (audit trail)
 - Revised documents committed by Claude Code, diff-reviewed by Dave
 - Documents queued for reviewer re-gate

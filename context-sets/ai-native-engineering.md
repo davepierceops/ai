@@ -63,7 +63,10 @@ optional:
 
 A **tranche** is a scope of agreed spec proposed for implementation as one body
 of work — the unit the Chief of Staff proposes and Dave approves before
-decomposition into change packages. See `roles/chief-of-staff.md`.
+decomposition into change packages. It is also the unit an **open spec delta** is
+bounded by: spec edits made while the tranche executes land on its spec branch
+and are gated together at reconciliation
+(`context-sets/spec-and-change-discipline.md`). See `roles/chief-of-staff.md`.
 
 ## Required discipline
 

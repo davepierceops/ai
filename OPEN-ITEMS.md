@@ -4,7 +4,7 @@ This file tracks open questions, deferred decisions, and outstanding fixes
 for the AI operating model. Updated at defined checkpoints per
 `context-sets/spec-and-change-discipline.md`.
 
-Last updated: 2026-08-06
+Last updated: 2026-08-09
 
 ---
 
@@ -1005,3 +1005,49 @@ first. Surfaced at cycle-11 B1.
 ## MANIFEST.md carries an embedded changelog contrary to git-SHA versioning
 
 Header says it holds only the context-set bundle definitions ("everything else removed"), yet it still carries a changelog (`### v0.5 changes`, `### Post-v0.5 changes`). Repo rule is git-SHA-is-the-version / git-log-is-the-changelog (`policies/document-metadata-policy.md`; the version number dropped in Package C). The embedded changelog is a second copy of git history. Symptom: `MANIFEST.md:129` carries the "handoff artifact" misuse corrected in cycle-1 D6, left as historical. Fix is removal of the changelog, not correction of the line. Source: Trivium gate cycle-1 triage, 2026-08-08.
+
+## The open spec delta has never been run
+
+**Source:** `docs/cycles/friction-refactor-2026-08-09-directive.md` (Change 2),
+2026-08-09. The design is written into
+`context-sets/spec-and-change-discipline.md`, `skills/spec-review-cycle.md`,
+`roles/chief-of-staff.md`, and `LEXICON.md` with **zero** executions behind it.
+Every prior mechanism in this repo that was written before being run — Track B
+most recently — needed rewriting after its first real use.
+
+Unknowns worth watching on the first delta: how much drift accumulates before a
+reconciliation cycle stops being reviewable in one pass; whether "brought to full
+agreement with what was actually built" is judgeable by a reviewer who did not
+watch the tranche execute; and whether the encouraged norm of frequent small
+reconciliations survives contact with the cost of opening one.
+
+**What's needed:** run one, then a retro against the written design before it is
+treated as settled.
+
+## The disjoint-territory claim rule is unenforced
+
+**Source:** as above (D2.5). "A spec document is claimed by appearing in an open
+delta's diff; a document claimed by one open delta may not be claimed by another"
+is stated in `context-sets/spec-and-change-discipline.md` and checked by nobody.
+The state is computable — `git diff <default>...spec/<slug> --name-only` per open
+spec branch, intersected — which makes it a `bin/` candidate rather than a
+register to maintain (`roles/chief-of-staff.md`, the computed-state constraint).
+
+The violation is silent and expensive: the collision is only discovered at the
+second reconciliation, when the second delta's diff no longer applies cleanly and
+the refused case — merging convergent spec edits — is what is left on the table.
+
+**What's needed:** a check in the Chief of Staff read-sequence at minimum; a
+`bin/` script if the manual step proves tedious, per the same constraint.
+
+## `bin/cycle-open` and the changed meaning of Track
+
+**Source:** as above (D1.3). `DEC-000150` records that `bin/cycle-open` (TP-1)
+must emit Route, Model, and Track in its directive skeleton; the tool currently
+emits neither, so nothing is broken today. But **Track** no longer names a
+delivery path — it names the executor's repository environment
+(`skills/directive-dispatch.md` §3) — and TP-1's spec must be written against the
+current definition rather than the one in force when the decision landed. Also
+worth checking at that point: the skeleton is a directive *file* template, and
+the executor now writes that file from a paste block, so what the tool produces
+is the thing chat pastes rather than the thing chat commits.

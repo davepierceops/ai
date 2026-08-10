@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/command-blocks-cycle-2.md @ 5e1dc1fb78d4c4a670d5ec749971e7b766d5924f
+status: in-review
+last-reviewed: null
 audience: [all-roles, human]
 name: command-blocks
 description: Constrains fenced shell-command blocks handed to a human or agent to run as given — copyable as rendered, verbatim, captured output, explicit remotes, safe to re-run. Use when emitting a shell block, command, or command sequence for someone or something else to run, including the sync block preceding an execution block.
@@ -28,9 +28,11 @@ worth capturing, it was not evidence.
 — a test run, a verification, anything a report will rest on. Output consumed
 in-the-moment by the person running the block, and never referred to again, is
 not evidence in this sense and needs no capture. A listing someone reads to
-decide what to do next is the standard case; the Track B pre-flight `ls` in
-`skills/directive-dispatch.md` is the tree's live instance, and that document
-says so where the block is defined.
+decide what to do next is the standard case — an `ls` before choosing which file
+to act on, a `git status` before choosing whether to proceed. Where a document
+emits such a block, it says so where the block is defined, so that a reviewer
+running down these criteria is not left to guess whether the exemption was
+claimed or forgotten.
 
 **A sync or remote command names its remote and ref, and fails loudly.** State
 both rather than leaning on branch-upstream configuration or an implied default:
@@ -93,6 +95,7 @@ block, and still non-conformant.
 - Every sync or remote command names its remote and ref, and its exit status is
   checked before anything downstream acts on the result.
 
-New criteria are appended rather than slotted into body order. These are cited
-by ordinal — `skills/directive-dispatch.md` points at criterion 6 — so the
-existing numbering has to hold.
+New criteria are appended rather than slotted into body order. Other documents
+cite these by ordinal rather than restating them — which is what keeps a rule
+like criterion 6 in one place instead of drifting across two
+(`decisions/log.md` `DEC-000100`) — so the existing numbering has to hold.

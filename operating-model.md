@@ -14,7 +14,7 @@ Dave acts as PM, EM, owner, and operator. Agents perform implementation, testing
 
 Dave does not rely on routine line-by-line code review. The primary control is evidence: specifications, tests, reviews, verification boundaries, operational signals, and known gaps.
 
-Work is **spec-first** and **test-driven**: nothing is built until it is specified with written acceptance criteria, and tests are written and confirmed failing before implementation. See `context-sets/spec-and-change-discipline.md`.
+Work is **spec-first** and **test-driven**: nothing is built that is not specified with written acceptance criteria, and tests are written and confirmed failing before implementation. Spec-first is a requirement that the spec be *true* at handoff and at rest — not that every sentence was agreed before it was written; agreement lands at reconciliation. See `context-sets/spec-and-change-discipline.md`.
 
 ## Working thesis
 
@@ -113,7 +113,7 @@ substance (see `context-sets/base.md`). Each stage
 completes before the next begins; no skipping or working ahead.
 
 1. **Specs agreed** — PRD/TRD written, reviewed by the Spec Reviewer Agent (hard gate), and agreed by Dave. The same gate covers any canonical document, methodology documents included. *(PM/EM/Owner + Architect + Spec Reviewer)*
-   Review cycles execute per `skills/spec-review-cycle.md`.
+   Review cycles execute per `skills/spec-review-cycle.md`. While a tranche is executing, spec edits may land ungated on its spec branch and are gated together at reconciliation; the default branch never carries unreviewed spec text (`context-sets/spec-and-change-discipline.md`, Open spec delta).
 2. **Acceptance criteria** — explicit, written ACs for the unit of work. *(PM/EM/Owner)*
 3. **Architecture summary** — per-change design derived from the TRD; the Issue is cut from this. *(Architect)*
 4. **Test plan, confirmed red** — ACs translated into test code, run, and confirmed to fail before any implementation. *(Test Designer)*
