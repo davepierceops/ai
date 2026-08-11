@@ -318,3 +318,84 @@ a half-reversal expressed as a pointer to a superseded entry would repeat it.
 Consequence for tooling: `bin/cycle-open` (TP-1) must emit Route, Model, and
 Track, not Track alone; the Track-only PR is superseded and held.
 Supersedes: DEC-000110
+
+## DEC-000160 — Directives travel as paste blocks; the executor lands them and reports the SHA post-hoc
+Date: 2026-08-09
+Decision: A directive is dispatched as a paste block. The executor's first act is
+to write it to `docs/cycles/`, commit it, read the SHA back from git, and report
+"executed <path>, landed as <sha>". The SHA is established post-hoc and is
+sufficient for the decision record. This applies to every directive class,
+reviewer-gated cycle directives included. Chat-side tool-mediated writes leave the
+dispatch path entirely; `policies/remote-write-verification-policy.md` accordingly
+governs the mediated writes that remain rather than a dispatch step. The
+`~/Downloads` delivery path — pre-flight glob, relocate/commit/echo blocks,
+artifact-and-blocks-in-one-turn — is retired, and with it the deferred
+`bin/dispatch`, whose premise was a chat-side commit to gate. This entry is
+silent on **track**, which the 2026-08-10 corrections retire outright; the
+proposed `DEC-000180` carries that, and supersedes `DEC-000150`.
+The two-consecutive-failure trigger is retained as a pure detector and relocated
+to `policies/remote-write-verification-policy.md` Rule 4, preserving DEC-000080's
+keep-reason without the delivery path it used to open.
+Context: a directive does two jobs — transport, whose value expires at execution,
+and record, whose value accrues later. Only the record needs git, and the executor
+is the party for whom git is cheap. The integrity question shifts from provenance
+to paste-arrival-intactness, already governed by the parse-atomic paste rules. Dave
+confirmed post-hoc SHAs are sufficient for the decision record. Executed as
+`docs/cycles/friction-refactor-2026-08-09-directive.md` (D1.1–D1.4).
+Supersedes: —
+
+## DEC-000170 — Open spec delta: spec branches are ungated; agreement attaches at reconciliation
+Date: 2026-08-09
+Decision: During a tranche's execution, spec documents may be edited freely on
+`spec/<tranche-slug>` with no reviewer gate and no per-edit ceremony — an **open
+spec delta**; the branch is the state, with no new status value and no register.
+**Reconciliation** closes it: the spec is brought to full agreement with what was
+built, and the whole accumulated diff goes through the reviewer gate once, as a
+single cycle, arriving on the default branch as a pull request. A delta is bounded
+by its tranche and never spans two; reconciliation blocks the next tranche's
+decomposition, and decomposing from unreviewed spec is prohibited. Reconciliation
+may be invoked early at will, and frequent small reconciliations are the norm.
+Mid-delta dispatches derive from the spec branch and pin its SHA. At most two
+tranches execute concurrently, over disjoint spec territory; a
+document is claimed by appearing in an open delta's diff and may not be claimed by
+a second, and the convergent-edit case is refused rather than tooled.
+Context: agreement attaches to the version of record at reconciliation, not to a
+version pre-approved before building. The amnesiac-executor constraint requires
+truth-at-handoff, not agreement-in-advance, and the recreate-from-spec goal needs
+the spec true at rest between deltas rather than at every instant during one. The
+design test applied: operator attention is the system's scarcest,
+non-parallelizable resource, and evidence integrity may not be purchased by
+spending it as if it were free. Executed as
+`docs/cycles/friction-refactor-2026-08-09-directive.md` (D2.1–D2.7).
+Supersedes: —
+
+## DEC-000180 — Track is retired; the dispatch requirements are three, not four
+Date: 2026-08-10
+Decision: `track` is removed from the methodology entirely. A dispatch states
+**three** requirements, all three every time: route, model, and the execution
+block. `DEC-000150`'s route/model half is carried forward unchanged and restated
+here so it stays live under whole-entry supersession: a reviewer-gated cycle
+directive states every requirement like any other dispatch, with route *fresh*
+and model *Opus 5* as class defaults — stated per directive and overridable, not
+fixed by class. What is reversed is `DEC-000150`'s other half, "track is required
+per directive, because it genuinely varies": it does not vary in any way a
+directive can usefully state. The one condition the term still covered after
+`DEC-000160` retired its delivery sense — the executor's remote is unreachable —
+is not a property of the work being dispatched and is not knowable by the party
+writing the directive. It is an executor obligation instead: an executor that
+cannot push stops and surfaces it, and never commits locally and reports a
+same-machine SHA as if it were pushed (`skills/directive-dispatch.md`, Executor
+obligations). `LEXICON.md` carries a tombstone rather than a definition. The
+sync block precedes every execution block with no exception. Consequence for
+tooling: `bin/cycle-open` (TP-1, shelved) emits Route and Model and no Track;
+`DEC-000150`'s "must emit Route, Model, and Track" is superseded, and
+`OPEN-ITEMS.md` carries the guard against resurrecting the field on unshelving.
+Context: owner override (Dave), per
+`docs/cycles/friction-refactor-corrections-2026-08-10-directive.md` (C1), after
+reviewing the overnight run that had kept track and redefined it
+(`docs/cycles/friction-refactor-2026-08-09-decisions.md` D1). The reason the
+redefinition failed: forge downtime is a transient property of the executor's
+machine, and a standing instruction line stating it is a line that is wrong
+whenever it matters. A field nobody can fill correctly in advance is worse than
+no field, because a stated value is what a report gets measured against.
+Supersedes: DEC-000150
