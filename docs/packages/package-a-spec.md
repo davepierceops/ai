@@ -472,9 +472,11 @@ filename.
   writes it to a file the script names itself, under `--out DIR`. It is a
   usage error (exit 2) to combine `--write` with an explicit `--format` other
   than `concat`, or with more than one `ENTRY`.
-- **AC-BN-12** `--out DIR` (default `~/Downloads`, tilde-expanded) is only
-  meaningful with `--write`; supplying it without `--write` is a usage error
-  (exit 2).
+- **AC-BN-12** `--out DIR` (default `~/Downloads`) is only meaningful with
+  `--write`; supplying it without `--write` is a usage error (exit 2). `DIR`
+  is tilde-expanded whether it comes from the default or is supplied
+  explicitly — `--out ~/x` resolves against the invoking user's home
+  directory, not a literal `~` directory under the invoking cwd.
 - **AC-BN-13** The written filename is
   `<entry>-context-bundle-<YYYY-MM-DD-HHMM>.md`, where `<entry>` is the stem
   (basename, `.md` stripped) of the *resolved* entry path — `bundle base
@@ -485,7 +487,12 @@ filename.
 - **AC-BN-14** In-memory-first, as `bin/bundle-methodology` (AC-BM-9): the
   concat text is fully rendered before `--out DIR` is created or anything is
   written to disk; a failure before that point (e.g. an unresolvable `ENTRY`,
-  AC-BN-9) creates no directory and leaves no file.
+  AC-BN-9) creates no directory and leaves no file. This includes a
+  `--strict` dangling-reference failure (AC-BN-5): although the closure walk
+  and concat rendering both succeed, `--write --strict` checks for a
+  dangling reference before `--out DIR` is created or the file is written,
+  so a failing strict run exits with the policy failure (exit 1), creates no
+  directory, writes no file, and prints no `wrote` line.
 - **AC-BN-15** On success, `--write` prints exactly one line to stdout —
   `wrote <absolute path>` — and nothing else; it prints nothing to stdout
   before that line.
