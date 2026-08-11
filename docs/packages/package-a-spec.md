@@ -419,7 +419,8 @@ cycle-open (--cycle N | --name SLUG) [--title T] [--out DIR]
 ### 3.7 `bin/bundle`
 
 ```
-bundle [--format list|json|concat] [--max-depth N] [--why] [--strict] ENTRY...
+bundle [--format list|json|concat] [--max-depth N] [--why] [--strict]
+       [--write] [--out DIR] ENTRY...
 ```
 
 An `ENTRY` is a context-set name (`base` → `context-sets/base.md`) or a
@@ -458,6 +459,36 @@ repo-relative path.
   actually followed. *(Revised — the original wording named `base` as the entry
   point for the transitive assertion, which is unsatisfiable for any correct
   implementation. Defect D1, found by the Test Designer at the red-gate.)*
+
+#### 3.7.1 `--write` mode
+
+`bundle` normally prints to stdout only; `--write` closes the gap where the
+naming convention `bin/bundle-methodology` established
+(`methodology-context-bundle-<stamp>.md`) has no analogue for a general
+`bundle` invocation, leaving an operator to hand-assemble redirection and a
+filename.
+
+- **AC-BN-11** `--write` renders the `concat` form fully in memory, then
+  writes it to a file the script names itself, under `--out DIR`. It is a
+  usage error (exit 2) to combine `--write` with an explicit `--format` other
+  than `concat`, or with more than one `ENTRY`.
+- **AC-BN-12** `--out DIR` (default `~/Downloads`, tilde-expanded) is only
+  meaningful with `--write`; supplying it without `--write` is a usage error
+  (exit 2).
+- **AC-BN-13** The written filename is
+  `<entry>-context-bundle-<YYYY-MM-DD-HHMM>.md`, where `<entry>` is the stem
+  (basename, `.md` stripped) of the *resolved* entry path — `bundle base
+  --write` names `base-context-bundle-...`; `bundle operating-model.md
+  --write` names `operating-model-context-bundle-...` — and the stamp is
+  generated exactly as `bin/bundle-methodology`'s (`%Y-%m-%d-%H%M`, local
+  time).
+- **AC-BN-14** In-memory-first, as `bin/bundle-methodology` (AC-BM-9): the
+  concat text is fully rendered before `--out DIR` is created or anything is
+  written to disk; a failure before that point (e.g. an unresolvable `ENTRY`,
+  AC-BN-9) creates no directory and leaves no file.
+- **AC-BN-15** On success, `--write` prints exactly one line to stdout —
+  `wrote <absolute path>` — and nothing else; it prints nothing to stdout
+  before that line.
 
 ### 3.8 `bin/migrate-frontmatter` (F2 transform)
 
