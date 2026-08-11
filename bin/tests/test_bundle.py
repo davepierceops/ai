@@ -5,7 +5,9 @@ Contract: `docs/packages/package-a-spec.md` §3.7.
 
 from __future__ import annotations
 
+import datetime
 import json
+import pathlib
 import re
 import unittest
 
@@ -19,6 +21,7 @@ from tests.helpers import (
     make_home,
     make_repo,
     run_cli,
+    temp_dir,
     write,
 )
 
@@ -256,6 +259,178 @@ class TestAgainstThisRepository(unittest.TestCase):
         paths = out.splitlines()
         self.assertIn("operating-model.md", paths)
         self.assertIn("policies/source-of-truth-policy.md", paths)
+
+
+# ---------------------------------------------------------------- AC-BN-11..15: --write mode
+
+WRITE_STAMP_PATTERN = r"\d{4}-\d{2}-\d{2}-\d{4}"
+
+
+def write_name_re(entry_stem):
+    """Regex for the `--write` filename convention (AC-BN-13), built from a
+    literal `<entry>` stem rather than hardcoded to any one fixture entry."""
+    return re.compile(
+        r"^%s-context-bundle-%s\.md$" % (re.escape(entry_stem), WRITE_STAMP_PATTERN)
+    )
+
+
+def find_write_files(out_dir):
+    """Every `<entry>-context-bundle-<stamp>.md` file directly under `out_dir`."""
+    return sorted(pathlib.Path(out_dir).glob("*-context-bundle-*.md"))
+
+
+class TestWriteMode(BundleTestCase):
+    def out_dir(self, prefix="bundle-write-out-"):
+        return temp_dir(self, prefix)
+
+    def test_bn12_default_out_dir_is_home_downloads(self):
+        """AC-BN-12: `--write` with no `--out` writes under `$HOME/Downloads`."""
+        write_home = temp_dir(self, "bundle-write-home-")
+        env = base_env(methodology_home=self.home, home=write_home)
+        rc, out, err = run_cli("bundle", "root", "--write", cwd=self.repo, env=env)
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        downloads = write_home / "Downloads"
+        files = find_write_files(downloads)
+        self.assertEqual(
+            len(files), 1, "expected exactly one file in %s, found %r" % (downloads, files)
+        )
+        self.assertRegex(files[0].name, write_name_re("root"))
+
+    def test_bn14_out_dir_is_created_with_mkdir_p_semantics(self):
+        """AC-BN-14: a missing, multi-level `--out DIR` is created once rendering
+        succeeds, matching AC-BM-1's `bundle-methodology` semantics."""
+        parent = self.out_dir("bundle-write-parent-")
+        nested = parent / "a" / "b" / "c"
+        self.assertFalse(nested.exists())
+        rc, out, err = self.bundle("root", "--write", "--out", nested)
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        files = find_write_files(nested)
+        self.assertEqual(
+            len(files), 1, "expected exactly one file in %s, found %r" % (nested, files)
+        )
+
+    def test_bn13_stamp_format_matches_bundle_methodology_convention(self):
+        """AC-BN-13: the stamp is `%Y-%m-%d-%H%M`, local time — same as
+        `bin/bundle-methodology`'s."""
+        out_dir = self.out_dir()
+        rc, out, err = self.bundle("root", "--write", "--out", out_dir)
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        files = find_write_files(out_dir)
+        self.assertEqual(len(files), 1, "stdout=%r stderr=%r" % (out, err))
+        name = files[0].name
+        self.assertRegex(name, write_name_re("root"))
+        stamp = name[len("root-context-bundle-") : -len(".md")]
+        # Raises ValueError (failing the test) if the stamp isn't exactly
+        # %Y-%m-%d-%H%M.
+        datetime.datetime.strptime(stamp, "%Y-%m-%d-%H%M")
+
+    def test_bn13_entry_stem_for_a_context_set_name_entry(self):
+        """AC-BN-13: `bundle root --write` names the file `root-context-bundle-...`
+        (the entry is a context-set name)."""
+        out_dir = self.out_dir()
+        rc, out, err = self.bundle("root", "--write", "--out", out_dir)
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        files = find_write_files(out_dir)
+        self.assertEqual(len(files), 1, "stdout=%r stderr=%r" % (out, err))
+        self.assertRegex(files[0].name, write_name_re("root"))
+
+    def test_bn13_entry_stem_for_a_repo_relative_path_entry(self):
+        """AC-BN-13: `bundle context-sets/leaf.md --write` names the file
+        `leaf-context-bundle-...` (the entry is a repo-relative path; the stem
+        is the resolved path's basename with `.md` stripped)."""
+        out_dir = self.out_dir()
+        rc, out, err = self.bundle(LEAF, "--write", "--out", out_dir)
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        files = find_write_files(out_dir)
+        self.assertEqual(len(files), 1, "stdout=%r stderr=%r" % (out, err))
+        self.assertRegex(files[0].name, write_name_re("leaf"))
+
+    def test_bn11_more_than_one_entry_is_a_usage_error_and_writes_nothing(self):
+        """AC-BN-11: `--write` combined with more than one `ENTRY` exits 2 and
+        writes nothing."""
+        out_dir = self.out_dir()
+        rc, out, err = self.bundle("root", "leaf", "--write", "--out", out_dir)
+        self.assertEqual(rc, 2, "stdout=%r stderr=%r" % (out, err))
+        self.assertEqual(find_write_files(out_dir), [])
+
+    def test_bn11_explicit_non_concat_format_is_a_usage_error_and_writes_nothing(self):
+        """AC-BN-11: `--write` combined with an explicit `--format` other than
+        `concat` (e.g. `json`) exits 2 and writes nothing."""
+        out_dir = self.out_dir()
+        rc, out, err = self.bundle("root", "--write", "--format", "json", "--out", out_dir)
+        self.assertEqual(rc, 2, "stdout=%r stderr=%r" % (out, err))
+        self.assertEqual(find_write_files(out_dir), [])
+
+    def test_bn11_explicit_concat_format_is_redundant_but_permitted(self):
+        """AC-BN-11: `--write --format concat` is explicit but matches the
+        implied form, so it succeeds like plain `--write`."""
+        out_dir = self.out_dir()
+        rc, out, err = self.bundle("root", "--write", "--format", "concat", "--out", out_dir)
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        self.assertEqual(len(find_write_files(out_dir)), 1)
+
+    def test_bn12_out_without_write_is_a_usage_error(self):
+        """AC-BN-12: `--out DIR` supplied without `--write` is a usage error,
+        and the directory is never created."""
+        parent = self.out_dir("bundle-write-unused-")
+        target = parent / "unused-out"
+        self.assertFalse(target.exists())
+        rc, out, err = self.bundle("root", "--out", target)
+        self.assertEqual(rc, 2, "stdout=%r stderr=%r" % (out, err))
+        self.assertFalse(target.exists())
+
+    def test_bn14_unresolvable_entry_creates_no_out_dir_and_no_file(self):
+        """AC-BN-14: a resolution failure (the existing AC-BN-9 error) happens
+        before rendering completes, so it creates no `--out DIR` and leaves no
+        file, anywhere."""
+        parent = self.out_dir("bundle-write-fail-parent-")
+        out_dir = parent / "does-not-exist-yet"
+        self.assertFalse(out_dir.exists())
+        rc, out, err = self.bundle("no-such-entry", "--write", "--out", out_dir)
+        self.assertEqual(rc, 2, "stdout=%r stderr=%r" % (out, err))
+        self.assertFalse(
+            out_dir.exists(), "AC-BN-14: --out dir was created despite the failure"
+        )
+        self.assertEqual(
+            find_write_files(parent),
+            [],
+            "AC-BN-14: a bundle file was written despite the failure",
+        )
+
+    def test_bn15_success_prints_exactly_one_wrote_line_with_a_valid_path(self):
+        """AC-BN-15: on success, stdout is exactly one `wrote <absolute path>`
+        line and nothing else, and the file it names is the rendered concat
+        bundle."""
+        out_dir = self.out_dir()
+        rc, out, err = self.bundle("root", "--write", "--out", out_dir)
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        lines = out.splitlines()
+        self.assertEqual(
+            len(lines), 1, "expected exactly one stdout line, got %r" % (lines,)
+        )
+        m = re.match(r"^wrote (/.*)$", lines[0])
+        self.assertIsNotNone(m, "unexpected stdout line: %r" % lines[0])
+        written_path = pathlib.Path(m.group(1))
+        self.assertTrue(written_path.is_absolute(), "%s is not absolute" % written_path)
+        self.assertTrue(written_path.exists(), "%s does not exist" % written_path)
+        content = written_path.read_text(encoding="utf-8")
+        self.assertRegex(content, r"===== %s @ [0-9a-f]{7,40} =====" % re.escape(ROOT))
+
+    def test_bn7_format_list_and_json_still_work_when_write_is_absent(self):
+        """Regression guard: adding `--write`/`--out` to the parser must not
+        disturb explicit `--format list`/`--format json` when `--write` is
+        absent (AC-BN-7, unaffected by §3.7.1)."""
+        rc, out, err = self.bundle("--format", "list", "root")
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        self.assertEqual(
+            [l for l in out.splitlines() if l.strip()], [ROOT, MID, REFERENCED, LEAF, DEEP]
+        )
+
+        rc, out, err = self.bundle("--format", "json", "root")
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        data = json.loads(out)
+        self.assertIsInstance(data, list)
+        self.assertTrue(any(entry["path"] == ROOT for entry in data))
 
 
 if __name__ == "__main__":
