@@ -10,8 +10,10 @@ backticked string that is not a repo file is prose, not a broken reference.
 """
 
 import argparse
+import datetime
 import json
 import os
+import pathlib
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -29,14 +31,39 @@ def build_parser():
     )
     p.add_argument("entries", nargs="+", metavar="ENTRY", help="context-set name or path")
     p.add_argument(
-        "--format", choices=["list", "json", "concat"], default="list", help="output form"
+        "--format", choices=["list", "json", "concat"], default=None, help="output form"
     )
     p.add_argument("--max-depth", type=int, metavar="N", help="truncate the walk")
     p.add_argument("--why", action="store_true", help="annotate with referrer and depth")
     p.add_argument(
         "--strict", action="store_true", help="exit 1 on a dangling depends-on reference"
     )
+    p.add_argument(
+        "--write",
+        action="store_true",
+        help="render the concat form and write it to a file under --out DIR",
+    )
+    p.add_argument(
+        "--out",
+        default=None,
+        metavar="DIR",
+        help="directory to write the bundle into (only with --write; defaults to $HOME/Downloads)",
+    )
     return p
+
+
+def render_concat(root, walked):
+    """The `concat` form's text, per-document, exactly as `emit` prints it."""
+    parts = []
+    for item in walked:
+        sha = repo.last_commit_sha(root, item["path"]) or "uncommitted"
+        parts.append("===== %s @ %s =====\n" % (item["path"], sha))
+        text, finding = cli.read_document(root / item["path"])
+        if finding is not None:
+            cli.diagnostic("WARN", item["path"], finding.code, finding.message)
+            continue
+        parts.append(text)
+    return "".join(parts)
 
 
 def emit(root, walked, fmt, why):
@@ -44,14 +71,7 @@ def emit(root, walked, fmt, why):
         print(json.dumps(walked, indent=2))
         return
     if fmt == "concat":
-        for item in walked:
-            sha = repo.last_commit_sha(root, item["path"]) or "uncommitted"
-            print("===== %s @ %s =====" % (item["path"], sha))
-            text, finding = cli.read_document(root / item["path"])
-            if finding is not None:
-                cli.diagnostic("WARN", item["path"], finding.code, finding.message)
-                continue
-            print(text, end="")
+        print(render_concat(root, walked), end="")
         return
     for item in walked:
         if why and item["via"]:
@@ -60,13 +80,53 @@ def emit(root, walked, fmt, why):
             print(item["path"])
 
 
+def resolve_out_dir(argument):
+    """`--out DIR`, resolved against the invoking cwd, matching
+    `bundle-methodology`'s convention for a non-default value."""
+    path = pathlib.Path(argument)
+    if not path.is_absolute():
+        path = pathlib.Path.cwd() / path
+    return path
+
+
 def main(argv=None):
     args = build_parser().parse_args(argv)
+
+    if args.out is not None and not args.write:
+        raise cli.ToolError("--out is only meaningful with --write", cli.EXIT_USAGE)
+    if args.write and len(args.entries) > 1:
+        raise cli.ToolError("--write accepts exactly one ENTRY, got %d" % len(args.entries), cli.EXIT_USAGE)
+    if args.write and args.format is not None and args.format != "concat":
+        raise cli.ToolError(
+            "--write cannot be combined with --format %s (only concat)" % args.format,
+            cli.EXIT_USAGE,
+        )
+
+    fmt = args.format
+    if fmt is None:
+        fmt = "concat" if args.write else "list"
+
     root = cli.load_root()
     entries = [closure.resolve_entry(root, entry) for entry in args.entries]
     dangling = []
     walked = closure.walk(root, entries, args.max_depth, dangling)
-    emit(root, walked, args.format, args.why)
+
+    if args.write:
+        text = render_concat(root, walked)
+        entry_stem = pathlib.Path(entries[0]).stem
+        stamp = datetime.datetime.now().strftime("%Y-%m-%d-%H%M")
+        out_dir = (
+            resolve_out_dir(args.out)
+            if args.out is not None
+            else pathlib.Path.home() / "Downloads"
+        )
+        out_dir.mkdir(parents=True, exist_ok=True)
+        dest = out_dir / ("%s-context-bundle-%s.md" % (entry_stem, stamp))
+        dest.write_text(text, encoding=cli.ENCODING)
+        print("wrote %s" % dest.resolve())
+    else:
+        emit(root, walked, fmt, args.why)
+
     if dangling and args.strict:
         return cli.EXIT_POLICY
     return cli.EXIT_OK
