@@ -20,8 +20,8 @@ nothing at dispatch and everything later. Only the record needs git, and the
 executor, not chat, is the party for whom git is cheap.
 
 So the directive travels as a **paste block**, and the executor's first act is
-to land it: write it to `docs/cycles/`, commit it, read the SHA back, and report
-*"executed `<path>`, landed as `<sha>`"*. The SHA is established **post-hoc**.
+to land it: write it to `docs/cycles/`, commit it, push, read the SHA back, and
+report *"executed `<path>`, landed as `<sha>`"*. The SHA is established **post-hoc**.
 That is early enough — nothing consumes it before the report, and the report is
 what the decision record cites. This holds for **every** directive class,
 reviewer-gated cycle directives included.
@@ -121,16 +121,18 @@ the repository, nothing from the conversation.
 ## Executor obligations
 
 - **Land the directive first.** Before any other work, write it verbatim and in
-  full to `docs/cycles/` per the naming schema, commit it, and **read the SHA
-  back from git** — never report a SHA on the strength of a write call's return
-  (`policies/remote-write-verification-policy.md`).
+  full to `docs/cycles/` per the naming schema, commit it, **push**, and **read
+  the SHA back from git** — never report a SHA on the strength of a write call's
+  return (`policies/remote-write-verification-policy.md`). The SHA the report
+  cites is a pushed SHA; that is what makes it resolvable to anyone but this
+  clone.
 - **Remote unreachable → stop and surface.** An executor that cannot push — the
   forge is down, no credential is present, the machine is offline — says so and
   stops. It does **not** silently commit locally and report a same-machine SHA
   as if it were pushed: an unpushed commit resolves in that clone and nowhere
   else, so a report that cites it is claiming a citability it does not have.
-  This is not a directive field and never was one to state; the executor
-  discovers the condition and surfaces it.
+  The executor discovers this condition; it is not a directive field, and the
+  party writing the directive is not the party that can know it.
 - **Concurrent tree mutation → stop and surface.** Files this session did not
   change moving, HEAD moving, an index lock: do not re-read and continue.
 - **An instruction that cannot be executed as written → stop and surface.** No

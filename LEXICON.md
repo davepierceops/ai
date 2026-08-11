@@ -158,7 +158,10 @@ questions, decisions in flight — that lets the receiver continue without the
 conversation that produced it. **A baton passes between decision sessions; a
 directive dispatches work to an execution session. The two never blur.**
 
-*Not:* a handoff. A handoff is the transfer; a baton is what travels.
+*Not:* a directive, and *not:* a dispatch. A baton is what a
+decision-to-decision handoff carries, in the sense the entry above gives
+"handoff" — one artifact class within it, named because that particular transfer
+had no name and kept borrowing one.
 
 ## Retired terms
 
