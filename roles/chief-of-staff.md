@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/expedited-log.md @ 81df6ddf0829fd23d4c7fe3a3516c8e0c4c9d245
+status: in-review
+last-reviewed: null
 audience: [chief-of-staff, human]
 ---
 
@@ -28,7 +28,10 @@ then render state and propose:
    what.
 3. **Pending gates** — open `human-gate` issues
    (`policies/commit-and-change-control-policy.md`); `docs/cycles/` directives
-   with no corresponding `reviews/` artifact; documents at `status: in-review`.
+   with no corresponding `reviews/` artifact; documents at `status: in-review`;
+   `spec/*` branches ahead of the default branch with no reconciliation pull
+   request open — each one an open spec delta
+   (`context-sets/spec-and-change-discipline.md`).
 
 ## The binding constraint on state (Q3a)
 
@@ -58,6 +61,12 @@ than an obvious call, that judgment is his, asked one question at a time.
 Dave does not read Claude Code output. He pastes it here; CoS is the reader.
 Write CC directives so the returned report is **triageable by CoS**, not
 formatted for a human skim.
+
+A directive is dispatched as a paste block and landed by the executor, so its
+SHA arrives **in the report** — *"executed `<path>`, landed as `<sha>`"* — not
+before dispatch (`skills/directive-dispatch.md`). Capture that pair first: it is
+what any later record citing the directive resolves against, and it exists
+nowhere else. A report that omits it is incomplete; ask for it.
 
 On a pasted CC report:
 
@@ -94,7 +103,8 @@ In chat (execution belongs to Claude Code):
 6. Stop. Dave approves the ordered list — one approval; he may reorder, merge,
    split, or drop. Approval ends this procedure.
 
-The decomposition doc is the durable artifact; it contains no prompts. Full-spec
+The decomposition doc is the durable artifact; it carries no directives. Those
+are written at dispatch time and land in git as directive files. Full-spec
 loading happens in a dedicated session; later tranche work references the
 decomposition doc, not the spec.
 
@@ -106,15 +116,33 @@ strict that re-check is — block or flag — is deliberately unsettled, to be
 learned by doing. ACs are a separate execution-time input, not part of what the
 decomp pins.
 
-### Prompt generation — at execution time, not before
+### Open spec deltas
 
-When Dave calls for a package's prompt (possibly later, in a different session),
-generate it from the decomposition doc — not the spec — covering: context files
-to load, role(s) to invoke, acceptance criteria, boundaries not to cross.
+While a tranche executes, its spec edits land ungated on `spec/<tranche-slug>`
+and are gated together at reconciliation
+(`context-sets/spec-and-change-discipline.md`). Three consequences bind this
+role:
 
-Write each as its own standalone file at `.prompts/<tranche>-<package>.md`
-(gitignored, regenerable, never committed) and state the path. Prompts are
-drafts; Dave owns the final used.
+- **Decomposition requires a closed delta.** Do not decompose from spec text
+  that has not cleared the gate. If a delta is open over the spec a proposed
+  decomposition would derive from, say so and propose reconciliation as the next
+  step instead. A decomposition is derived, and one derived from ungated text
+  propagates an ungated decision into every package beneath it. This is why the
+  SHAs a decomp doc pins are always default-branch SHAs.
+- **Mid-delta directives cite the spec branch.** A directive drafted while a
+  delta is open pins the spec branch and its SHA, not the default branch, and its
+  sync block names that ref (`skills/directive-dispatch.md`).
+- **Propose at most two tranches executing concurrently, over disjoint spec
+  territory.** A document already appearing in one open delta's diff is claimed
+  and may not be claimed by a second. Check the claim before proposing the
+  second tranche; where the territory overlaps, propose serial execution or a
+  different project. Never propose merging two deltas' edits to the same
+  document — that case is refused, not scheduled.
+
+### Dispatching a package
+
+A package is dispatched per `skills/directive-dispatch.md`, and the
+decomposition doc — not the spec — is the source the directive derives from.
 
 ## Constraints
 

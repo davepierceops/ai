@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/LEXICON-cycle-3.md @ a7a915cddf3ca1fef774c17942f1e9406cc3715a
+status: in-review
+last-reviewed: null
 audience: [all-roles, human]
 ---
 
@@ -62,32 +62,35 @@ directive specifies happens elsewhere.
 
 ## Dispatch
 
-**Directive** — the complete package handed to an execution session. Four
-parts, all four stated every time: **route** (fresh session or existing
-context), **model**, **track** (A or B), and the **execution block**. No class
-is exempt from stating a part. A class may have defaults: a reviewer-gated cycle
-directive defaults to route *fresh* and model *Opus 5*, states them like any
-other dispatch, and may override them (`skills/spec-review-cycle.md`, Cycle
-directive format).
+**Directive** — the complete package handed to an execution session. Three
+parts, all three stated every time: **route** (fresh session or existing
+context), **model**, and the **execution block**. No class is exempt from stating
+a part. A class may have defaults: a reviewer-gated cycle directive defaults to
+route *fresh* and model *Opus 5*, states them like any other dispatch, and may
+override them (`skills/spec-review-cycle.md`, Cycle directive format).
 
 **Dispatch** — the act of handing a directive to an execution session.
 
-**Track A / Track B** — the two paths a directive takes to become citable.
-Track A commits the directive file through repository tooling and cites it by
-SHA. Track B produces it in an artifact, and Dave commits it from a local clone
-using command blocks. Track B is operator-invoked; agents never infer it
-(`skills/directive-dispatch.md`).
+**Track** — not a term of this methodology. It named a directive-delivery path,
+then the executor's repository environment (A: reachable remote; B: none), and
+both senses are retired. Nothing about the executor's environment is stated in a
+directive; the one case the term still covered — the remote is unreachable — is
+an executor obligation instead: an executor that cannot push **stops and
+surfaces it** (`skills/directive-dispatch.md`, Executor obligations). For a
+concurrent workstream the word is *tranche*
+(`context-sets/spec-and-change-discipline.md`).
 
 **Execution block** — the instructions an LLM agent session is to carry out.
-Deliberately silent on delivery: the primary form cites a committed directive
-file by path and SHA; the fallback carries the instructions inline. Both are
+Delivered as a paste block carrying the directive itself; where the directive
+already exists in git, the block cites it by path and SHA instead. Both are
 execution blocks.
 *Not:* shell commands. Those are command blocks.
 
-**Directive file** — the committed markdown file holding the instructions,
-cited by path and the SHA of the commit that landed it. One per intended
-execution session; self-contained, meaning the executor needs the file and the
-repository and nothing from the conversation that produced it.
+**Directive file** — the markdown file holding the instructions, written and
+committed by the **executor** as its first act, and thereafter cited by path and
+the SHA of the commit that landed it. One per intended execution session;
+self-contained, meaning the executor needs the paste block and the repository
+and nothing from the conversation that produced it.
 
 **Instruction** — one direction within a directive file. Individually
 executable, and individually refusable: an instruction that cannot be executed
@@ -108,11 +111,32 @@ run as given. Governed by `skills/command-blocks.md`.
 executing or being executed.
 
 **Sync block** — the command block that brings a clone current from an
-explicitly named remote and ref. Precedes every **Track A** execution block in
-a dispatch. Track B has no sync block: it is same-machine and commit-not-push,
-so the executor already holds the commit and there is no remote to fetch from —
-the sync step is carried by the echoed dispatch line instead
-(`skills/directive-dispatch.md`, Track B mechanics).
+explicitly named remote and ref. Precedes every execution block in a dispatch,
+full stop (`skills/directive-dispatch.md`, §3 Execution block).
+
+## Spec state
+
+**Spec branch** — the branch a tranche's spec edits land on, named
+`spec/<tranche-slug>`. Git is the machinery; there is no status value for this
+and no register recording it. The branch existing, with commits on it, is the
+state.
+
+**Open spec delta** — the interval during which a tranche's spec branch carries
+edits that the default branch does not. During it Dave edits spec documents
+freely, with no reviewer gate and no per-edit ceremony. A delta is bounded by
+its tranche and never spans two.
+
+**Reconciliation** — closing a delta: the spec is brought to full agreement with
+what was actually built, and the whole accumulated diff goes through the reviewer
+gate **once** — once per delta, not once per edit — arriving on the default
+branch as a pull request. Agreement attaches here, to the version of record,
+which is why
+`agreed` on the default branch never lies
+(`context-sets/spec-and-change-discipline.md`, `skills/spec-review-cycle.md`).
+
+**Claimed** — of a spec document: appearing in an open delta's diff. A claimed
+document may not be claimed by a second open delta. Concurrency comes from
+claiming disjoint territory, never from merging convergent edits.
 
 ## Handoff
 
@@ -128,15 +152,41 @@ Established uses consistent with this: the end-of-session flush of open items
 work on (`roles/coder-agent.md`), debt a change package deliberately did not
 touch and passes forward (`docs/packages/package-c-change-package.md`).
 
-A handoff into another *decision* session has no term yet. Naming it is open
-work, tracked at `OPEN-ITEMS.md:800` ("A handoff into another decision session
-has no name").
+**Baton** — the artifact a decision session hands its successor decision
+session: the composed package of unfinished responsibility — state, open
+questions, decisions in flight — that lets the receiver continue without the
+conversation that produced it. **A baton passes between decision sessions; a
+directive dispatches work to an execution session. The two never blur.**
 
-## Prompt
+*Not:* a directive, and *not:* a dispatch. A baton is what a
+decision-to-decision handoff carries, in the sense the entry above gives
+"handoff" — one artifact class within it, named because that particular transfer
+had no name and kept borrowing one.
 
-**Prompt** — text composed for a session to act on, generated at execution
-time and not committed (`roles/chief-of-staff.md`, `.prompts/`).
+## Retired terms
 
-*Not:* a directive. A directive file is committed and citable; a prompt is
-regenerable and disposable. Where both exist for the same work, the directive
-file is canonical.
+**Prompt** — not a term of this methodology. What is meant is one of:
+
+- **What a decision session hands an execution session** — a *directive*; its
+  committed form is a *directive file*, its transport is an *execution block*,
+  and one direction inside it is an *instruction*.
+- **What a decision session hands its successor decision session** — a *baton*.
+- **What a directive points the executor at** — a *companion document*.
+- **What runs in a shell** — a *command block*; the one that opens a dispatch
+  is a *sync block*.
+- **What a session loads as standing context** — a *context set*, a *role
+  document*, a *skill document*, a *policy*, a *boundary document*.
+- **What a session derives work from** — the *decomposition doc*, a *change
+  package*, the *acceptance criteria*, the *spec* (PRD/TRD).
+- **Inbound material a session acts on** — the specific name of that material:
+  *reviewer findings*, a *review artifact*, an *execution report*, an *upload*,
+  a *retro*.
+
+The colloquial sense — any text sent to an LLM — is too broad to do work here.
+
+*Not covered by this retirement:* an approval **prompt**, meaning a tool
+interrupting to ask a human to authorise a step
+(`vendors/claude-code/environment-config.md`). That is a different word in a
+different domain, and it keeps its ordinary meaning.
+
+**Track** — see the tombstone under Dispatch.

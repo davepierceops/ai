@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/remote-write-verification-policy-cycle-2.md @ 5e1dc1fb78d4c4a670d5ec749971e7b766d5924f
+status: in-review
+last-reviewed: null
 audience: [all-roles, human]
 ---
 
@@ -56,6 +56,36 @@ Whether a pointer SHA may be abbreviated is not this policy's question — Rule 
 is about provenance. `skills/directive-dispatch.md` carries the narrow rule
 where it applies, for dispatch blocks.
 
+### 4. Two consecutive qualifying failures is a fact about the environment
+
+A single transport failure is noise. **Two in a row is a signal** — the tooling
+is degraded, or two concurrent sessions are contending for the same transport.
+Stop, say so, and establish state before continuing. Do not absorb the second
+failure as another retry.
+
+- **Qualifying:** write timeouts; writes returning success but unconfirmable on
+  read-back; transport errors (5xx, connection reset, connector absent
+  mid-session).
+- **Not qualifying:** auth/permission errors; not-found errors (almost always a
+  wrong path or ref); any failure from the agent's own malformed call —
+  including a write that lands but commits wrong content (Known gap, below).
+
+**Counting.** Timed-out-but-confirmed-landed is not a failure; it resets the
+count. Timed-out-and-confirmed-not-landed is one. A read-back that itself times
+out is the second, and means state is unknown — that case fires Rule 2
+immediately, at the first failure, and nothing here may delay it.
+
+The pattern is kept for what it **detects**, not for any remedy it once opened:
+a two-failure fire is how contention between concurrent sessions gets noticed at
+all, and that diagnostic value holds whatever the underlying cause turns out to
+be (`decisions/log.md` `DEC-000080`). It arrived in this repo as a trigger for
+proposing an alternative directive-delivery path; that path is retired
+(`skills/directive-dispatch.md`), and the detector is filed here instead, with
+the transport failures it detects. Its action is the one this rule states —
+stop and establish state — and it opens onto nothing else. There is no
+alternative route for it to select, and it does not need one: knowing the
+transport is degraded is the whole of what it delivers.
+
 ## Scope
 
 The rules are written against any tool-mediated remote mutation. The GitHub MCP
@@ -67,31 +97,37 @@ has it.
 Rule 3 assumes git. Where a project uses another version control system, the
 rule is that the repository's own log is authoritative over the tool's response.
 
+**What this policy no longer governs: dispatch.** Directives travel as paste
+blocks and are landed by the executor with ordinary local git
+(`skills/directive-dispatch.md`), so no mediated write stands between a decision
+and its record. That removed the largest and most consequential population of
+chat-side writes these rules were written to cover. The rules are unchanged and
+still binding — they now govern the mediated writes that remain, whichever
+transport carries them, rather than a dispatch step that no longer exists.
+
 **Where the agent cannot read its own write back**, the three rules have nothing
 to verify with, and the obligation changes rather than lapsing: verification is
 the operator's, and the agent reports only what the operator reported — never as
-verified on its own authority. Track B in `skills/directive-dispatch.md` is that
-case, the write landing in a local clone (`mv`, `git add`, `git commit`) the
-agent cannot reach. This is the same failure family the policy owns — an agent
-reporting a write it did not verify — resolved in the only direction available
-when read-back is impossible.
+verified on its own authority. The tree's standing instance of this case was the
+retired directive-delivery path, where the write landed in a local clone the
+chat-side agent could not reach; the case is now hypothetical here, and the rule
+is stated for the transports where it recurs.
 
 ## Relationship to existing rules
 
-`skills/spec-review-cycle.md` already constrains *how much* goes through the
-transport: "The only MCP write is the cycle directive (small)," and full
-documents never round-trip. That constraint limits exposure to this failure
-mode; it does not address verifying the writes that do happen. These rules cover
-the gap.
+`skills/spec-review-cycle.md` constrains what crosses the chat boundary at all:
+documents enter as uploads, full documents never leave, and the cycle directive
+is delivered as a paste block rather than written through a tool. A cycle
+therefore performs no mediated write. That is exposure removed, not exposure
+verified — these rules still govern any write a session does make.
 
 The same skill requires that reviewed commit SHAs are recorded in the directive
-file and calls one without SHAs invalid — which only holds if the SHAs recorded
-are ones somebody actually read back.
+and calls one without SHAs invalid — which only holds if the SHAs recorded are
+ones somebody actually read back.
 
-`skills/directive-dispatch.md` is the other side of the same topic. It cites
-this policy for the writes an agent *can* verify, and carries the operative rule
-for the one it cannot: Track B's "verification moves to Dave." Read the two
-together; neither is complete alone.
+`skills/directive-dispatch.md` is the other side of the same topic. Its executor
+obligations cite this policy for the SHA an executor reports: read it back from
+git, never from a write call's return.
 
 ## Known gap — landing is verified, content is not
 
@@ -133,4 +169,15 @@ doc-review directive, executing Q5. Moved and generalised 2026-08-06; the
 transport-specific framing was the only vendor-bound content. Revised 2026-08-08
 per `docs/cycles/trivium-gate-cycle-1-directive.md` (D7, D14): Rule 3 scoped back
 to provenance, and Scope extended to the case where the agent cannot read its own
-write back. Nothing here is agreed.
+write back. Revised 2026-08-09 per
+`docs/cycles/friction-refactor-2026-08-09-directive.md` (D1.2, D1.3): Scope
+records that dispatch has left the mediated-write path entirely, so these rules
+govern the writes that remain; the retired delivery track is no longer named as
+the standing instance of the unverifiable-write case; and **Rule 4** is added,
+carrying the two-consecutive-failure detector from
+`skills/directive-dispatch.md`, where it existed only as an on-ramp to that
+track. Revised 2026-08-10 per
+`docs/cycles/friction-refactor-corrections-2026-08-10-directive.md` (C1): Rule 4
+stays, and its closing paragraph is swept of the track language the retirement of
+that term left behind — the detector's action is stop-and-establish-state and
+points at nothing. Nothing here is agreed.

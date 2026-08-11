@@ -199,6 +199,26 @@ change a reviewable unit, not a human approval step. Requiring a human review
 on the PR itself would reintroduce human diff-reading as the default control
 surface, which `boundaries/human-review-boundary.md` deliberately removes.
 
+### Spec branches and the reconciliation pull request
+
+Spec edits made while a tranche is executing land on `spec/<tranche-slug>`
+without a per-edit gate (`context-sets/spec-and-change-discipline.md`, Open spec
+delta). Commit control is unaffected: branch protection binds the **default
+branch**, and a spec branch reaches it only through the **reconciliation pull
+request**, which carries the reviewer gate over the whole accumulated diff
+(`skills/spec-review-cycle.md`). The gate is not removed — it is charged once, at
+the event where judgment is actually being exercised, instead of once per edit.
+
+Two things follow, and both are structural rather than promised. Unreviewed spec
+text cannot reach the default branch, because nothing reaches it except through a
+pull request. And a document reading `agreed` on the default branch has been
+through the gate, because the transition that sets it is a status-transition
+commit made after the reconciliation cycle closes
+(`policies/document-metadata-policy.md`).
+
+Force-push, bypass, and the agreement verb are unchanged: a spec branch is an
+ordinary branch, and agreement remains Dave's.
+
 ## When in doubt
 
 If it is unclear whether a change is routine or consequential, treat it as

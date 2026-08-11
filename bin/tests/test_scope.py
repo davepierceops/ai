@@ -2,11 +2,14 @@
 
 Contract: `docs/packages/package-a-spec.md` §3.2. The policy text itself is the
 contract here (spec §5, "contract-verified"), so AC-SC-1 asserts against the
-real `policies/document-metadata-policy.md`.
+real `policies/document-metadata-policy.md` — and derives its expectation from
+that file rather than restating it, so the assertion tracks the policy instead
+of a snapshot of it (see `expected_globs` below).
 """
 
 from __future__ import annotations
 
+import re
 import unittest
 
 from aimeta import scope
@@ -14,22 +17,65 @@ from aimeta import scope
 from tests.helpers import REAL_POLICY_TEXT, make_home, policy_without
 
 
-EXPECTED_GLOBS = [
-    "policies/**",
-    "roles/**",
-    "context-sets/**",
-    "boundaries/**",
-    "skills/**",
-    "specs/**",
-    "vendors/**",
-    "operating-model.md",
-    "README.md",
-]
+#: One in-scope bullet, in its strictest form: a whole line that is a list item
+#: whose entire content is a single backticked entry. Deliberately narrower than
+#: `aimeta.scope`'s parse, which collects every backticked span on any line
+#: starting with "-" — so this is an independent reading of the policy, not a
+#: copy of the implementation under test.
+_IN_SCOPE_BULLET = re.compile(r"^- `([^`]+)`$")
+
+
+def expected_globs(policy_text=None):
+    """The in-scope set, derived from the policy rather than listed here.
+
+    AC-SC-1 asserts against the real `policies/document-metadata-policy.md`
+    (spec §5, "contract-verified"), and a hardcoded expectation goes stale the
+    moment the policy's list changes — which is exactly what happened when
+    `LEXICON.md` was added to it at `1f5b715` and this list was not updated.
+    Deriving it means the assertion cannot rot the same way twice.
+
+    The derivation is deliberately *not* `scope.parse_in_scope_globs`: a
+    tautological expectation would assert nothing. It reads the same section by
+    a stricter rule, so the two agree only while the policy states one glob per
+    bullet with no backticked prose in between.
+    """
+    text = REAL_POLICY_TEXT if policy_text is None else policy_text
+    lines = text.splitlines()
+    try:
+        start = next(
+            i for i, line in enumerate(lines) if scope.IN_SCOPE_MARKER in line
+        )
+    except StopIteration:  # pragma: no cover - guarded by AC-SC-2's own tests
+        raise AssertionError("the policy has no in-scope section to derive from")
+    globs = []
+    for line in lines[start + 1:]:
+        if scope.OUT_OF_SCOPE_MARKER in line:
+            break
+        found = _IN_SCOPE_BULLET.match(line.strip())
+        if found:
+            globs.append(found.group(1))
+    return globs
+
+
+EXPECTED_GLOBS = expected_globs()
 
 
 class TestParseInScopeGlobs(unittest.TestCase):
+    def test_sc1_the_derived_expectation_is_not_vacuous(self):
+        """AC-SC-1: guard the derivation itself — a broken read must not pass.
+
+        Both sides of the AC-SC-1 assertions now read the same file. If the
+        derivation silently returned nothing, or drifted off the in-scope
+        section, those assertions would hold vacuously. These anchors are the
+        floor: the policy has stated all four since `1f5b715`, and any edit
+        removing one is a policy change that should break a test.
+        """
+        self.assertGreaterEqual(len(EXPECTED_GLOBS), 4)
+        for anchor in ["policies/**", "skills/**", "README.md", "LEXICON.md"]:
+            self.assertIn(anchor, EXPECTED_GLOBS)
+
     def test_sc1_extracts_the_in_scope_list_in_document_order(self):
-        """AC-SC-1: the current policy yields exactly the nine in-scope globs."""
+        """AC-SC-1: the current policy yields exactly its in-scope globs."""
         self.assertEqual(scope.parse_in_scope_globs(REAL_POLICY_TEXT), EXPECTED_GLOBS)
 
     def test_sc1_stops_at_the_out_of_scope_marker(self):

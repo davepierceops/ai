@@ -51,8 +51,8 @@ optional:
 - The Chief of Staff assesses state, proposes tranches of an agreed spec, and
   decomposes an approved tranche into ordered change packages; it operates in
   chat, not inside a Claude Code session, and Dave approves the decomposition
-  before any agentic work begins. Prompts are generated from the decomposition
-  doc at execution time, not drafted in advance.
+  before any agentic work begins. Each package is then dispatched as a directive
+  derived from the decomposition doc (`skills/directive-dispatch.md`).
 - The Coder Agent creates implementation.
 - The Test Designer Agent defines how correctness will be evaluated.
 - The Spec Reviewer Agent gates spec quality before Dave agrees a spec, and
@@ -63,7 +63,10 @@ optional:
 
 A **tranche** is a scope of agreed spec proposed for implementation as one body
 of work — the unit the Chief of Staff proposes and Dave approves before
-decomposition into change packages. See `roles/chief-of-staff.md`.
+decomposition into change packages. It is also the unit an **open spec delta** is
+bounded by: spec edits made while the tranche executes land on its spec branch
+and are gated together at reconciliation
+(`context-sets/spec-and-change-discipline.md`). See `roles/chief-of-staff.md`.
 
 ## Required discipline
 

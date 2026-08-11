@@ -29,6 +29,15 @@ This is a **hard gate**. Dave does not agree a canonical document or a revision
 to one without a Spec Reviewer sign-off. The Spec Reviewer may not be the same
 agent instance that drafted the document under review.
 
+**What the gate fires over is a diff reaching the default branch, not each edit.**
+Where a tranche's spec edits accumulate on a spec branch, the gate fires once
+over the whole delta at reconciliation
+(`context-sets/spec-and-change-discipline.md`; `skills/spec-review-cycle.md`).
+Nothing is exempted by this: every revision still passes the gate, and it is the
+same gate — what changes is that a delta's revisions are reviewed together, as
+the diff that is actually being proposed for agreement, rather than one at a
+time on their way to it.
+
 The gate's reach is **any canonical document, not `specs/` only**. This matches
 `skills/spec-review-cycle.md` and the review record: every gate review in
 `reviews/` is over a non-`specs/` document. There are two bounded exceptions,

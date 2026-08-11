@@ -47,7 +47,7 @@ Tool-specific files such as `CLAUDE.md`, `AGENTS.md`, `.claude/agents/`, and `.c
 6. Production-grade means operable, observable, recoverable, and verified to stated boundaries.
 7. Vendor-specific agent systems are implementation details, not the source of truth.
 8. Specs are canonical (PRD → TRD → ACs → architecture summary → Issues); Issues are derived, and spec/Issue conflicts are a hard stop.
-9. Work is spec-first and test-driven: canonical documents — specs and the methodology documents alike — are reviewed by the Spec Reviewer Agent (hard gate) and agreed by Dave before work begins; tests are confirmed failing before implementation; the agent that writes a unit's tests is not the agent that implements it; the Architect that drafts a spec is not the agent that reviews it.
+9. Work is spec-first and test-driven: canonical documents — specs and the methodology documents alike — pass the Spec Reviewer Agent (hard gate) and are agreed by Dave before the default branch carries them, and spec edits made while a tranche executes land on its spec branch and clear that gate together at reconciliation; tests are confirmed failing before implementation; the agent that writes a unit's tests is not the agent that implements it; the Architect that drafts a spec is not the agent that reviews it.
 10. The human gate is the **release decision** — an evidence-and-judgment call, not a code decision (see #5): for a release, a human reviews the test and agent-review artifacts and decides go/no-go. Routine releases flow on evidence; a defined consequential class requires the human go/no-go. Where the release event sits relative to commit and deploy is a per-project TRD concern.
 
 ## How to use this directory

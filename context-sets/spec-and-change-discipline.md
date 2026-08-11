@@ -17,9 +17,20 @@ and the *habits* agents hold to.
 
 ## Core philosophy
 
-Development is **spec-first** and **test-driven**. Nothing is built until it has
-been specified and its acceptance criteria are written. Tests are written before
-implementation. Implementation exists only to make pre-written tests pass.
+Development is **spec-first** and **test-driven**. Nothing is built that is not
+specified: the spec and its acceptance criteria exist, and are correct, at the
+moment work is handed to an executor. Tests are written before implementation.
+Implementation exists only to make pre-written tests pass.
+
+**Spec-first is a truth requirement, not an approval sequence.** The rule is that
+the spec is true **at dispatch** and true **at rest** — not that every sentence
+an executor reads was agreed before it was written. Agreement is a separate
+event, and it lands at **reconciliation** (below). What generates the
+truth requirement is the amnesiac executor: a session holds nothing but the
+documents it is given, so those documents must be right at handoff. That the spec
+must also have been pre-approved does not follow — it is a different property,
+and the two were conflated for no gain and at the cost of an operator gate per
+edit.
 
 > Specifications are the source of truth, and human judgment gates the
 > decisions that are actually judgment.
@@ -35,9 +46,12 @@ membership in the consequential class means.
 
 Each stage completes before the next begins. No skipping, no working ahead.
 
-1. **PRD / TRD agreed.** Product and technical specs are written, reviewed by
-   the Spec Reviewer (hard gate), and agreed by Dave (`specs/`). Specs are
-   canonical; Issues are derived (`policies/source-of-truth-policy.md`).
+1. **PRD / TRD current, and agreed at rest.** Product and technical specs are
+   written, reviewed by the Spec Reviewer (hard gate), and agreed by Dave
+   (`specs/`) — that state holds on the default branch between deltas. Work
+   derives from the **version of record**: the default branch when no delta is
+   open, the tranche's spec branch while one is. Specs are canonical; Issues are
+   derived (`policies/source-of-truth-policy.md`).
 2. **Acceptance criteria written.** Each unit of work has explicit, written ACs.
 3. **Architecture summary.** The Architect derives a per-change architecture
    summary from the TRD. This is what a GitHub Issue is cut from.
@@ -72,6 +86,57 @@ Steps 1–6 above govern the spec and test discipline. The full change flow
 continues through quality review, skeptic/risk review, release package, and
 release gate. See `operating-model.md` for steps 7–9.
 
+## Open spec delta
+
+A tranche does not survive contact with implementation unchanged. Decisions get
+made while building, by the person with the hot context, and the spec has to
+absorb them. Gating each of those edits on a review cycle spends the operator's
+attention at the rate the work generates questions, which is the wrong rate.
+
+**The branch is the state.** During a tranche's execution, **Dave** edits spec
+documents freely on a dedicated branch, `spec/<tranche-slug>`, with no reviewer
+gate and no per-edit ceremony; commits land as he makes them. This interval is an
+**open spec delta**. There is no new status value and no register — the branch
+existing, with commits on it, is the whole of the machinery.
+
+The licence is his, not the room's. Agents propose spec edits exactly as before,
+and an agent that edits a spec document without being told to has not found a
+loophole here — what an open delta removes is the *gate* on the owner's own
+edits, not the rule about who authors canonical text
+(`roles/spec-reviewer-agent.md`; `context-sets/collab-workflow.md`).
+
+**Reconciliation closes the delta.** The spec is brought to full agreement with
+what was actually built, and the accumulated diff goes through the reviewer gate
+**once — once per delta, not once per edit** — arriving on the default branch as
+a pull request (`skills/spec-review-cycle.md`, Reconciliation). The default
+branch therefore never carries unreviewed spec text, and `agreed` there never
+lies.
+
+**A delta is bounded by its tranche and never spans two.** Reconciliation blocks
+the next tranche's decomposition: decomposing from unreviewed spec is prohibited,
+because a decomposition is a derived artifact and deriving one from text nobody
+has gated propagates an ungated decision into every package under it. Dave may
+invoke reconciliation early, mid-tranche, at will — frequent small
+reconciliations are the encouraged norm, and the tranche boundary is a deadline
+rather than a target.
+
+**Mid-delta dispatches derive from the spec branch.** A directive issued while a
+delta is open cites the spec branch and pins its SHA, not the default branch:
+truth-at-handoff. Provenance survives — the SHA resolves, and what the executor
+read is recoverable (`skills/directive-dispatch.md`).
+
+**Concurrency is achieved by disjoint territory, never by merging.** At most two
+tranches execute concurrently — never two deltas over one tranche — and they are
+chosen so that their spec territory does not overlap. (The word for a concurrent
+workstream is *tranche*, not *track*: `track` is not a term of this methodology
+at all, `LEXICON.md`.) A spec document is **claimed** by appearing in an open
+delta's diff, and a claimed document may not be claimed by a
+second delta. The convergent-edit case — two deltas editing one document and
+merging the result — is **refused, not tooled**: a merge of two ungated spec
+edits is exactly the unreviewed text on the default branch that this design
+exists to prevent. Where a project has no disjoint territory to claim, the second
+tranche goes cross-project, or the work goes serial.
+
 ## Definition of done (spec discipline view)
 
 A change is done when: intended behavior is implemented; the pre-written tests
@@ -84,6 +149,14 @@ decision
 
 ## Operating habits
 
+- **Ask what a mechanism costs Dave in the loop.** Operator attention is this
+  system's scarcest resource and the only one that does not parallelize: agents
+  scale, review cycles scale, evidence scales, and he does not. So every proposed
+  gate, check, confirmation, or ceremony is measured by how much of it it spends,
+  and evidence integrity may not be bought by spending it as though it were free.
+  This is a design test applied to mechanisms, not a licence to skip a gate that
+  passes it — the gates that remain are the ones worth his attention, which is
+  precisely why they must not be crowded by ones that are not.
 - **Agents dispose of routine changes; Dave disposes of judgment calls.**
   Agents draft, review, and merge the routine class on evidence, without
   asking. What returns to Dave is the release decision for the consequential
