@@ -129,8 +129,8 @@ read is recoverable (`skills/directive-dispatch.md`).
 tranches execute concurrently — never two deltas over one tranche — and they are
 chosen so that their spec territory does not overlap. (The word for a concurrent
 workstream is *tranche*, not *track*: `track` is not a term of this methodology
-at all, `LEXICON.md`.) A spec document is **claimed** by
-appearing in an open delta's diff, and a claimed document may not be claimed by a
+at all, `LEXICON.md`.) A spec document is **claimed** by appearing in an open
+delta's diff, and a claimed document may not be claimed by a
 second delta. The convergent-edit case — two deltas editing one document and
 merging the result — is **refused, not tooled**: a merge of two ungated spec
 edits is exactly the unreviewed text on the default branch that this design
