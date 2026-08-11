@@ -81,9 +81,9 @@ def emit(root, walked, fmt, why):
 
 
 def resolve_out_dir(argument):
-    """`--out DIR`, resolved against the invoking cwd, matching
-    `bundle-methodology`'s convention for a non-default value."""
-    path = pathlib.Path(argument)
+    """`--out DIR`, tilde-expanded then resolved against the invoking cwd,
+    matching `bundle-methodology`'s convention for a non-default value."""
+    path = pathlib.Path(argument).expanduser()
     if not path.is_absolute():
         path = pathlib.Path.cwd() / path
     return path
@@ -112,6 +112,8 @@ def main(argv=None):
     walked = closure.walk(root, entries, args.max_depth, dangling)
 
     if args.write:
+        if dangling and args.strict:
+            return cli.EXIT_POLICY
         text = render_concat(root, walked)
         entry_stem = pathlib.Path(entries[0]).stem
         stamp = datetime.datetime.now().strftime("%Y-%m-%d-%H%M")
