@@ -1,6 +1,6 @@
 ---
-status: in-review
-last-reviewed: null
+status: agreed
+last-reviewed: reviews/expedited-log.md @ c9e87ad253b5b9c2b67f4721d00e3d231c3326b3
 audience: [all-roles, human]
 name: command-blocks
 description: Constrains fenced shell-command blocks handed to a human or agent to run as given — copyable as rendered, verbatim, captured output, explicit remotes, safe to re-run. Use when emitting a shell block, command, or command sequence for someone or something else to run, including the sync block preceding an execution block.
