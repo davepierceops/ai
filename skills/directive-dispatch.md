@@ -21,8 +21,8 @@ executor, not chat, is the party for whom git is cheap.
 
 So the directive travels as a **paste block**, and the executor's first act is
 to land it: write it to `docs/cycles/`, commit it, push, read the SHA back, and
-report *"executed `<path>`, landed as `<sha>`"*. The SHA is established **post-hoc**.
-That is early enough — nothing consumes it before the report, and the report is
+report *"executed `<path>`, landed as `<sha>`"*. The SHA is established
+**post-hoc**. That is early enough — nothing consumes it before the report, and the report is
 what the decision record cites. This holds for **every** directive class,
 reviewer-gated cycle directives included.
 
@@ -124,8 +124,7 @@ the repository, nothing from the conversation.
   full to `docs/cycles/` per the naming schema, commit it, **push**, and **read
   the SHA back from git** — never report a SHA on the strength of a write call's
   return (`policies/remote-write-verification-policy.md`). The SHA the report
-  cites is a pushed SHA; that is what makes it resolvable to anyone but this
-  clone.
+  cites is a pushed SHA; that is what makes it resolve outside this clone.
 - **Remote unreachable → stop and surface.** An executor that cannot push — the
   forge is down, no credential is present, the machine is offline — says so and
   stops. It does **not** silently commit locally and report a same-machine SHA

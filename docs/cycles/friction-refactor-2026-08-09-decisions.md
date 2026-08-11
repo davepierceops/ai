@@ -322,6 +322,19 @@ and a silent, expensive failure mode.
 Per the hard constraint, `decisions/log.md` is untouched. Two entries are drafted
 below for Dave to promote after the morning review. IDs follow `DEC-000150`.
 
+**Amended 2026-08-10** by the corrections run, self-review cycle 2. Neither
+entry had been promoted, so both drafts were corrected in place rather than
+superseded — a draft is not yet a decision, and shipping a known-wrong entry into
+an append-only log to fix it one line later is the failure the log's
+whole-entry-supersession rule makes expensive. Two corrections: `DEC-000160`'s
+track clause is removed, leaving the entry silent on track so that promoting it
+does not install a decision the proposed `DEC-000180` would immediately have to
+reverse; and `DEC-000170`'s "at most two **tracks** run concurrently" is
+corrected to "tranches", the word
+`context-sets/spec-and-change-discipline.md` fixes for a concurrent workstream
+and the one this branch's own concurrency parenthetical exists to enforce. The
+2026-08-09 text is recoverable from git; see `d02c98c`.
+
 ### Proposed — DEC-000160 — Directives travel as paste blocks; the executor lands them and reports the SHA post-hoc
 
 ```
@@ -336,13 +349,12 @@ dispatch path entirely; `policies/remote-write-verification-policy.md` according
 governs the mediated writes that remain rather than a dispatch step. The
 `~/Downloads` delivery path — pre-flight glob, relocate/commit/echo blocks,
 artifact-and-blocks-in-one-turn — is retired, and with it the deferred
-`bin/dispatch`, whose premise was a chat-side commit to gate. **Track** is
-retained as the fourth requirement and redefined as the executor's repository
-environment: Track A has a reachable remote and pushes; Track B has none and
-commits locally, where a SHA exists at commit and resolves in that clone alone.
+`bin/dispatch`, whose premise was a chat-side commit to gate. This entry is
+silent on **track**, which the 2026-08-10 corrections retire outright; the
+proposed `DEC-000180` carries that, and supersedes `DEC-000150`.
 The two-consecutive-failure trigger is retained as a pure detector and relocated
 to `policies/remote-write-verification-policy.md` Rule 4, preserving DEC-000080's
-keep-reason without the track it used to open.
+keep-reason without the delivery path it used to open.
 Context: a directive does two jobs — transport, whose value expires at execution,
 and record, whose value accrues later. Only the record needs git, and the executor
 is the party for whom git is cheap. The integrity question shifts from provenance
@@ -367,7 +379,7 @@ by its tranche and never spans two; reconciliation blocks the next tranche's
 decomposition, and decomposing from unreviewed spec is prohibited. Reconciliation
 may be invoked early at will, and frequent small reconciliations are the norm.
 Mid-delta dispatches derive from the spec branch and pin its SHA. At most two
-tracks run concurrently, on different tranches over disjoint spec territory; a
+tranches execute concurrently, over disjoint spec territory; a
 document is claimed by appearing in an open delta's diff and may not be claimed by
 a second, and the convergent-edit case is refused rather than tooled.
 Context: agreement attaches to the version of record at reconciliation, not to a
@@ -706,6 +718,42 @@ the file rather than a citation of a decision.
 
 **Flagged for Dave** only because the two dates differ visibly in the same
 commit, which no prior run had.
+
+---
+
+## D29 — Two unpromoted decision drafts were corrected in place, not superseded
+
+**Question.** Self-review cycle 2 found that the overnight run's proposed
+`DEC-000160` asserts "**Track** is retained as the fourth requirement and
+redefined as the executor's repository environment", and that its proposed
+`DEC-000170` says "at most two **tracks** run concurrently". If Dave promotes
+them as drafted, the log acquires a track decision the same morning's `DEC-000180`
+reverses, and a second entry using a word the branch retires.
+
+**Options.**
+(a) Leave both drafts alone; have `DEC-000180` supersede `DEC-000160` as well.
+(b) Correct both drafts in place and record the amendment.
+(c) Leave them and flag it in the report for Dave to fix by hand.
+
+**Chosen: (b).**
+
+**Why.** (a) is the trap `policies/decision-log-policy.md` names explicitly:
+supersession is whole-entry, so superseding `DEC-000160` to kill one clause would
+also kill the paste-transport decision that is the entire point of this branch —
+which is how `DEC-000030`'s carve-out went dead under `DEC-000040`. (c) spends
+Dave's attention on a mechanical correction, which the operating model treats as
+the scarce resource. A draft is not yet a decision: nothing cites these entries,
+`decisions/log.md` is untouched, and the 2026-08-09 text is in git at `d02c98c`.
+Correcting a draft costs nothing; promoting a known-wrong entry into an
+append-only log costs a supersession cycle.
+
+**`DEC-000160` is left silent on track** rather than restating the retirement,
+so that the two entries do not both legislate it. `DEC-000180` carries it and
+supersedes `DEC-000150`, which is where the requirement it reverses actually
+lives.
+
+**Flagged for Dave.** This is an edit to the overnight run's decision record,
+made by the run reviewing it.
 
 ---
 
