@@ -397,10 +397,61 @@ class TestWriteMode(BundleTestCase):
             "AC-BN-14: a bundle file was written despite the failure",
         )
 
+    def test_bn14_strict_dangling_reference_writes_no_file_and_no_wrote_line(self):
+        """AC-BN-14: `--write --strict` against a dangling `depends-on` exits
+        with the policy failure (rc=1), creates no `--out DIR`, writes no
+        file, and prints no `wrote` line — the strict check runs before
+        anything touches disk, not after."""
+        write(
+            self.repo,
+            "context-sets/dangler.md",
+            context_set_doc("dangler", depends_on=["no-such-context-set"]),
+        )
+        commit(self.repo, "add dangler", env=self.env)
+
+        parent = self.out_dir("bundle-write-strict-fail-parent-")
+        out_dir = parent / "does-not-exist-yet"
+        self.assertFalse(out_dir.exists())
+        rc, out, err = self.bundle("dangler", "--write", "--strict", "--out", out_dir)
+        self.assertEqual(rc, 1, "stdout=%r stderr=%r" % (out, err))
+        self.assertFalse(
+            out_dir.exists(), "AC-BN-14: --out dir was created despite --strict failure"
+        )
+        self.assertEqual(
+            find_write_files(parent),
+            [],
+            "AC-BN-14: a bundle file was written despite --strict failure",
+        )
+        self.assertNotIn(
+            "wrote ", out, "AC-BN-14: a 'wrote' line was printed despite --strict failure"
+        )
+
+    def test_bn12_explicit_out_tilde_is_expanded(self):
+        """AC-BN-12: `--out ~/x` is tilde-expanded against the invoking
+        user's home directory, not treated as a literal `~` directory
+        created under the invoking cwd."""
+        write_home = temp_dir(self, "bundle-write-tilde-home-")
+        env = base_env(methodology_home=self.home, home=write_home)
+        rc, out, err = run_cli(
+            "bundle", "root", "--write", "--out", "~/tilde-out", cwd=self.repo, env=env
+        )
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        expected_dir = write_home / "tilde-out"
+        files = find_write_files(expected_dir)
+        self.assertEqual(
+            len(files), 1, "expected exactly one file in %s, found %r" % (expected_dir, files)
+        )
+        literal_tilde = self.repo / "~"
+        self.assertFalse(
+            literal_tilde.exists(), "a literal '~' directory was created under cwd"
+        )
+
     def test_bn15_success_prints_exactly_one_wrote_line_with_a_valid_path(self):
         """AC-BN-15: on success, stdout is exactly one `wrote <absolute path>`
-        line and nothing else, and the file it names is the rendered concat
-        bundle."""
+        line and nothing else, and the file it names is byte-identical to
+        what `--format concat` prints to stdout for the same entry — every
+        closure member's separator and body, not just the entry's own
+        header."""
         out_dir = self.out_dir()
         rc, out, err = self.bundle("root", "--write", "--out", out_dir)
         self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
@@ -414,7 +465,14 @@ class TestWriteMode(BundleTestCase):
         self.assertTrue(written_path.is_absolute(), "%s is not absolute" % written_path)
         self.assertTrue(written_path.exists(), "%s does not exist" % written_path)
         content = written_path.read_text(encoding="utf-8")
-        self.assertRegex(content, r"===== %s @ [0-9a-f]{7,40} =====" % re.escape(ROOT))
+
+        rc2, concat_out, err2 = self.bundle("--format", "concat", "root")
+        self.assertEqual(rc2, 0, "stdout=%r stderr=%r" % (concat_out, err2))
+        self.assertEqual(
+            content,
+            concat_out,
+            "the written file is not byte-identical to `--format concat` stdout",
+        )
 
     def test_bn7_format_list_and_json_still_work_when_write_is_absent(self):
         """Regression guard: adding `--write`/`--out` to the parser must not
