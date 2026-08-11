@@ -150,8 +150,9 @@ def render(root, files, stamp):
 
 
 def resolve_out_dir(argument):
-    """`--out DIR`, resolved against the invoking cwd (spec §2), not the repo root."""
-    path = pathlib.Path(argument)
+    """`--out DIR`, tilde-expanded then resolved against the invoking cwd
+    (spec §2), not the repo root."""
+    path = pathlib.Path(argument).expanduser()
     if not path.is_absolute():
         path = pathlib.Path.cwd() / path
     return path

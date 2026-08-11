@@ -273,6 +273,26 @@ class TestFileNaming(BundleMethodologyTestCase):
         self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
         self.assertEqual(len(find_bundle_files(self.repo / "bundle-out")), 1)
 
+    def test_bm1_explicit_out_tilde_is_expanded(self):
+        """AC-BM-1/§2: `--out ~/x` is tilde-expanded against the invoking
+        user's home directory, not treated as a literal `~` directory
+        created under the invoking cwd."""
+        write_home = temp_dir(self, "bundle-methodology-tilde-home-")
+        env = base_env(methodology_home=self.home, home=write_home)
+        rc, out, err = run_cli(
+            "bundle-methodology", "--out", "~/tilde-out", cwd=self.repo, env=env
+        )
+        self.assertEqual(rc, 0, "stdout=%r stderr=%r" % (out, err))
+        expected_dir = write_home / "tilde-out"
+        files = find_bundle_files(expected_dir)
+        self.assertEqual(
+            len(files), 1, "expected exactly one file in %s, found %r" % (expected_dir, files)
+        )
+        literal_tilde = self.repo / "~"
+        self.assertFalse(
+            literal_tilde.exists(), "a literal '~' directory was created under cwd"
+        )
+
 
 # ---------------------------------------------------------------- AC-BM-2..5: golden oracle
 
