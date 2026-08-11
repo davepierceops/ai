@@ -45,5 +45,10 @@ are asked, tradeoffs are framed, and decisions are escalated, see
 
 - Open items, deferred decisions, and outstanding fixes are tracked in
   `OPEN-ITEMS.md` and flushed at the end of each work session.
+- What the flush does not carry — decisions in flight, the shape of the
+  question currently open, what the next session should pick up first — travels
+  as a **baton**, the artifact one decision session hands its successor
+  (`LEXICON.md`). A baton is not a directive: it goes to another decision
+  session, never to an execution session.
 - Session state is committed to the `davepierceops/ai` repository. Do not rely
   on chat history as the sole record of decisions made.

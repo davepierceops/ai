@@ -3,7 +3,7 @@ status: in-review
 last-reviewed: null
 audience: [all-roles, human]
 name: directive-dispatch
-description: Hands work from a decision session to an execution session as a paste block the executor lands in git, with explicit route, model, and track. Use when work moves from chat to an execution session — including when a reviewer, skeptic, or risk role sends a fix, re-check, or remediation to Claude Code — and when writing a directive or the block that starts a session executing it.
+description: Hands work from a decision session to an execution session as a paste block the executor lands in git, with explicit route, model, and execution block. Use when work moves from chat to an execution session — including when a reviewer, skeptic, or risk role sends a fix, re-check, or remediation to Claude Code — and when writing a directive or the block that starts a session executing it.
 ---
 
 # Skill: Directive Dispatch
@@ -39,16 +39,16 @@ Any time work moves from a triage/decision session to an execution session.
 Reviewer-gated spec review cycles are governed by `skills/spec-review-cycle.md`
 (one conversation per cycle, documents as uploads, reviewed SHAs recorded). The
 rules here apply to that file too, without exception: a reviewer-gated cycle
-directive states all four requirements per directive, like any other dispatch.
+directive states all three requirements per directive, like any other dispatch.
 Route *fresh* and model *Opus 5* are the usual selection for that class — the
 defaults `skills/spec-review-cycle.md` records (Cycle directive format), stated
 per directive and overridable — not an exemption from stating them. Where both
 documents state the same requirement, this is the general statement; reconciling
 the rest of the duplication is open work.
 
-## The four requirements
+## The three requirements
 
-Every dispatch states all four, explicitly, every time. An unstated one is a
+Every dispatch states all three, explicitly, every time. An unstated one is a
 defect. A class may have a usual selection for a part; that is a default to
 state, not a licence to omit it.
 
@@ -71,29 +71,7 @@ State which model, and why. Table (v1, deliberately crude):
 | Implementation against a written spec with tests; routine review; well-bounded refactors | Sonnet 5 |
 | Mechanical, verifiable work — reformatting, renaming, list extraction, checks with an obvious right answer | Haiku 4.5 |
 
-### 3. Track — A or B
-
-The track states the **executor's** repository environment. Delivery no longer
-varies — every directive arrives as a paste block — so what the track decides is
-how the directive becomes citable and what the report may claim.
-
-**Track A** — the default. The executor has a working tree and a reachable
-remote: it commits the directive, pushes, and reports the pushed SHA.
-
-**Track B** — the executor has a working tree but **no reachable remote**: the
-forge is down, no credential is present, or the machine is offline. It commits
-the directive locally and reports that SHA. A SHA exists the moment `git commit`
-runs; no remote is required, and pushing later does not change it. **Same-machine
-only** — an unpushed commit resolves in that clone and nowhere else, so a Track B
-SHA is citable only there until it is pushed, and the report says so.
-
-**Track B is operator-invoked. The agent never infers it.** Default to A. An
-executor that finds the remote unreachable under a Track A dispatch **stops and
-surfaces it** rather than silently degrading to a local commit: the track is what
-the report is measured against, and a report that quietly changes its own
-standard is the failure this requirement exists to prevent.
-
-### 4. Execution block — the directive itself
+### 3. Execution block — the directive itself
 
 A dispatch is two paste blocks, in order.
 
@@ -102,9 +80,7 @@ A dispatch is two paste blocks, in order.
    every time**, even when the clone should be current: a stale clone reporting
    missing work is evidence about the clone, not the repo. Where the work derives
    from an open spec delta, the ref is the spec branch, not the default branch
-   (`context-sets/spec-and-change-discipline.md`). Track B has no sync block —
-   there is no remote to fetch from — and the working-tree-current check happens
-   in the executor's own clone instead.
+   (`context-sets/spec-and-change-discipline.md`).
 2. The **directive**, as one paste block, opening with the instruction to land
    it before doing anything else:
 
@@ -148,6 +124,13 @@ the repository, nothing from the conversation.
   full to `docs/cycles/` per the naming schema, commit it, and **read the SHA
   back from git** — never report a SHA on the strength of a write call's return
   (`policies/remote-write-verification-policy.md`).
+- **Remote unreachable → stop and surface.** An executor that cannot push — the
+  forge is down, no credential is present, the machine is offline — says so and
+  stops. It does **not** silently commit locally and report a same-machine SHA
+  as if it were pushed: an unpushed commit resolves in that clone and nowhere
+  else, so a report that cites it is claiming a citability it does not have.
+  This is not a directive field and never was one to state; the executor
+  discovers the condition and surfaces it.
 - **Concurrent tree mutation → stop and surface.** Files this session did not
   change moving, HEAD moving, an index lock: do not re-read and continue.
 - **An instruction that cannot be executed as written → stop and surface.** No
@@ -197,4 +180,9 @@ retired, the last of these relocated to
 transport failures it detects are governed; Track is redefined as the executor's
 repository environment; and the deferred `bin/dispatch` section is dropped,
 because the discipline it would have enforced was chat-side and no longer exists
-(`BACKLOG-v2.md` records the retirement). Nothing here is agreed.
+(`BACKLOG-v2.md` records the retirement). Revised 2026-08-10 per
+`docs/cycles/friction-refactor-corrections-2026-08-10-directive.md` (C1): the
+Track requirement is removed rather than redefined — the four requirements become
+three, §3 Track is deleted, and the only behavior it still carried survives as an
+executor obligation, that an executor which cannot push stops and surfaces it.
+Nothing here is agreed.

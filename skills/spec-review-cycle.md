@@ -154,7 +154,6 @@ exists to discourage.
 Date: <date>
 Route: <fresh | existing context>
 Model: <model — default Opus 5>
-Track: <A | B>
 Documents in scope:
 - <path> @ <reviewed commit SHA>
 - <path> @ <reviewed commit SHA>
@@ -177,13 +176,13 @@ See `skills/directive-dispatch.md`.>
 <constraints on how edits are made, if any>
 ```
 
-Required fields: cycle number, route, model, track, documents in scope with SHAs,
+Required fields: cycle number, route, model, documents in scope with SHAs,
 one decision entry per finding (including rejections). Everything else as needed.
 
-**All four requirements are stated per directive; fresh and Opus 5 are this
+**All three requirements are stated per directive; fresh and Opus 5 are this
 class's defaults.** `skills/directive-dispatch.md` requires every dispatch to
-state route, model, track, and the execution block, and a reviewer-gated cycle
-directive is no exception to that — it states all four, like any other dispatch.
+state route, model, and the execution block, and a reviewer-gated cycle
+directive is no exception to that — it states all three, like any other dispatch.
 What is specific to the class is which values it normally selects: **route
 fresh** — one conversation per cycle, and execution starts a session that holds
 none of it (Hard constraints above, and `skills/directive-dispatch.md` §1 Route)

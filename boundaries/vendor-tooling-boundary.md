@@ -24,7 +24,7 @@ The portable `/ai/` documents are authoritative. Vendor-specific files are adapt
 - `.claude/agents/` may adapt role documents for Claude subagents.
 - `.claude/skills/` may adapt skill documents for Claude skills.
 - `AGENTS.md` may provide generic agent instructions.
-- Codex prompts or tasks may reference `/ai/` docs.
+- Codex instructions or tasks may reference `/ai/` docs.
 
 ## Risks
 

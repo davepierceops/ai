@@ -103,7 +103,8 @@ In chat (execution belongs to Claude Code):
 6. Stop. Dave approves the ordered list — one approval; he may reorder, merge,
    split, or drop. Approval ends this procedure.
 
-The decomposition doc is the durable artifact; it contains no prompts. Full-spec
+The decomposition doc is the durable artifact; it carries no directives. Those
+are written at dispatch time and land in git as directive files. Full-spec
 loading happens in a dedicated session; later tranche work references the
 decomposition doc, not the spec.
 
@@ -138,15 +139,10 @@ role:
   different project. Never propose merging two deltas' edits to the same
   document — that case is refused, not scheduled.
 
-### Prompt generation — at execution time, not before
+### Dispatching a package
 
-When Dave calls for a package's prompt (possibly later, in a different session),
-generate it from the decomposition doc — not the spec — covering: context files
-to load, role(s) to invoke, acceptance criteria, boundaries not to cross.
-
-Write each as its own standalone file at `.prompts/<tranche>-<package>.md`
-(gitignored, regenerable, never committed) and state the path. Prompts are
-drafts; Dave owns the final used.
+A package is dispatched per `skills/directive-dispatch.md`, and the
+decomposition doc — not the spec — is the source the directive derives from.
 
 ## Constraints
 

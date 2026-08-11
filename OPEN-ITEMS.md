@@ -4,11 +4,22 @@ This file tracks open questions, deferred decisions, and outstanding fixes
 for the AI operating model. Updated at defined checkpoints per
 `context-sets/spec-and-change-discipline.md`.
 
-Last updated: 2026-08-09
+Last updated: 2026-08-11
 
 ---
 
-## Chat-originated package prompts have no compliant write path — `.prompts/` assumes a filesystem the chat layer lacks
+## ~~Chat-originated package prompts have no compliant write path — `.prompts/` assumes a filesystem the chat layer lacks~~
+
+**RESOLVED** by
+`docs/cycles/friction-refactor-corrections-2026-08-10-directive.md` (C3),
+2026-08-10, by removing the mechanism rather than fixing it. The `.prompts/`
+rule is gone from `roles/chief-of-staff.md`, the `.gitignore` entry with it, and
+`prompt` is retired as a term (C4). A package is dispatched as a directive, and
+a directive is landed in git by the executor as its first act
+(`skills/directive-dispatch.md`) — which is the recommendation this entry
+reached, arrived at from the other direction: the record of what actually
+executed is committed by the party that executed it, and no chat-side write is
+involved at all. No unsatisfiable rule survives to satisfy.
 
 **Source:** wne-crm cos session, 2026-08-03. The first package prompt drafted
 under the migrated methodology was delivered as a chat blob, old-orchestrator
@@ -124,7 +135,24 @@ extract-token-and-curl as a deliberate exception, not a habit.
 
 ---
 
-## Directive-execution mechanics are oral tradition — kickoff prompts restate governed rules
+## Directive-execution mechanics are oral tradition — the kickoff restates governed rules
+
+**SUPERSEDED IN PART** by
+`docs/cycles/friction-refactor-corrections-2026-08-10-directive.md` (C3, C4),
+2026-08-10. The "rule, effective now" below — that a kickoff is one line citing
+a directive path — no longer describes anything: a directive travels as a paste
+block and the executor lands it, so there is no separate kickoff to keep to one
+line (`skills/directive-dispatch.md`; `DEC-000160`, proposed). The word *prompt*
+is also retired as a term (C4); this heading is conformed, the body below is
+left as the record of what was found.
+
+**Still open:** the gap the entry names. `skills/directive-dispatch.md`
+Executor obligations now holds land-the-directive-first, stop-and-surface on an
+unexecutable instruction, on concurrent tree mutation, and on an unreachable
+remote, plus the report shape. It does **not** hold branch naming, the
+run-the-tests-and-`check-frontmatter`-before-the-PR gate, or STOP semantics.
+Those still have no canonical home, and a `skills/directive-execution.md` is
+still the proposed fix.
 
 **Source:** chat triage session, 2026-08-02, at the dispatch of
 `docs/cycles/triage-2026-08-02b-directive.md`. The kickoff prompt drafted for
@@ -797,7 +825,21 @@ document and needs a cycle.
 
 ---
 
-## A handoff into another decision session has no name
+## ~~A handoff into another decision session has no name~~
+
+**RESOLVED** by
+`docs/cycles/friction-refactor-corrections-2026-08-10-directive.md` (C2),
+2026-08-10. The name is **baton**, defined in `LEXICON.md` under Handoff: the
+artifact a decision session hands its successor decision session, carrying the
+composed package of unfinished responsibility. The boundary sentence is the
+load-bearing half — a baton passes between decision sessions, a directive
+dispatches work to an execution session, and the two never blur. `LEXICON.md`'s
+"has no term yet" paragraph is struck in the same commit, and
+`context-sets/collab-workflow.md`'s Session handoff section names the artifact
+alongside the open-items flush. `kickoff` is neither retired nor narrowed here —
+it was never a lexicon term, and the execution-session sense the
+directive-execution-mechanics entry above describes is superseded separately by
+the paste transport.
 
 **Source:** Trivium, 2026-08-06. Flagged as open work in `LEXICON.md`.
 
@@ -1040,14 +1082,26 @@ the refused case — merging convergent spec edits — is what is left on the ta
 **What's needed:** a check in the Chief of Staff read-sequence at minimum; a
 `bin/` script if the manual step proves tedious, per the same constraint.
 
-## `bin/cycle-open` and the changed meaning of Track
+## `bin/cycle-open` and the retirement of Track
+
+**Track is retired — do not resurrect the field on unshelving.**
+`docs/cycles/friction-refactor-corrections-2026-08-10-directive.md` (C1),
+2026-08-10, removes `track` from the methodology entirely; the requirements are
+**route, model, execution block**, three not four, and `LEXICON.md` carries a
+tombstone. If TP-1 is unshelved, its skeleton emits **Route and Model and
+nothing else** of the three — the execution block is not a field of the
+directive file. This reverses `DEC-000150`'s stated-field requirement as it
+applies to track; the reversal is drafted for `decisions/log.md` in
+`docs/cycles/friction-refactor-2026-08-09-decisions.md` (D21) and is not yet
+promoted. TP-1's shelved spec is deliberately **not** rewritten — this
+annotation is the guard.
 
 **Source:** as above (D1.3). `DEC-000150` records that `bin/cycle-open` (TP-1)
 must emit Route, Model, and Track in its directive skeleton; the tool currently
-emits neither, so nothing is broken today. But **Track** no longer names a
-delivery path — it names the executor's repository environment
-(`skills/directive-dispatch.md` §3) — and TP-1's spec must be written against the
-current definition rather than the one in force when the decision landed. Also
-worth checking at that point: the skeleton is a directive *file* template, and
-the executor now writes that file from a paste block, so what the tool produces
-is the thing chat pastes rather than the thing chat commits.
+emits none of them, so nothing is broken today. The original concern — that
+**Track** had been redefined from a delivery path to the executor's repository
+environment, so TP-1's spec had to be written against the current definition —
+is overtaken by the retirement above. Still live at that point: the skeleton is
+a directive *file* template, and the executor now writes that file from a paste
+block, so what the tool produces is the thing chat pastes rather than the thing
+chat commits.

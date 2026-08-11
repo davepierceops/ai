@@ -79,9 +79,12 @@ The pattern is kept for what it **detects**, not for any remedy it once opened:
 a two-failure fire is how contention between concurrent sessions gets noticed at
 all, and that diagnostic value holds whatever the underlying cause turns out to
 be (`decisions/log.md` `DEC-000080`). It arrived in this repo as a trigger for
-proposing an alternative directive-delivery track; that track is retired
+proposing an alternative directive-delivery path; that path is retired
 (`skills/directive-dispatch.md`), and the detector is filed here instead, with
-the transport failures it detects.
+the transport failures it detects. Its action is the one this rule states —
+stop and establish state — and it opens onto nothing else. There is no
+alternative route for it to select, and it does not need one: knowing the
+transport is degraded is the whole of what it delivers.
 
 ## Scope
 
@@ -173,4 +176,8 @@ govern the writes that remain; the retired delivery track is no longer named as
 the standing instance of the unverifiable-write case; and **Rule 4** is added,
 carrying the two-consecutive-failure detector from
 `skills/directive-dispatch.md`, where it existed only as an on-ramp to that
-track. Nothing here is agreed.
+track. Revised 2026-08-10 per
+`docs/cycles/friction-refactor-corrections-2026-08-10-directive.md` (C1): Rule 4
+stays, and its closing paragraph is swept of the track language the retirement of
+that term left behind — the detector's action is stop-and-establish-state and
+points at nothing. Nothing here is agreed.

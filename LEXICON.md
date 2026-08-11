@@ -62,24 +62,23 @@ directive specifies happens elsewhere.
 
 ## Dispatch
 
-**Directive** — the complete package handed to an execution session. Four
-parts, all four stated every time: **route** (fresh session or existing
-context), **model**, **track** (A or B), and the **execution block**. No class
-is exempt from stating a part. A class may have defaults: a reviewer-gated cycle
-directive defaults to route *fresh* and model *Opus 5*, states them like any
-other dispatch, and may override them (`skills/spec-review-cycle.md`, Cycle
-directive format).
+**Directive** — the complete package handed to an execution session. Three
+parts, all three stated every time: **route** (fresh session or existing
+context), **model**, and the **execution block**. No class is exempt from stating
+a part. A class may have defaults: a reviewer-gated cycle directive defaults to
+route *fresh* and model *Opus 5*, states them like any other dispatch, and may
+override them (`skills/spec-review-cycle.md`, Cycle directive format).
 
 **Dispatch** — the act of handing a directive to an execution session.
 
-**Track A / Track B** — the executor's repository environment, and so the two
-paths a directive takes to become citable. Track A: the executor has a reachable
-remote, and commits and pushes the directive. Track B: it has none, and commits
-locally — a SHA exists at commit, but resolves in that clone alone until it is
-pushed. Track B is operator-invoked; agents never infer it
-(`skills/directive-dispatch.md`).
-*Not:* a delivery choice. Every directive is delivered the same way, as a paste
-block.
+**Track** — not a term of this methodology. It named a directive-delivery path,
+then the executor's repository environment (A: reachable remote; B: none), and
+both senses are retired. Nothing about the executor's environment is stated in a
+directive; the one case the term still covered — the remote is unreachable — is
+an executor obligation instead: an executor that cannot push **stops and
+surfaces it** (`skills/directive-dispatch.md`, Executor obligations). For a
+concurrent workstream the word is *tranche*
+(`context-sets/spec-and-change-discipline.md`).
 
 **Execution block** — the instructions an LLM agent session is to carry out.
 Delivered as a paste block carrying the directive itself; where the directive
@@ -112,10 +111,8 @@ run as given. Governed by `skills/command-blocks.md`.
 executing or being executed.
 
 **Sync block** — the command block that brings a clone current from an
-explicitly named remote and ref. Precedes every **Track A** execution block in
-a dispatch. Track B has no sync block: there is no reachable remote to fetch
-from, so the step is a working-tree-current check in the executor's own clone
-instead (`skills/directive-dispatch.md`, §3 Track and §4 Execution block).
+explicitly named remote and ref. Precedes every execution block in a dispatch,
+full stop (`skills/directive-dispatch.md`, §3 Execution block).
 
 ## Spec state
 
@@ -155,15 +152,38 @@ Established uses consistent with this: the end-of-session flush of open items
 work on (`roles/coder-agent.md`), debt a change package deliberately did not
 touch and passes forward (`docs/packages/package-c-change-package.md`).
 
-A handoff into another *decision* session has no term yet. Naming it is open
-work, tracked at `OPEN-ITEMS.md:800` ("A handoff into another decision session
-has no name").
+**Baton** — the artifact a decision session hands its successor decision
+session: the composed package of unfinished responsibility — state, open
+questions, decisions in flight — that lets the receiver continue without the
+conversation that produced it. **A baton passes between decision sessions; a
+directive dispatches work to an execution session. The two never blur.**
 
-## Prompt
+*Not:* a handoff. A handoff is the transfer; a baton is what travels.
 
-**Prompt** — text composed for a session to act on, generated at execution
-time and not committed (`roles/chief-of-staff.md`, `.prompts/`).
+## Retired terms
 
-*Not:* a directive. A directive file is committed and citable; a prompt is
-regenerable and disposable. Where both exist for the same work, the directive
-file is canonical.
+**Prompt** — not a term of this methodology. What is meant is one of:
+
+- **What a decision session hands an execution session** — a *directive*; its
+  committed form is a *directive file*, its transport is an *execution block*,
+  and one direction inside it is an *instruction*.
+- **What a decision session hands its successor decision session** — a *baton*.
+- **What a directive points the executor at** — a *companion document*.
+- **What runs in a shell** — a *command block*; the one that opens a dispatch
+  is a *sync block*.
+- **What a session loads as standing context** — a *context set*, a *role
+  document*, a *skill document*, a *policy*, a *boundary document*.
+- **What a session derives work from** — the *decomposition doc*, a *change
+  package*, the *acceptance criteria*, the *spec* (PRD/TRD).
+- **Inbound material a session acts on** — the specific name of that material:
+  *reviewer findings*, a *review artifact*, an *execution report*, an *upload*,
+  a *retro*.
+
+The colloquial sense — any text sent to an LLM — is too broad to do work here.
+
+*Not covered by this retirement:* an approval **prompt**, meaning a tool
+interrupting to ask a human to authorise a step
+(`vendors/claude-code/environment-config.md`). That is a different word in a
+different domain, and it keeps its ordinary meaning.
+
+**Track** — see the tombstone under Dispatch.

@@ -51,8 +51,8 @@ optional:
 - The Chief of Staff assesses state, proposes tranches of an agreed spec, and
   decomposes an approved tranche into ordered change packages; it operates in
   chat, not inside a Claude Code session, and Dave approves the decomposition
-  before any agentic work begins. Prompts are generated from the decomposition
-  doc at execution time, not drafted in advance.
+  before any agentic work begins. Each package is then dispatched as a directive
+  derived from the decomposition doc (`skills/directive-dispatch.md`).
 - The Coder Agent creates implementation.
 - The Test Designer Agent defines how correctness will be evaluated.
 - The Spec Reviewer Agent gates spec quality before Dave agrees a spec, and

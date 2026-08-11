@@ -497,3 +497,228 @@ the policy is `agreed` and correct, and the expected list in
 - **No worked example of a reconciliation cycle** was written. The design has
   zero executions behind it; a fabricated example would read as evidence.
   Tracked in `OPEN-ITEMS.md` instead.
+
+---
+
+# Corrections run — 2026-08-10 directive
+
+Executing `docs/cycles/friction-refactor-corrections-2026-08-10-directive.md`.
+Same model as above: every call below is one that would normally have gone to
+Dave. Numbering continues from D20. **D21 and D22 are the ones most worth Dave's
+eye** — D21 is a reversal of an agreed decision, and D22 is the one place the
+directive's own instruction had to be read against itself.
+
+---
+
+## D21 — DEC-000150's track requirement is reversed; the entry is drafted, not written
+
+**Question.** C1 removes `track` from the methodology. `DEC-000150` is agreed and
+states "**track is required per directive**, because it genuinely varies", and
+carries a tooling consequence for `bin/cycle-open`. The hard constraints forbid
+touching `decisions/log.md`. How is the reversal recorded?
+
+**Chosen.** Drafted below as a proposed `DEC-000180`, for Dave to promote.
+`decisions/log.md` is untouched.
+
+**Why.** `policies/decision-log-policy.md` supersedes **whole entries**, not
+halves — the precedent it names is `DEC-000030`'s carve-out going dead under
+`DEC-000040`, and `DEC-000150` itself restates `DEC-000110`'s track half inline
+for exactly this reason. So the proposed entry restates the route/model half it
+means to keep rather than pointing at a superseded entry for it.
+
+**The ID is provisional.** `DEC-000150` is the last entry actually in the log.
+The overnight run drafted `DEC-000160` and `DEC-000170` (D13), also unpromoted.
+`DEC-000180` assumes those two land first, in that order. If Dave promotes this
+one alone, it is `DEC-000160`; if he promotes some other subset, the ID moves
+with it. Last-plus-ten is computed against the log, not against a queue of
+drafts, so this is the one field of the entry that cannot be settled here.
+
+### Proposed — DEC-000180 — Track is retired; the dispatch requirements are three, not four
+
+```
+## DEC-000180 — Track is retired; the dispatch requirements are three, not four
+Date: 2026-08-10
+Decision: `track` is removed from the methodology entirely. A dispatch states
+**three** requirements, all three every time: route, model, and the execution
+block. `DEC-000150`'s route/model half is carried forward unchanged and restated
+here so it stays live under whole-entry supersession: a reviewer-gated cycle
+directive states every requirement like any other dispatch, with route *fresh*
+and model *Opus 5* as class defaults — stated per directive and overridable, not
+fixed by class. What is reversed is `DEC-000150`'s other half, "track is required
+per directive, because it genuinely varies": it does not vary in any way a
+directive can usefully state. The one condition the term still covered after
+`DEC-000160` retired its delivery sense — the executor's remote is unreachable —
+is not a property of the work being dispatched and is not knowable by the party
+writing the directive. It is an executor obligation instead: an executor that
+cannot push stops and surfaces it, and never commits locally and reports a
+same-machine SHA as if it were pushed (`skills/directive-dispatch.md`, Executor
+obligations). `LEXICON.md` carries a tombstone rather than a definition. The
+sync block precedes every execution block with no exception. Consequence for
+tooling: `bin/cycle-open` (TP-1, shelved) emits Route and Model and no Track;
+`DEC-000150`'s "must emit Route, Model, and Track" is superseded, and
+`OPEN-ITEMS.md` carries the guard against resurrecting the field on unshelving.
+Context: owner override (Dave), per
+`docs/cycles/friction-refactor-corrections-2026-08-10-directive.md` (C1), after
+reviewing the overnight run that had kept track and redefined it
+(`docs/cycles/friction-refactor-2026-08-09-decisions.md` D1). The reason the
+redefinition failed: forge downtime is a transient property of the executor's
+machine, and a standing instruction line stating it is a line that is wrong
+whenever it matters. A field nobody can fill correctly in advance is worse than
+no field, because a stated value is what a report gets measured against.
+Supersedes: DEC-000150
+```
+
+---
+
+## D22 — The Track tombstone stays under Dispatch; a `Retired terms` section holds Prompt
+
+**Question.** C1 asks for a Track tombstone "in the retired-terms style of the
+Prompt entry (C4)". C4 turns the `## Prompt` section into a tombstone. Does the
+lexicon grow a retired-terms section holding both, or do the tombstones stay
+where their terms were?
+
+**Chosen.** Both. The Track tombstone stays in place under `## Dispatch`, where
+`Track A / Track B` was; `## Prompt` is renamed `## Retired terms`, holds the
+Prompt tombstone in full, and cross-references Track.
+
+**Why.** "Retired-terms style" reads as a style instruction, not a placement
+one — the load-bearing property of a tombstone is that it sits where a reader
+looks the term up. Someone reading an August directive that says `Track: A` opens
+the lexicon at Dispatch. Moving the entry to a section at the end of the file
+would make the deflection depend on the reader already knowing the term is
+retired, which is the one thing they do not know. `## Retired terms` is the
+Prompt entry's existing home renamed, so nothing moved for it either.
+
+---
+
+## D23 — The Prompt tombstone routes by class, and exempts the approval-prompt sense
+
+**Question.** C4 says "do not trust the term list above" and requires the
+tombstone's routing be exhaustive over "typed-at-or-consumed-by-a-session
+artifacts". A flat list of every such artifact runs to fifteen-plus items and
+reads as a catalogue rather than a deflection.
+
+**Chosen.** Route by class, naming instances under each: what a decision session
+hands an execution session; what it hands its successor decision session; what a
+directive points at; what runs in a shell; what a session loads as standing
+context; what it derives work from; inbound material it acts on. The sweep found,
+beyond the directive's six: *companion document*, *sync block*, *paste block*,
+*context set*, *role document*, *skill document*, *policy*, *boundary document*,
+*decomposition doc*, *change package*, *acceptance criteria*, *spec*, *review
+artifact*, *upload*, *retro*.
+
+**Also chosen: a stated exemption.** The tombstone ends with a *Not covered*
+clause for the **approval prompt** — a tool interrupting to ask a human to
+authorise a step (`vendors/claude-code/environment-config.md` uses it seven
+times, `policies/commit-and-change-control-policy.md` once). That is a different
+word in a different domain, and without the clause the next sweeper conforms
+those eight hits and makes the documents worse. The exemption is what stopped
+this run from doing so.
+
+---
+
+## D24 — Which "prompt" and "track" hits were conformed, and which were left
+
+**Question.** C1 and C4 both exempt historical records and both require judging
+every hit. Where is the line?
+
+**Chosen.** Conformed: living canonical text that *asserts* something in the
+present tense. Left: anything whose truth is indexed to when it was written —
+`reviews/`, `docs/cycles/`, `retros/`, `docs/research/`,
+`docs/global-retro-inbox.md`, `decisions/log.md`, `MERGE-NOTES-*`,
+`REVIEW-NOTES-*`, `REVIEW-v0.4.md`, and the `## Status of this draft` revision
+notes inside otherwise-conformed documents.
+
+**The revision-note case is the one worth stating.** `skills/directive-dispatch.md`
+and `policies/remote-write-verification-policy.md` both carry revision notes that
+say "Track B mechanics rewritten 2026-08-07" and the like. Those sentences are
+true — they describe an edit that happened — and rewriting them would make the
+document lie about its own history. Each gets a new dated clause recording this
+retirement instead, which is the convention D8 established.
+
+**`roles/orchestrator-agent.md` is exempt on a different ground.** It is
+`status: superseded` and frozen (`roles/chief-of-staff.md` says so), and it
+carries four "prompt" hits. A frozen document is not living canonical text.
+
+---
+
+## D25 — Three open items were struck or annotated, not left to rot
+
+**Question.** C3 retires `.prompts/`. Three `OPEN-ITEMS.md` entries and one
+backlog-shaped entry depend on machinery this run removed. Trackers are not
+mentioned in the blast radius.
+
+**Chosen.** All four touched, as required consistency edits.
+
+- **"Chat-originated package prompts have no compliant write path"** — struck.
+  The rule it called unsatisfiable no longer exists, and the recommendation it
+  reached (the executor commits the record of what it ran) is what the paste
+  transport already does.
+- **"A handoff into another decision session has no name"** — struck, per C2.
+- **"Directive-execution mechanics are oral tradition"** — marked **superseded in
+  part**, not struck. Its "the rule, effective now: a kickoff is one line"
+  paragraph is dead, but the gap it names is not: branch naming, the
+  tests-and-`check-frontmatter`-before-PR gate, and STOP semantics still have no
+  canonical home. Striking it whole would have lost a live gap; leaving it whole
+  would have left a dead rule reading as current.
+- **"`bin/cycle-open` and the changed meaning of Track"** — retitled and headed
+  with the do-not-resurrect annotation C1 asked for. The shelved spec is not
+  rewritten.
+
+---
+
+## D26 — `test_sc1` derives its expectation, and gains a guard test
+
+**Question.** C5 prefers deriving the in-scope set over listing it. Deriving it
+with `scope.parse_in_scope_globs` — the function under test — would make AC-SC-1
+assert nothing at all.
+
+**Chosen.** Derive it in the test module by an **independent, stricter** read of
+the same policy text: a whole-line bullet whose entire content is one backticked
+entry. `aimeta/scope.py` collects every backticked span on any line starting with
+`-`, so the two agree only while the policy states one glob per bullet with no
+backticked prose between the markers. That is a real differential check, not a
+tautology.
+
+**And a guard.** Both sides of AC-SC-1 now read the same file, so a derivation
+that silently returned `[]` would make every assertion pass vacuously.
+`test_sc1_the_derived_expectation_is_not_vacuous` asserts a floor of four entries
+and four anchors, including `LEXICON.md` — the entry whose absence caused this
+failure in the first place.
+
+**Consequence for the count.** The suite is 351 tests, not 350. The directive's
+bar was "≥ 349/350"; the equivalent is 350/351, which is what it runs, with
+`test_bn10` the single known failure and untouched.
+
+---
+
+## D27 — Dates cite the directive, not the day the work ran
+
+**Question.** The directive is dated 2026-08-10 and names Dave's triage that day.
+The execution ran 2026-08-11 (`git log`). Which date goes in revision notes?
+
+**Chosen.** 2026-08-10, the directive's date, everywhere a revision note or a
+resolution cites this work — matching the existing convention, which
+`reviews/directive-dispatch-cycle-3.md` records explicitly ("its date is the
+directive's date rather than the landing date"). `OPEN-ITEMS.md`'s `Last updated:`
+field is the exception and reads 2026-08-11, because that field is a fact about
+the file rather than a citation of a decision.
+
+**Flagged for Dave** only because the two dates differ visibly in the same
+commit, which no prior run had.
+
+---
+
+## D28 — What was *not* done, and why
+
+- **`decisions/log.md`** — untouched, per the hard constraint. Three entries now
+  await promotion: `DEC-000160`, `DEC-000170` (overnight run), `DEC-000180`
+  (this one), in that order.
+- **`roles/orchestrator-agent.md`** — untouched. Superseded and frozen; see D24.
+- **`vendors/claude-code/environment-config.md`** — untouched. Its seven
+  "prompt" uses are all the approval-prompt sense; see D23.
+- **The shelved TP-1 spec** — not rewritten, per C1's explicit instruction. Only
+  the tracker entry guarding it was annotated.
+- **`test_bn10`** — untouched, per C5. Still red, still tracked in
+  `OPEN-ITEMS.md`.
+- **Nothing flipped to `agreed`; nothing merged; no force-push; no `gh`.**
