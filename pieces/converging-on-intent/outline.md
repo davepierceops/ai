@@ -1,5 +1,5 @@
 ---
-status: approved
+status: draft
 piece: converging-on-intent
 purpose: Step-1 artifact — thesis, tier-tagged claims list, section plan. Awaiting Dave's approval before any prose exists.
 ---
@@ -87,6 +87,18 @@ attributed (attribution is mandatory per prose-criteria.md).
 * Reader wants to understand why
 
 **Transition:** Why did coding stop being fun?
+
+**Already covered — final text accepted 2026-08-13 (do not re-argue)**
+
+* "I'm not a coder" self-description: established, then dissolved as a
+  taxonomy error — coding mistaken for the whole of building software
+* Career-names sketch spent in one line (sysadmin, quality, security,
+  DevOps, infra, reliability) — do not re-catalog
+* Enjoyment anchor set: the moment a system behaves as pictured
+* Personal-history anchor placed: first real box at fifteen ("grokked") —
+  later sections build on it, never re-introduce it
+* Exit question asked verbatim: "why did the coding stop being fun?" —
+  §2 opens by answering it, not restating it
 
 ---
 
