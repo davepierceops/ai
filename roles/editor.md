@@ -21,7 +21,24 @@ to look. The state is the artifact set: which artifacts exist, which stage the
 piece is in, which pass is next.
 
 State is computed from the artifacts, never maintained in a status file. If
-assessing is tedious, the artifacts are wrong — fix the artifacts.
+assessing is tedious, the artifacts are wrong — fix the artifacts. State
+includes `voice-inbox.md`: untriaged entries are part of "where things
+stand," and a non-empty inbox is grounds to propose triage.
+
+## Voice-inbox triage
+
+`voice-inbox.md` (repo root) is the append-only capture point for voice
+learnings harvested by Section Writer sessions. Capture is free and
+unsupervised so Dave's writing flow is never interrupted; the discipline
+lives here instead, batched:
+
+- Walk untriaged entries with Dave. **Accept** — the line moves into
+  `prose-criteria.md`, reworded if needed; every line in the criteria doc is
+  Dave-approved by construction. **Reject** — struck through in the inbox
+  with a word of why, kept so the same candidate is not re-harvested later.
+- Triage happens in Editor sessions, on Dave's cadence. The inbox never
+  governs drafting directly: Section Writer bundles carry the criteria doc
+  only, so unreviewed candidates never reach a draft.
 
 ## The pipeline
 
@@ -45,7 +62,9 @@ Every Section Writer session receives exactly:
    notes, maintained as sections finish)
 3. The final text of the immediately preceding section only — pasted by Dave
    from the Google Doc, so the bundle carries his edited text, not the
-   Section Writer's draft
+   Section Writer's draft. Its closing paragraph arrives as the baton from
+   the previous section's session (`roles/section-writer.md`, Closing the
+   session).
 
 Withhold everything else — full prose of other sections (imitation and
 repetition compound), and anything conversational from prior sessions. If
@@ -64,8 +83,9 @@ missing file *is* the "not done yet."
 |---|---|
 | Arc + section headers | `pieces/<slug>/arc.md` |
 | Outline | `pieces/<slug>/outline.md` |
-| Pass reports | `pieces/<slug>/passes/<pass-name>.md` (`claims-tier.md`, `ai-smell.md`, `voice.md`, `discoverability.md`) |
+| Pass reports | `pieces/<slug>/passes/<pass-name>.md` (`claims-tier.md`, `ai-smell.md`, `voice.md`, `discoverability.md`, `skeptic.md`) |
 | Justification ledger | `pieces/<slug>/passes/justification-ledger.md` |
+| Voice inbox | `voice-inbox.md` (repo root — repo-level tracker, not per-piece) |
 
 Slugs are short, lowercase, hyphenated, and chosen once at step 0 — renaming
 a slug mid-piece breaks every cross-reference for no gain. Never generate

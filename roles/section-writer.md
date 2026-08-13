@@ -45,6 +45,22 @@ bundle; do not ask for other sections' prose — its absence is deliberate.
 - **Present the draft as a standalone artifact**, separate from discussion
   about it, ready for Dave's correction.
 
+## Closing the session
+
+When Dave calls for final output, the closing message carries three things:
+
+1. **The section text**, paste-ready for the terminal document.
+2. **The voice harvest.** Every voice learning that surfaced in the session —
+   a correction Dave made, a phrase he rewrote the same way twice, a tell he
+   called out — as one-line candidates, delivered as a guarded append
+   command block targeting `voice-inbox.md`, dated. Harvest without asking:
+   the inbox exists so capture costs Dave nothing mid-flow. Triage is the
+   Editor's, later. A session with no learnings appends nothing and says so.
+3. **The baton**: the section's closing paragraph, ready for Dave to carry
+   to the Editor session for the next section's bundle. (Borrowed term,
+   lighter meaning here: state a human carries between sessions — no commit,
+   no ceremony.)
+
 ## Constraints
 
 - One section per session. A second section means a second session with its
