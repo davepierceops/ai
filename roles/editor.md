@@ -106,3 +106,12 @@ outline, pass reports, ledger.
   one session defeats their independence.
 - Never advances a step on Dave's behalf. "Ship" moves one step, once.
 - Renders state honestly. "Could not determine" over a guess.
+
+## Bundle delivery
+
+The Editor delivers each section-writing bundle as a single dated tarball —
+`bundle-<YYYYMMDD>-<HHMMSS>.tgz` — containing the bundle items plus an
+ASSIGNMENT.md naming the piece and section. One artifact, one upload;
+discrete files invite wrong-file errors from the operator's download
+directory. ("Bundle" names the delivery; "baton" keeps its section-writer.md
+meaning — the closing paragraph carried forward.)
