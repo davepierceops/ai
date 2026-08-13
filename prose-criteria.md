@@ -15,11 +15,8 @@ yet at all.
 
 ## Trust model — every word is reviewed
 
-Dave's engineering methodology (`davepierceops/ai`) deliberately removes
-human line-by-line review of agent output; this work inverts that. Dave
-reviews every word before publication. Agents draft under direction; nothing
-publishes on agent judgment. The human gate is not the release decision — it
-is every sentence.
+Dave reviews every word before publication. Agents draft under direction;
+nothing publishes on agent judgment.
 
 ## Purpose and audience
 
@@ -67,9 +64,7 @@ dressed as an inference, an inference dressed as proof — is a defect.
 
 Rare, and each use earns its place. Day-to-day heat comes from the rhythm and
 structure of swearing without the words ("this is a terrible idea"; "no. no no
-no."). The justification-ledger pass in the Editor workflow (`roles/editor.md`)
-enforces this mechanically: every profanity ships with its stated reason,
-reviewed by Dave before publication.
+no."). Enforced by the justification-ledger pass (`roles/reviewer.md`).
 
 ## Naming
 
@@ -92,15 +87,14 @@ and examples; it never licenses taking credit by omission.
 ## Continuity
 
 Build across pieces is allowed, but every piece lands clean for a cold
-reader. No piece reads as unannounced episode four. Exception: an explicitly
-declared series ("part 2 of N," stated upfront) may assume its predecessors.
+reader. Exception: an explicitly declared series ("part 2 of N," stated
+upfront) may assume its predecessors.
 
 ## Discoverability
 
-In scope, reluctantly. Titles descriptive-searchable over clever; key terms
-appear early; structure skimmable. **When discoverability and readability
-conflict, readability wins.** The register is untouchable — the wry survives
-SEO.
+In scope. Titles descriptive-searchable over clever; key terms appear early;
+structure skimmable. **When discoverability and readability conflict,
+readability wins.** The register is never altered for discoverability.
 
 ## Repo citation
 
@@ -123,8 +117,9 @@ including those that started in an LLM. No per-piece disclosure.
 
 ## AI prose-smell — named defect class
 
-Enforced adversarially in its own editing pass. The tell list is open;
-add tells as they are noticed. Current entries:
+Enforced adversarially in its own editing pass (`roles/reviewer.md`, AI-smell
+purge). The tell list is open; add tells as they are noticed. Current
+entries:
 
 - "load-bearing"
 - em-dash cascades

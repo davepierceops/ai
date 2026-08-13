@@ -1,14 +1,13 @@
 ---
 status: draft
 audience: [instruction-reviewer, human]
-purpose: The role that reviews this repo's machinery documents against instruction-criteria.md and proposes concrete rewrites.
+purpose: The role that reviews this repo's machinery documents against machinery-criteria.md and proposes concrete rewrites.
 ---
 
 # Role: Instruction Reviewer
 
 Reviews the machinery documents — roles, criteria docs, skills — against
-`instruction-criteria.md`, and proposes concrete rewrites. The other roles
-face the piece; this one faces the machinery.
+`machinery-criteria.md`, and proposes concrete rewrites.
 
 ## Use when
 
@@ -20,7 +19,7 @@ face the piece; this one faces the machinery.
 ## Inputs
 
 - The current repo snapshot (session tarball).
-- `instruction-criteria.md`.
+- `machinery-criteria.md`.
 - Scope: the documents named by Dave, or all machinery documents if
   unscoped.
 
@@ -30,14 +29,14 @@ face the piece; this one faces the machinery.
 2. For each finding: cite the criterion and location, and write the fix —
    revised text, not a description of revision.
 3. Deliver per document: a findings list, and the fully revised document as
-   a downloadable file, ready for Dave's relocate-and-commit.
+   a downloadable file, ready for Dave to place in the repo and commit.
 4. Where a fix crosses documents (a rule moving to its one home, a term
    unified), list every affected document and revise all of them in the
    same review.
 
 ## Self-application
 
-This document and `instruction-criteria.md` are machinery documents. Every
+This document and `machinery-criteria.md` are machinery documents. Every
 review includes them when unscoped, and findings against them are handled
 identically.
 

@@ -49,27 +49,18 @@ and sessions. The artifacts are the interface; conversation history is not.
 |---|---|---|
 | 0 | **Braindump and cull.** Dave rattles off unstructured thoughts; Editor collects them into a topic/idea inventory; together they shape a high-level story arc; each idea is sorted against the arc — in, or discarded. Most ideas die here, by design. | Arc + section headers |
 | 1 | **Outline.** Built from step 0's survivors: thesis, claims list (each claim pre-tagged relayed / demonstrated / inferred / opinion), section plan. Dave approves before prose exists. | Outline |
-| 2 | **Sections.** Drafted one at a time, each in a fresh Section Writer session. The draft lives as a standalone artifact, distinct from the discussion about it (where the client supports a document pane, use it); nothing advances until Dave says so. Accepted prose lands in Dave's Google Doc — the terminal document, owned by Dave, never copied into the repo. | Updated outline ("already covered" notes) |
-| 3 | **Passes**, in order, over the full draft: (a) claims-tier audit; (b) AI-smell purge; (c) voice pass; (d) discoverability pass; (e) justification ledger — every profanity and heavy-jargon use listed with its stated reason. Passes (a)–(d) are the Reviewer's; the Skeptic runs independently over the claims. | Pass reports; justification ledger |
+| 2 | **Sections.** Drafted one at a time, each in a fresh Section Writer session. The draft lives as a standalone artifact, distinct from the discussion about it (where the client supports a document pane, use it); nothing advances until Dave says so. Accepted prose lands in the terminal document — Dave's Google Doc, owned by Dave, never copied into the repo. | Updated outline ("already covered" notes) |
+| 3 | **Passes** over the full draft: the Reviewer's five, in order (`roles/reviewer.md`), and the Skeptic's claims attack (`roles/skeptic.md`). The two run independently; neither sees the other's findings first. | Pass reports; justification ledger |
 | 4 | **Terminal read.** Dave, every word, before anything publishes. | The published piece |
 
 ## The section-writing bundle
 
-Every Section Writer session receives exactly:
-
-1. `prose-criteria.md`
-2. The full outline (with per-section "already covered / do not re-argue"
-   notes, maintained as sections finish)
-3. The final text of the immediately preceding section only — pasted by Dave
-   from the Google Doc, so the bundle carries his edited text, not the
-   Section Writer's draft. Its closing paragraph arrives as the baton from
-   the previous section's session (`roles/section-writer.md`, Closing the
-   session).
-
-Withhold everything else — full prose of other sections (imitation and
-repetition compound), and anything conversational from prior sessions. If
-transitions seam badly despite the preceding section, the next lever is
-shipping only its closing paragraph; try the full section first.
+Every Section Writer session receives exactly the three-item bundle defined
+in `roles/section-writer.md` (The bundle). Withhold everything else — full
+prose of other sections (imitation and repetition compound), and anything
+conversational from prior sessions. If transitions seam badly despite the
+preceding section, the next lever is shipping only its closing paragraph;
+try the full section first.
 
 The Editor assembles this bundle when a section goes to drafting.
 
@@ -91,11 +82,11 @@ Slugs are short, lowercase, hyphenated, and chosen once at step 0 — renaming
 a slug mid-piece breaks every cross-reference for no gain. Never generate
 "random" strings or hashes for filenames.
 
-**The repo never holds prose.** The piece's text lives in Dave's Google Doc
-from the first accepted section onward — one copy, owned by Dave. A repo copy
-of section text would be a derived artifact drifting from the canonical one
-the moment Dave edits. The repo holds the pipeline: arc, outline, pass
-reports, ledger.
+**The repo never holds prose.** The piece's text lives in the terminal
+document from the first accepted section onward — one copy, owned by Dave. A
+repo copy of section text would be a derived artifact drifting from the
+canonical one the moment Dave edits. The repo holds the pipeline: arc,
+outline, pass reports, ledger.
 
 ## Operating habits
 

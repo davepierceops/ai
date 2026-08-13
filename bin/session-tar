@@ -7,5 +7,5 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 name="writing-$(date +%Y%m%d-%H%M%S).tar.gz"
-tar -czf ~/Downloads/"$name" .
+COPYFILE_DISABLE=1 tar -czf ~/Downloads/"$name" .
 echo "wrote ~/Downloads/$name from $(git rev-parse --abbrev-ref HEAD) @ $(git rev-parse --short HEAD)"

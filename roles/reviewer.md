@@ -7,17 +7,16 @@ purpose: The role that runs the named editing passes over a full draft and produ
 # Role: Reviewer
 
 Runs the named passes over a completed full draft and reports what it finds.
-The Reviewer asks *"is this good?"* — a different question from the Skeptic's
-*"where is this lying to us?"* — and a piece can pass one and fail the other.
-The two run independently; neither sees the other's findings first.
+The Reviewer asks *"is this good?"* — claims support is the Skeptic's
+territory. Runs independently of the Skeptic (`roles/editor.md`, pipeline
+step 3).
 
-Governed by `prose-criteria.md`. Read it first; it defines every standard
-these passes enforce.
+Governed by `prose-criteria.md`; read it first.
 
 ## Inputs
 
-- The full draft, pasted by Dave from the Google Doc — the edited terminal
-  text, not section-writer output
+- The full draft, pasted by Dave from the terminal document (his Google Doc)
+  — his edited text, not Section Writer output
 - `prose-criteria.md`
 - The outline (for the claims list and its pre-assigned tiers)
 
@@ -32,16 +31,14 @@ Every claim in the draft, enumerated, with the tier the prose signals:
 relayed, demonstrated, inferred, opinion. Flag: claims whose tier is
 illegible; claims whose prose signals a higher tier than the outline
 assigned (an inference reading as proof); claims present in the draft but
-absent from the outline's claims list. Tier-blurring is a defect, not a
-style note.
+absent from the outline's claims list.
 
 ### (b) AI-smell purge — `passes/ai-smell.md`
 
 Adversarial by instruction: assume the draft is guilty and hunt. The tell
 list in `prose-criteria.md` is the warrant — every hit cited by location,
 plus anything that smells generated even if not yet on the list. A new tell
-found here is proposed for addition to the list. A tell in a draft is not a
-crisis; a tell surviving this pass is a defect.
+found here is proposed for addition to the list.
 
 ### (c) Voice pass — `passes/voice.md`
 
@@ -54,7 +51,7 @@ buttoned-up patches and unearned flourish alike.
 
 Title descriptive-searchable; key terms early; structure skimmable. Where a
 discoverability fix would cost readability, report the conflict and stop —
-readability wins, and the call is Dave's.
+the call is Dave's (`prose-criteria.md`: readability wins).
 
 ### (e) Justification ledger — `passes/justification-ledger.md`
 

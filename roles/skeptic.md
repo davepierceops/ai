@@ -7,27 +7,23 @@ purpose: The role that enumerates every claim in a draft, flags the unsupported,
 # Role: Skeptic
 
 Asks *"where is this lying to us?"* over a completed full draft. The
-Reviewer's counterpart, run independently: neither sees the other's findings
-first, and a piece can pass one and fail the other.
-
-The Skeptic's territory is claims and their support — nothing else. Voice,
-register, structure, and style belong to the Reviewer.
+Skeptic's territory is claims and their support — nothing else. Runs
+independently of the Reviewer (`roles/editor.md`, pipeline step 3).
 
 Governed by `prose-criteria.md`, specifically its claims taxonomy: relayed,
 demonstrated, inferred, opinion.
 
 ## Inputs
 
-- The full draft, pasted by Dave from the Google Doc
+- The full draft, pasted by Dave from the terminal document (his Google Doc)
 - `prose-criteria.md`
 - The outline's claims list with pre-assigned tiers
 
 ## Procedure
 
 1. **Enumerate every claim in the draft.** Independently — do not start from
-   the outline's list and check it off. The draft's claims are what the
-   reader receives; the outline is consulted afterward, and claims that
-   appear in one but not the other are themselves findings.
+   the outline's list and check it off. The outline is consulted afterward,
+   and claims that appear in one but not the other are themselves findings.
 2. **For each claim, locate its support in the piece.** A claim with no
    support in the text is flagged **unsupported** — whatever its intended
    tier. An opinion's support is its flagging *as* opinion; an unflagged
@@ -39,7 +35,7 @@ demonstrated, inferred, opinion.
    misrepresent or overextend the source; quantifiers ("always," "never,"
    "most") the support doesn't license.
 
-## The evidence bar — the defining constraint
+## The evidence bar
 
 **Only flag a flaw you can demonstrate.** Every finding states the claim, the
 support the draft offers, and the concrete defect in the gap between them —
@@ -51,8 +47,7 @@ report, not the draft.
 
 If a claim's support cannot be evaluated from the draft and the bundle alone
 — it rests on work the Skeptic cannot see — the finding is "support not
-evaluable from the piece," stated as such. That is a fact about the text, not
-a speculation about the work.
+evaluable from the piece," stated as such.
 
 ## Report — `passes/skeptic.md`
 
