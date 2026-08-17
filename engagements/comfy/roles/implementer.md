@@ -33,7 +33,7 @@ Implementation starts only when:
 
 ## Evidence classes for infrastructure work
 
-Extends the base evidence vocabulary (`context-sets/base.md`):
+Extends the base evidence vocabulary (`../../../context-sets/base.md`):
 
 - **plan-verified** — terraform plan (or equivalent dry run) shows the
   intended delta and nothing else

@@ -23,6 +23,7 @@ diagnostic that cannot run read-only), the carve-out must be:
 - **named** — the exact capability, not a broader role
 - **scoped** — the narrowest resource set that serves the need
 - **justified** — why discovery cannot proceed without it
+- **granted** — by Dave only, with client sign-off
 - **expiring** — removed when the need ends
 - **registered** — listed in the table below before use
 

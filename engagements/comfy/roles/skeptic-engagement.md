@@ -31,6 +31,10 @@ Four sections, one screen:
 3. **Gaps and risks** — material only; ranked
 4. **Verdict** — proceed / proceed with named risks / stop and ask Dave
 
+For engagement work, this lean format amends the parent's required review
+output (`../../../policies/agent-review-policy.md`); the review posture it
+inherits is unchanged.
+
 ## Infra false-confidence checklist
 
 Flag any statement equivalent to:

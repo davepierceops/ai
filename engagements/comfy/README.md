@@ -16,17 +16,19 @@ else.
 
 ## The parent model in one breath
 
-Dave acts as PM, EM, owner, and operator; LLM agents act as the implementation
-team. Trust comes from evidence, not from watching the typing: specifications,
-tests, reviews, verification boundaries, and operational signals. The core rule
-is: manage the proof, not the code.
+Dave is final authority; LLM agents act as the implementation team. Trust
+comes from evidence, not from watching the typing: specifications, tests,
+reviews, verification boundaries, and operational signals. The core rule is:
+manage the proof, not the code.
 
 ## What survives unchanged
 
 The evidence discipline survives whole. Agent claims require evidence. Every
-diff is reviewed by a clean-context agent that did not write it. Green anything
-does not imply shippability beyond the verified boundary. Escalation on
-ambiguity is mandatory, and it terminates at Dave.
+diff is reviewed by a clean-context agent that did not write it — run here as
+a standing gate on every diff, tighter than the parent, which requires
+independent review only for meaningful changes. Green anything does not imply
+shippability beyond the verified boundary. Escalation on ambiguity is
+mandatory, and it terminates at Dave.
 
 ## What an engagement inverts
 
@@ -102,3 +104,13 @@ Four roles, adapted from the parent cast:
 5. Agents are read-only in the client's world; humans move the levers.
 6. Ceremony is minimal, overridable, and every override is logged.
 7. Escalation terminates at Dave.
+
+## Metadata convention
+
+Pack documents follow the parent frontmatter format
+(`../../policies/document-metadata-policy.md`) with two pack-local
+extensions: `audience` may include `client` — a document written to be shown
+to Comfy — and the engagement role slugs defined in `roles/` here.
+Enforcement does not yet reach `engagements/**`; extending the parent
+policy's scope is a recorded open item and takes a full review cycle, as that
+policy is a named gate document.

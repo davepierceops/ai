@@ -24,9 +24,10 @@ is stated in advance.
 3. **Capture a distribution, not an anecdote.** Enough runs to state p50 and
    p95 per stage. One fast run proves nothing; tails are where the pain
    lives.
-4. **Publish the baseline** — one document: per-stage distributions, total,
-   date range, run count, and known confounds. This is the engagement's most
-   load-bearing artifact.
+4. **Publish the baseline** — one document, beside the System Map in the
+   engagement working repo (`system-discovery.md`): per-stage distributions,
+   total, date range, run count, and known confounds. This is the
+   engagement's most load-bearing artifact.
 5. **Gate improvements on an expected-delta statement**: "this change attacks
    stage X, currently p50 A / p95 B; expected result: p50 → A′" — stated
    before implementation, recorded in the change package.

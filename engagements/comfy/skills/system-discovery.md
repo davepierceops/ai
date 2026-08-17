@@ -32,9 +32,11 @@ Cartographer, read-only throughout.
 
 ## Output
 
-`system-map.md` in the engagement working repo, plus the unknowns list ready
-for CoS triage. The map is a living document: corrections from later evidence
-amend it, and amendments note what earlier belief they replaced.
+`system-map.md` in the engagement working repo — a Comfy-hosted repo
+designated at kickoff, so the client's governance holds the client's data —
+plus the unknowns list ready for CoS triage. The map is a living document:
+corrections from later evidence amend it, and amendments note what earlier
+belief they replaced.
 
 ## Failure modes to avoid
 

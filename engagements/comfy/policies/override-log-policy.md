@@ -23,10 +23,11 @@ Append-only, at `engagements/comfy/override-log.md`. One line per override:
 
     date | what was overridden | one-line context | session/PR reference
 
-The log is reviewed at the engagement retro. Its purpose is tuning: a rule
-overridden often is a rule mis-sized for the work, and the log is the evidence
-for resizing it. Overrides are data about ceremony fit, not exceptions to be
-ashamed of.
+The log is reviewed at the engagement retro. The retro is a short
+end-of-engagement review, run by Dave; scheduling it is the CoS's job. The
+log's purpose is tuning: a rule overridden often is a rule mis-sized for the
+work, and the log is the evidence for resizing it. Overrides are data about
+ceremony fit, not exceptions to be ashamed of.
 
 ## Exclusions
 
