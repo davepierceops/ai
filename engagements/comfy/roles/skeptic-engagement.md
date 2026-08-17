@@ -1,6 +1,6 @@
 ---
-status: draft
-last-reviewed: null
+status: agreed
+last-reviewed: reviews/expedited-log.md @ 9a8b8b0508c8f2aef5d388d9804906e3ad803293
 audience: [skeptic-engagement, chief-of-staff-engagement, human]
 ---
 
