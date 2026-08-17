@@ -39,3 +39,14 @@ derived facts are allowed to live.
 - 2026-08-11 — skills/command-blocks.md @ c9e87ad253b5b9c2b67f4721d00e3d231c3326b3 — agreed via Dave's merge review of PR #67 (https://github.com/davepierceops/ai/pull/67)
 - 2026-08-11 — skills/directive-dispatch.md @ c9e87ad253b5b9c2b67f4721d00e3d231c3326b3 — agreed via Dave's merge review of PR #67 (https://github.com/davepierceops/ai/pull/67)
 - 2026-08-11 — skills/spec-review-cycle.md @ c9e87ad253b5b9c2b67f4721d00e3d231c3326b3 — agreed via Dave's merge review of PR #67 (https://github.com/davepierceops/ai/pull/67)
+- 2026-08-17 — engagements/comfy/README.md @ 9a8b8b0508c8f2aef5d388d9804906e3ad803293 — new: engagement pack mapping doc (client-facing); agreed via Dave's merge review of PR #71 (https://github.com/davepierceops/ai/pull/71), preceded by clean-context spec review
+- 2026-08-17 — engagements/comfy/policies/client-credentials-policy.md @ 9a8b8b0508c8f2aef5d388d9804906e3ad803293 — new: zero-write rule with Dave-granted carve-outs; agreed via Dave's merge review of PR #71
+- 2026-08-17 — engagements/comfy/policies/override-log-policy.md @ 9a8b8b0508c8f2aef5d388d9804906e3ad803293 — new: "I say override" protocol and retro-reviewed log; agreed via Dave's merge review of PR #71
+- 2026-08-17 — engagements/comfy/roles/cartographer.md @ 9a8b8b0508c8f2aef5d388d9804906e3ad803293 — new: read-only discovery role with provenance discipline; agreed via Dave's merge review of PR #71
+- 2026-08-17 — engagements/comfy/roles/chief-of-staff-engagement.md @ 9a8b8b0508c8f2aef5d388d9804906e3ad803293 — new: parent CoS amended for engagement state sources; agreed via Dave's merge review of PR #71
+- 2026-08-17 — engagements/comfy/roles/implementer.md @ 9a8b8b0508c8f2aef5d388d9804906e3ad803293 — new: proposal-gated builder with infra evidence classes; agreed via Dave's merge review of PR #71
+- 2026-08-17 — engagements/comfy/roles/skeptic-engagement.md @ 9a8b8b0508c8f2aef5d388d9804906e3ad803293 — new: standing clean-context review gate, lean output; agreed via Dave's merge review of PR #71
+- 2026-08-17 — engagements/comfy/skills/baseline-measurement.md @ 9a8b8b0508c8f2aef5d388d9804906e3ad803293 — new: the baseline-gate procedure; agreed via Dave's merge review of PR #71
+- 2026-08-17 — engagements/comfy/skills/engagement-change-package.md @ 9a8b8b0508c8f2aef5d388d9804906e3ad803293 — new: seven-item lean change package; agreed via Dave's merge review of PR #71
+- 2026-08-17 — engagements/comfy/skills/speed-audit.md @ 9a8b8b0508c8f2aef5d388d9804906e3ad803293 — new: the engagement play incl. Improvement Proposal definition (client-facing); agreed via Dave's merge review of PR #71
+- 2026-08-17 — engagements/comfy/skills/system-discovery.md @ 9a8b8b0508c8f2aef5d388d9804906e3ad803293 — new: System Map procedure; agreed via Dave's merge review of PR #71
