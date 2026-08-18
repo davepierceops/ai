@@ -70,3 +70,5 @@ Before release, agents should produce a change package that includes:
 - review evidence
 - known gaps
 - release recommendation
+
+Licensed under CC BY 4.0 — do whatever you want with it, just link back here
