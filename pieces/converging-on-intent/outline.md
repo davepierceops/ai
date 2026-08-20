@@ -46,9 +46,13 @@ attributed (attribution is mandatory per prose-criteria.md).
 
 # Section plan
 
+Piece target: ~2,200 words. Budgets below are per section, ±10%; a section
+that cannot make its budget is an outline problem for the Editor, not a
+license to run long. §1 landed at ~430.
+
 ## 1. The Problem Wasn't Building Software
 
-**Weight:** Short
+**Budget:** 430 words (accepted)
 
 **Intro note:** Broad claim, then personal realization
 
@@ -104,7 +108,7 @@ attributed (attribution is mandatory per prose-criteria.md).
 
 ## 2. The Incantations Stop Being Magic
 
-**Weight:** Long
+**Budget:** 450 words
 
 **Intro note:** Personal history in pieces
 
@@ -112,30 +116,21 @@ attributed (attribution is mandatory per prose-criteria.md).
 
 **Must contain**
 
-* Early syntax as discovery and power
-* "Magic spells" / incantations
-* Selected technologies as chronological markers
-* Repetition across languages, tools, protocols, and dialects
-* Loss of interest, not loss of ability
-* Excellent fluency when living in one environment every day
-* Systems becoming less mysterious as experience increases
-* Surface differences becoming less enchanting as underlying concepts become familiar
-* Magic changing meaning:
-
-  * Early: strange words create power
-  * Later: nothing underneath is actually inexplicable
+* Early syntax as discovery and power — incantations, magic spells
+* The same concepts arriving in new dialects, decade after decade
+* Fluency was never the problem; relearning was. Loss of interest, not of
+  ability
+* Magic inverts: early, strange words grant power; later, nothing underneath
+  is inexplicable
 * Dave wrote little code — specs, designs, route tables, SQL; teams wrote
   the code
 
-**Possible examples**
+**Examples**
 
-* BASIC
-* Pascal
-* DR-DOS / VB
-* Selected networking absurdity
-* Solaris / BSD / OS/2
-* SQL dialects
-* Use sparingly and piece-by-piece, not as a catalog
+* Three chronological markers at most, one sentence each, drawn from: BASIC,
+  Pascal, DR-DOS / VB, a networking absurdity, Solaris / BSD / OS/2, SQL
+  dialects
+* The section is the arc from wonder to overload, not the history
 
 **Does not belong**
 
@@ -168,7 +163,7 @@ attributed (attribution is mandatory per prose-criteria.md).
 
 ## 3. Translation Is Lossy
 
-**Weight:** Long
+**Budget:** 400 words
 
 **Intro note:** Core conceptual move
 
@@ -209,7 +204,7 @@ attributed (attribution is mandatory per prose-criteria.md).
 
 ## 4. LLMs Move the Lossy Boundary
 
-**Weight:** Long
+**Budget:** 350 words
 
 **Intro note:** What actually changed
 
@@ -258,7 +253,7 @@ attributed (attribution is mandatory per prose-criteria.md).
 
 ## 5. The Ambiguity Was Always There
 
-**Weight:** Medium–long
+**Budget:** 300 words
 
 **Intro note:** Hot take
 
@@ -323,7 +318,7 @@ attributed (attribution is mandatory per prose-criteria.md).
 
 ## 6. SRE Has Been Asking This All Along
 
-**Weight:** Long in importance, brief in prose
+**Budget:** 150 words
 
 **Prose constraint:** Make the SRE connection, establish the epistemic link, and get out before this becomes an SRE explainer.
 
@@ -379,7 +374,7 @@ attributed (attribution is mandatory per prose-criteria.md).
 
 ## 7. Are We Converging on What We Intended?
 
-**Weight:** Medium
+**Budget:** 200 words
 
 **Intro note:** Open outward
 
