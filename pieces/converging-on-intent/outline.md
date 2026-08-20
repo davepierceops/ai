@@ -6,7 +6,7 @@ purpose: Step-1 artifact — thesis, tier-tagged claims list, section plan. Awai
 
 # Working thesis
 
-LLMs made building software enjoyable to me again by reducing the burden —
+LLMs made building software fun to me again by reducing the burden —
 and the lossiness — of translating intent into implementation dialects. In
 doing so, they exposed something that was always true: software development
 was always more ambiguous, emergent, and evidence-dependent than we liked
@@ -26,7 +26,7 @@ additionally test against the extension.)
 
 | # | Claim | Tier | Note |
 |---|---|---|---|
-| 1 | Coding and building software are distinct activities | inferred | Grounded in personal history; below proof |
+| 1 | Dave conflated coding with building software — part for whole — and filed his own work outside the category | inferred | Grounded in personal history; below proof. Refined from "distinct activities" after §1 |
 | 2 | Dave's loss of enjoyment came from repeated re-learning of encodings, not loss of ability | inferred | Autobiographical self-report; honest tier is inference, not demonstration |
 | 3 | The same underlying concepts recur across languages, tools, protocols, dialects | inferred | Decades of observation |
 | 4 | Human intent → code is a lossy channel; encoding distorts meaning, not merely consumes time | inferred | The core conceptual move; §3 must make the inference legible |
@@ -124,6 +124,8 @@ attributed (attribution is mandatory per prose-criteria.md).
 
   * Early: strange words create power
   * Later: nothing underneath is actually inexplicable
+* Dave wrote little code — specs, designs, route tables, SQL; teams wrote
+  the code
 
 **Possible examples**
 
@@ -146,7 +148,7 @@ attributed (attribution is mandatory per prose-criteria.md).
 
 **Job in the arc**
 
-* Explain why "I don't enjoy coding" became true
+* Explain why "I don't enjoy coding" became true of the part, not the whole
 * Separate building from repeatedly learning new encodings
 * Show the accumulation over decades
 * Prepare the move from annoyance to engineering consequence

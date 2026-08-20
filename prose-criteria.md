@@ -34,6 +34,17 @@ happens.
   walks the reader through reasoning the repo docs compress away.
 - Persuasive, flowery, or poetic passages are permitted as occasional
   flourish, never as the constant mode.
+- No clause explains the move it sits in. "It was true" over "unlike most
+  such statements it was literally accurate."
+- Blunt categorical claim first, then the personal instance.
+- Hacker register is in-voice: grok, box.
+
+## Readers with many languages
+
+Comprehension never depends on native-English-only cues. Speech is quoted,
+not introduced by a bare colon. A line carrying irony, wordplay, or idiom
+reads correctly for a reader who takes it literally; the play is bonus.
+Register is never simplified to achieve this.
 
 ## Claims taxonomy
 
@@ -44,8 +55,9 @@ tier legible to the reader:
 2. **Demonstrated** — Dave's evidence constitutes proof: hypothesis, test,
    result. The piece can show the work.
 3. **Inferred** — grounded in experience, observation, or data below the bar
-   for proof. Marked as inference.
-4. **Opinion** — flagged clearest of all.
+   for proof. The prose carries the tier in verb choice and frame ("what I
+   noticed," "in my experience").
+4. **Opinion** — clearest of all, by the same means.
 
 This is the public-facing translation of the evidence vocabulary in
 `davepierceops/ai` (`context-sets/base.md`). Tier-blurring — an opinion
@@ -122,7 +134,7 @@ purge). The tell list is open; add tells as they are noticed. Current
 entries:
 
 - "load-bearing"
-- em-dash cascades
+- em-dash cascades (a pair landing a payoff word is not a cascade)
 - "it's not X, it's Y" constructions
 - triadic sentence rhythm as default cadence
 - hedge-then-assert patterns
