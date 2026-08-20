@@ -27,3 +27,11 @@ purpose: Append-only capture point for voice learnings harvested by Section Writ
 - Candidate claim, not yet in outline: coding was treated as elevated above reliability because it was slow; now that it is cheap, its real standing is visible, and it is no different. Editor to decide placement (§4, §7, or thesis) or drop.
 - Accepted without correction: fragment opener answering §1's exit question; explicit in-register tier label ("an inference from one career, not a survey"); the one flourish ("filling out the same form at a different office").
 - Machinery: section-writer.md names `voice-inbox.md` without a path; the file lives at repo root, not under the piece. State the path in the role doc.
+
+## 2026-08-20 — §3 Section Writer session
+- A draft that lands inside budget can still read as wordy to Dave; the cause he named was duplicated ideas, not duplicated words.
+- When Dave suspects duplication, he wants an audit of repeated ideas reported back before any cuts are made.
+- Dave declines to pick which duplicates to cut; he sets a word target and leaves the choice of what goes to the writer.
+- Dave's target after a wordy draft is 10% under budget, not back to budget.
+- Command blocks for interactive paste must be wrapped in a subshell; a top-level `exit` kills Dave's shell.
+- Section Writer must not assume repo paths from memory; `voice-inbox.md` lives at the repo root, not under the piece directory.
