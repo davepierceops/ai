@@ -20,5 +20,10 @@ on what we intended?
 
 # Section headers
 
-1. The Pr1. The Pr1. The Pr1. The Pr1. The Pr1. The Pr1.ons Stop Being Magic
-1. The Pr1. The Pr1. The P L1. The Pr1. The Pr1. The P L1. The Pr1. The Pr1. The P L1. The Pr1. The Pr1. The P L1. The Pr1. The Pr1. The P L1. The Pr1. The Pr1. Tte1.ed?
+1. The Problem Wasn't Building Software
+2. The Incantations Stop Being Magic
+3. Translation Is Lossy
+4. LLMs Move the Lossy Boundary
+5. The Ambiguity Was Always There
+6. SRE Has Been Asking This All Along
+7. Are We Converging on What We Intended?

@@ -5,8 +5,6 @@ purpose: Append-only capture point for voice learnings harvested by Section Writ
 
 # Voice inbox
 
-(no entries yet)
-
 ## 2026-08-12 — session: converging-on-intent §1
 
 - Cut clauses that explain their own move. Three corrections same pattern: "unlike most such statements it was literally accurate" → "it was true"; "the same word: if you said one, I heard the other" → "the same thing"; epistemic aside deleted. Strongest-attested learning this session.
