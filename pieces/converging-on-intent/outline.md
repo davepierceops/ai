@@ -200,13 +200,36 @@ license to run long. §1 landed at ~430.
 
 **Transition:** LLMs alter where the translation happens
 
+**Already covered — final text accepted 2026-08-20, 357 words (do not re-argue)**
+
+* Opens by naming the other cost in three words ("It cost information.")
+* Model-vs-program distinction made: the thing in the head has no syntax;
+  compression discards — established vocabulary, do not re-derive
+* Two worked examples spent: retry policy → single integer; office-hours
+  routing rule → address block with no field for time. Do not re-use or
+  add a third of the same shape
+* "Correct was what I was checking for" — correctness-vs-fidelity
+  distinction made; §5's "authoring the code can create false confidence"
+  builds on it, does not re-introduce it
+* Effort-vs-information split closed ("never showed up on the bill")
+* Layer catalogue spent in one paragraph: language, API, framework,
+  abstraction — "a fixed vocabulary for meanings its maker could not have
+  known." Do not re-catalog layers
+* "Lossy channel" established as the piece's term — use it unexplained
+  from here
+* Closing line spends the §3→§4 transition as a question: "what changes
+  when the encoding is no longer done by hand." §4 opens by answering it;
+  it does not re-ask
+
 ---
 
 ## 4. LLMs Move the Lossy Boundary
 
 **Budget:** 350 words
 
-**Intro note:** What actually changed
+**Intro note:** What actually changed. Opens out of the baton: §3 asked
+what changes when the encoding is no longer done by hand; answer it in the
+first sentence.
 
 **Content note:** Less encoding friction, new interpretation risk
 
