@@ -17,3 +17,13 @@ purpose: Append-only capture point for voice learnings harvested by Section Writ
 - [accepted → prose-criteria] Vocabulary: grok, box (hacker register approved); em-dash pair fine when it lands a payoff word — the tell is cascades, not pairs.
 - [accepted → outline §2] Bio corrections (facts, not voice): wrote very little code; output = specs, designs, route tables, SQL; teams wrote the code; work went by rotating names — sysadmin, quality, security, DevOps, infra, reliability.
 - [accepted → outline claim 1, §2] Outline deviations for Editor: (a) self-description shortened to "I'm not a coder" alone; (b) claim 1 refined from "distinct activities" to conflation/part-for-whole — Dave conflated coding with building software and filed his own work outside the category. Claims list and §2 framing should absorb this.
+
+## 2026-08-20 — §2 Section Writer session
+
+- Biography correction: interest in code left early in the career; interest in infra/reliability never left. Do not narrate non-code work as a strategy for avoiding code or staying near it.
+- Self-description: "the around-the-code guy" — Dave's own phrase, from the start, not a later accommodation.
+- Cut: the self-aware aside ("I should be careful with my own story here: I am reporting a loss of interest, and it would be flattering to misreport it as a loss of ability"). Consistent with the standing rule — no clause explains its own move — and extends it: tier-labeling by narrated self-correction is out; tier-labeling by plain verb choice ("what I noticed") survived.
+- Cut with it: the contrast pair "The ability stayed. The appetite went." Suggests a reversal of direction with the aside; Dave prefers the point made once, flat ("What ran out was the willingness to do it again").
+- Candidate claim, not yet in outline: coding was treated as elevated above reliability because it was slow; now that it is cheap, its real standing is visible, and it is no different. Editor to decide placement (§4, §7, or thesis) or drop.
+- Accepted without correction: fragment opener answering §1's exit question; explicit in-register tier label ("an inference from one career, not a survey"); the one flourish ("filling out the same form at a different office").
+- Machinery: section-writer.md names `voice-inbox.md` without a path; the file lives at repo root, not under the piece. State the path in the role doc.
