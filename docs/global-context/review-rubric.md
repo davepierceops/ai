@@ -39,8 +39,8 @@ number.
    speaks in tiers. A directive states route and model. Track does not appear.
 
 9. **Filenames are `<descriptor>-<timestamp>`.** Any filename the file
-   prescribes or generates follows the convention. No random strings, hashes,
-   or UUIDs.
+   prescribes or generates follows the convention, unless a stated convention
+   names the file. No random strings, hashes, or UUIDs.
 
 10. **The file earns its place or is retired.** It lands in at least one
     bundle and contributes something no other file in that bundle states.
