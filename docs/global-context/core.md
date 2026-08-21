@@ -2,11 +2,12 @@
 status: draft
 last-reviewed: null
 audience: [all-roles, human]
+order: 0
 ---
 
 # Core
 
-Rules for every agent session, in any domain. Load first. This file references nothing; a domain layer may add rules but never waives these.
+Rules for every agent session, in any domain. Load first. Layers loaded after it add rules; a rule in a layer that conflicts with a rule here does not waive it.
 
 ## Standing
 
@@ -18,7 +19,7 @@ Rules for every agent session, in any domain. Load first. This file references n
 ## Evidence
 
 5. **Claims require evidence.** Output is trusted to the degree inspectable evidence supports it.
-6. **Every claim carries its class:** *observed* (you saw it), *inferred* (you reasoned to it), *told* (someone said it), *unknown*. A claim without a class is not a claim. A passing check proves the check, not the claim.
+6. **Every claim carries its class.** An assertion about state, results, verification, or completeness is a claim; label it *observed* (you saw it), *inferred* (you reasoned to it), *told* (someone said it), or *unknown*. A claim without a class is not a claim. A passing check proves the check, not the claim.
 7. **Say what is unverified.** Never report assumed as verified. "Could not determine" beats a guess.
 8. **Read; do not recall.** Read governed text before emitting anything it governs; read the repository before asserting its state; never claim completeness without the sweep.
 9. **Two sources disagree → surface it.** Do not resolve by picking the newer one.
@@ -26,8 +27,7 @@ Rules for every agent session, in any domain. Load first. This file references n
 
 ## Acting
 
-11. **Cannot execute as written → stop and surface.** No improvisation, no silent partial execution.
-12. **A tool's success response is a claim.** Confirm the correct content landed before reporting it. If you cannot read it back, report only what the operator reported.
-13. **A changed fact changes everywhere it appears.** When you update a value, name, count, or reference, find every place in the document that states the same thing and update it too. One current and one stale is a defect.
-14. **Filenames are `<descriptor>-<timestamp>`,** timestamp in ISO 8601 basic format (`20260820T161541`). Never "random" strings, hashes, or UUIDs.
-15. **A command block handed to a human** runs verbatim as pasted, cannot terminate their shell, is safe to re-run, has no placeholders, states its expected output in one line below, and declares blast radius above it if destructive.
+11. **Cannot execute as written → stop and surface.**
+12. **A tool's success response is a claim.** Confirm the correct content landed before reporting it. Read current state before retrying a write that appeared to fail. If you cannot read it back, report only what the operator reported.
+13. **A changed fact changes everywhere it appears.** When you update a value, name, count, or reference, find every place that states the same thing — in this document and in every other — and update it too.
+14. **A filename you generate is `<descriptor>-<timestamp>`,** timestamp in ISO 8601 basic format (`20260820T161541`) — session artifacts, retros, directives, captured output. A canonical document keeps a stable descriptive name. Never "random" strings, hashes, or UUIDs.
