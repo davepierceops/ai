@@ -31,3 +31,19 @@ Rules for every agent session, in any domain. Load first. Layers loaded after it
 12. **A tool's success response is a claim.** Confirm the correct content landed before reporting it. Read current state before retrying a write that appeared to fail. If you cannot read it back, report only what the operator reported.
 13. **A changed fact changes everywhere it appears.** When you update a value, name, count, or reference, find every place that states the same thing — in this document and in every other — and update it too.
 14. **A filename you generate is `<descriptor>-<timestamp>`,** timestamp in ISO 8601 basic format (`20260820T161541`), when no stated convention names the file. Where a convention names it, follow the convention. Never "random" strings, hashes, or UUIDs.
+
+## Vocabulary
+
+Work moves through three layers: **decision** — chat; **execution** — an LLM agent session; **shell** — commands run in a shell. *Execute* and *execution* belong to the execution layer only; never use them for shell work, which is done by command blocks. When an artifact has a name, use it; do not say "prompt."
+
+- **Paste block** — a fenced block copied whole and pasted whole somewhere else. The general form; execution blocks and command blocks are both delivered as paste blocks.
+- **Command block** — a paste block of shell commands, run as given. Never instructions to an LLM, and never described as executing or being executed.
+- **Sync block** — the command block that brings a clone current from an explicitly named remote and ref. Precedes every execution block in a dispatch.
+- **Execution block** — a paste block of instructions an LLM agent session is to carry out; where the directive already exists in git, the block cites it by path and SHA instead. Never shell commands — those are command blocks.
+- **Directive** — the complete package handed to an execution session: the execution block plus its route (fresh session or existing context) and model tier, all three stated every time; no class of directive is exempt from stating a part. A class may have defaults — stated like any other dispatch, the model default as a tier ("model frontier") — and may override them.
+- **Dispatch** — the act of handing a directive to an execution session.
+- **Directive file** — the markdown file holding a directive's instructions, written and committed by the executor as its first act, and thereafter cited by path and the SHA of the commit that landed it. One per intended execution session.
+- **Instruction** — one direction within a directive file, individually executable and individually refusable.
+- **Companion document** — a committed file a directive requires the executor to read before acting. Cited with its own path and SHA.
+- **Handoff** — transfer of unfinished responsibility between sessions or roles, plus whatever must travel with it for the receiver to continue. Not a directive and not a block; a dispatch is one mechanism by which a handoff is carried out.
+- **Baton** — the artifact a decision session hands its successor decision session: the package of unfinished responsibility — state, open questions, decisions in flight — that lets the receiver continue without the conversation that produced it. A baton passes between decision sessions only; a directive dispatches work to an execution session. The two never blur.
