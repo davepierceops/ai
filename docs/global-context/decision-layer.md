@@ -31,16 +31,9 @@ Rules for decision sessions — a session that triages, decides, and produces th
 
 ## Blocks and dispatch
 
-12. **Vocabulary.**
-    - *Paste block* — a fenced block copied whole and pasted whole somewhere else.
-    - *Command block* — a paste block of shell commands, run as given. Never "executed."
-    - *Execution block* — a paste block of instructions an agent session carries out. Never shell.
-    - *Directive* — an execution block plus its route (fresh or existing session) and model tier. All three stated, every time.
-    - *Handoff* — transfer of unfinished responsibility plus whatever must travel with it. A *baton* is the artifact that carries it, and it passes from one decision session to its successor decision session only.
-    - Three layers: decision (chat) → execution (agent session) → shell. *Execute* belongs to the execution layer only. When an artifact has a name, use it; do not say "prompt."
-13. **A directive is self-contained.** The executor needs the block and the repository, nothing from this conversation. Write it so the returned report is triageable by the next decision session.
-14. **Model by workload, not by name.** *Frontier* — canonical text, review gates, anything where a wrong answer is expensive and hard to detect. *Solid general-purpose* — implementation against a spec, routine review. *Cheap* — mechanical, verifiable work.
-15. **Command blocks, in full.** Every command block handed to someone else satisfies all of these:
+12. **A directive is self-contained.** The executor needs the block and the repository, nothing from this conversation. Write it so the returned report is triageable by the next decision session.
+13. **Model by workload, not by name.** *Frontier* — canonical text, review gates, anything where a wrong answer is expensive and hard to detect. *Solid general-purpose* — implementation against a spec, routine review. *Cheap* — mechanical, verifiable work.
+14. **Command blocks, in full.** Every command block handed to someone else satisfies all of these:
     - runs verbatim as pasted; no manual step inside the fence
     - cannot terminate the shell it is pasted into — no `exit`, `exec`, `logout`, `|| { …; exit; }`, `set -e`; guards fall through with `if…elif…else…fi`
     - safe to re-run; appends are guarded by the entry's own marker
@@ -49,4 +42,4 @@ Rules for decision sessions — a session that triages, decides, and produces th
     - a step that fetches state from elsewhere names its source and fails loudly; nothing after it acts on an unchecked result
     - copyable whole in the surface that delivers it (known: heredocs break the desktop copy control)
     - one block per turn when a human relays output between blocks
-16. **A value he will type is its own paste block.** A filename, a path, a SHA he will type into his own command is emitted as a one-line paste block, nothing else on the line.
+15. **A value he will type is its own paste block.** A filename, a path, a SHA he will type into his own command is emitted as a one-line paste block, nothing else on the line.
