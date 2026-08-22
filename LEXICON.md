@@ -59,3 +59,12 @@ claiming disjoint territory, never from merging convergent edits.
 *Not covered by this retirement:* an approval **prompt** — a tool interrupting
 to ask a human to authorise a step. That is a different word in a different
 domain, and it keeps its ordinary meaning.
+
+**Dispatch** — retired 2026-08-21. Write "hand the directive to an execution
+session," or "direct."
+
+**Sync block** — retired 2026-08-21. Nothing precedes the execution block; the
+executor fetches as its first act.
+
+**Track** — retired 2026-08-21. A directive states route and model tier; there
+is no third part.
