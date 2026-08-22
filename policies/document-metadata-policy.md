@@ -13,8 +13,7 @@ decision-session acts.
 
 Git is the versioning system. Document metadata carries only semantic
 state that git cannot derive. Anything git history already knows — when
-a doc changed, who changed it, what changed — is excluded from metadata,
-because a duplicate record will drift from git and lie.
+a doc changed, who changed it, what changed — is excluded from metadata.
 
 ## Scope
 
@@ -49,8 +48,7 @@ project artifacts.
   here, so this repo's enforcement does not reach them mechanically —
   but adoption is not optional. Every project applying this methodology
   adopts this metadata schema for its spec documents and stands up its
-  own enforcement as part of project setup. The exclusion here is about
-  where the hook runs, not whether the policy applies.
+  own enforcement as part of project setup.
 
 Enforcement (hooks) checks exactly the in-scope set.
 
@@ -63,8 +61,7 @@ Enforcement (hooks) checks exactly the in-scope set.
   `agreed`, it supersedes the prior "single version declared once in
   `MANIFEST.md`" decision. The removal of the `Tree version` line from
   `MANIFEST.md` and the revision of the spec-template footers land in
-  the same change package as the agreement — the repo never holds both
-  conventions as canonical.
+  the same change package as the agreement.
 
 ## Metadata format
 
@@ -81,9 +78,7 @@ lines, before any content.
 - `last-reviewed:` the path to the review artifact in `reviews/` plus
   the reviewed commit SHA — or `null` if never reviewed.
   - Format: `<reviews/path.md> @ <sha>`
-  - `status: agreed` requires a non-null `last-reviewed`. Agreement
-    implies a review happened; an agreed doc with no review record
-    fails review.
+  - `status: agreed` requires a non-null `last-reviewed`.
   - **Grandfather clause:** documents agreed before this policy's
     adoption may carry `last-reviewed: null` until their next revision,
     at which point normal rules apply. Applicability is not judged
@@ -95,14 +90,12 @@ lines, before any content.
     not apply and normal rules govern.
 - `audience:` list of roles that consume this document. Values are
   `roles/` file slugs plus two reserved values: `all-roles` and
-  `human`. Any other value fails enforcement. Enables metadata-driven
-  context assembly and lets a role-instance verify a doc applies to it.
+  `human`. Any other value fails enforcement.
 
 ## Conditional fields
 
 - `superseded-by:` required if and only if `status: superseded`. A path
-  or URL to the successor. A superseded doc without a pointer is a
-  dangling reference and fails review.
+  or URL to the successor.
 - Null semantics: null ≡ absent. A key present with value `null` (e.g.,
   `superseded-by: null` on a draft) is permitted and treated as the
   field being absent.
@@ -110,32 +103,22 @@ lines, before any content.
 ## Revision lifecycle
 
 - When an `agreed` document is edited, the same commit flips
-  `status: in-review` and resets `last-reviewed: null`. Metadata
-  describes the file's current content, not its history; an edited
-  file claiming `agreed` with a past review record is lying. Review
-  history is not lost — it lives in `reviews/` and git.
+  `status: in-review` and resets `last-reviewed: null`.
 - Transitions to `superseded` / `deprecated`, and the agreement flip
   itself, are **status transitions**, not revisions, and are exempt
   from the edit-flips-in-review rule; content edits alone trigger it.
   A status-transition commit contains nothing but the frontmatter
-  transition, so the diff from the reviewed SHA to HEAD remains
-  trivially auditable.
+  transition.
 - The document returns to `agreed` when Dave agrees the revision, and
   `last-reviewed` points at the new review artifact.
 - No exceptions for trivial edits **on the way out**. Every content
   edit to an `agreed` document flips it to `in-review`, whatever its
-  size. Enforcement cannot judge meaningfulness, and an escape hatch
-  there invites misuse. What can be shortened is the way back.
+  size.
 
 ## Expedited return to `agreed`
 
-A document falsely claiming review currency is expensive. A full review
-cycle over a one-line fix is merely tedious. The expedited path
-shortens the second without weakening the first: the document still
-flips to `in-review`, Dave still reads the whole change, and the
-agreement still leaves a record that says what was read and when. What
-is dropped is the reviewer-gated cycle — the findings round-trip, the
-cycle directive, and the per-cycle review artifact.
+The expedited path drops the reviewer-gated cycle — the findings
+round-trip, the cycle directive, and the per-cycle review artifact.
 
 ### Eligibility
 
@@ -152,25 +135,18 @@ cycle directive, and the per-cycle review artifact.
 
    The class includes, at minimum:
    - `policies/document-metadata-policy.md` — this document.
-     Enforcement reads its in-scope set from the Scope section above,
-     so an edit here can narrow what is enforced, including enforcement
-     of this document.
    - `policies/agent-review-policy.md`
    - `policies/commit-and-change-control-policy.md`
    - `policies/source-of-truth-policy.md`
    - `policies/release-readiness-policy.md`
-   - `policies/testing-policy.md` — the red-gate.
-   - `policies/verification-boundary-policy.md` — the
-     boundary-declaration rules.
-   - `policies/project-setup-requirements.md` — effective when that document
-     reaches `agreed`. It is `draft` today, so it has no expedited revision
-     to exclude yet; it is named now because its content is exactly this
-     class (branch protection and frontmatter enforcement are the structural
-     gates), and naming it later means relying on someone to remember.
+   - `policies/testing-policy.md`
+   - `policies/verification-boundary-policy.md`
+   - `policies/project-setup-requirements.md` — effective when that
+     document reaches `agreed`.
    - `roles/spec-reviewer-agent.md`
    - `roles/reviewer-agent.md`
    - `roles/release-manager-agent.md`
-   - `roles/skeptic-risk-agent.md` — a review step in the change flow.
+   - `roles/skeptic-risk-agent.md`
    - `skills/spec-review-cycle.md`
    - `skills/release-readiness-review.md`
    - `skills/conversation-retro.md`
@@ -201,10 +177,8 @@ exclude its own revisions from this path, and the retro skill does.
 Each expedited or doc-only agreement appends one line to
 `reviews/expedited-log.md` naming the document, the reviewed SHA, the
 date, and what changed — or, where the document is new and nothing
-changed, what the document is;
-`last-reviewed` then reads `reviews/expedited-log.md @ <sha>`. The SHA
-is what makes that pointer resolve to a single entry — many documents
-point at one log, and the entry carrying the cited SHA is the one meant.
+changed, what the document is; `last-reviewed` then reads
+`reviews/expedited-log.md @ <sha>`.
 
 `agreed` still requires a non-null `last-reviewed` naming an artifact
 that exists, and **the SHA cited in `last-reviewed` must appear in an
@@ -240,8 +214,7 @@ The path reaches only documents in the frontmatter in-scope set above.
 ### Eligible when all five hold
 
 1. **Prose, not a program.** Methodology or governance text in any format; a
-   script or executable is out — a consistency read is not the verification code
-   needs.
+   script or executable is out.
 2. **Co-authored with Dave in the artifact pane — Dave's.** Drafted together,
    not finished elsewhere and presented for sign-off.
 3. **Not a gate document.** Nothing stating a gate, hard stop, or enforcement
@@ -255,8 +228,7 @@ The path reaches only documents in the frontmatter in-scope set above.
    A **consistency sweep** checks the document — and the documents it
    cross-references and that reference it — for any value or cross-reference
    the change has made stale. It extends the within-document consistency check
-   already required to the document's neighbours, because a change to one
-   document routinely falsifies a claim in another. The co-authoring agent runs
+   already required to the document's neighbours. The co-authoring agent runs
    it before sign-off; "at least one" means the most recent sweep post-dates the
    final edit. Completion is attested by Dave's sign-off, not a separate
    artifact.
