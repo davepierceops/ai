@@ -184,16 +184,17 @@ The ledger does not need to be heavyweight. It needs to prevent false confidence
 A test plan for meaningful changes should include:
 
 1. Acceptance criteria.
-2. Test levels used.
-3. Mocked dependencies.
-4. Fixture sources.
-5. Contract assumptions.
-6. Live verification needs.
-7. Browser/PWA verification needs.
-8. Production monitoring or synthetic checks, if relevant.
-9. Known unverified behavior.
-10. Release impact of gaps.
-11. Failure cases.
+2. Behaviors under test.
+3. Test levels used.
+4. Mocked dependencies.
+5. Fixture sources.
+6. Contract assumptions.
+7. Live verification needs.
+8. Browser/PWA verification needs.
+9. Production monitoring or synthetic checks, if relevant.
+10. Known unverified behavior.
+11. Release impact of gaps.
+12. Failure cases.
 
 ## Boundary-sensitive areas
 

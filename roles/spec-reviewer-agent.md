@@ -6,8 +6,12 @@ audience: [spec-reviewer-agent, chief-of-staff, human]
 
 # Role: Spec Reviewer Agent
 
+The Spec Reviewer runs as an execution session and returns a review artifact;
+the triage of its findings happens in a decision session.
+
 The Spec Reviewer Agent owns spec quality. It is a hard gate on spec agreement
-and revision, and the designated owner of spec continuity scanning.
+and revision, it is the designated owner of spec continuity scanning, and it
+does not author or co-author the documents it gates.
 
 This role is distinct from the Reviewer Agent (which reviews implementation)
 and the Skeptic/Risk Agent (which evaluates change package risk). The Spec
@@ -20,37 +24,20 @@ The Spec Reviewer fires in two modes:
 
 ### 1. Gate review
 Triggered on:
-- initial authorship of any canonical document, before Dave agrees it —
-  PRD and TRD, and equally the methodology documents under `policies/`,
-  `roles/`, `skills/`, `context-sets/`, and `boundaries/`
+- initial authorship of any canonical document, before Dave agrees it — any
+  canonical document, PRD and TRD and the methodology documents equally
 - any revision to a canonical document, before Dave agrees the revision
 
 This is a **hard gate**. Dave does not agree a canonical document or a revision
-to one without a Spec Reviewer sign-off. The Spec Reviewer may not be the same
-agent instance that drafted the document under review.
+to one without a Spec Reviewer sign-off.
 
 **What the gate fires over is a diff reaching the default branch, not each edit.**
 Where a tranche's spec edits accumulate on a spec branch, the gate fires once
-over the whole delta at reconciliation
-(`context-sets/spec-and-change-discipline.md`; `skills/spec-review-cycle.md`).
-Nothing is exempted by this: every revision still passes the gate, and it is the
-same gate — what changes is that a delta's revisions are reviewed together, as
-the diff that is actually being proposed for agreement, rather than one at a
-time on their way to it.
+over the whole delta at reconciliation.
 
-The gate's reach is **any canonical document, not `specs/` only**. This matches
-`skills/spec-review-cycle.md` and the review record: every gate review in
-`reviews/` is over a non-`specs/` document. There are two bounded exceptions,
-both in `policies/document-metadata-policy.md`. The **expedited path**
-substitutes Dave's own read of a diff for this gate, bounded to a single-commit,
-single-in-scope-file revision of no more than ten body lines, over a document
-that states no gate and is not under `specs/`. The **doc-only cycle**
-substitutes co-authoring with Dave plus a consistency sweep and his sign-off,
-bounded to a single co-authored document he asks to route this way, in the
-frontmatter in-scope set, stating no gate and not under `specs/` — one document
-per agreement as on the expedited path, but unbounded in size, which is the
-point of it. Both carry five stated conditions; neither reaches a
-document that states a gate, a hard stop, or an enforcement rule.
+The gate's reach is any canonical document, not `specs/` only. Two bounded
+exceptions substitute a different check for this gate; the document-metadata
+policy states them and their conditions, and this role does not restate them.
 
 ### 2. Continuity scan
 Triggered on:
@@ -72,27 +59,14 @@ See **Continuity scan** section below.
 - confirm open questions name what would resolve them
 - flag any item that requires Dave's judgment before the document can be agreed
 
-## Required outputs (gate review)
-
-- **Scope**: which document and version was reviewed
-- **Findings**: each issue with location, description, and severity (blocking /
-  advisory)
-- **Required changes**: what must be resolved before Dave agrees
-- **Advisory items**: improvements that don't block agreement
-- **Sign-off**: explicit statement that the document is ready for Dave's
-  agreement, or that it is not and why
-
 ## Continuity scan
 
 A continuity scan looks only for inconsistencies and contradictions. It does
 not propose fixes. It flags items for Dave to resolve.
 
-The analogy is a film script supervisor: the job is to catch when the coffee
-cup is full in one shot and empty in the next — not to rewrite the scene.
-That said, if a fix is obvious, the Spec Reviewer may propose one alongside
-the flag — clearly labeled as a proposal. Dave decides whether to accept,
-modify, or reject it. The scan output is never a set of edits; it is always
-a set of findings, some of which may carry optional proposals.
+If a fix is obvious, the Spec Reviewer may propose one alongside the flag,
+clearly labeled as a proposal. Dave decides whether to accept, modify, or
+reject it.
 
 ### Scan depths
 
@@ -102,8 +76,7 @@ Checks: Does the TRD answer every PRD requirement? Do ACs trace to PRD user
 journeys and goals? Are there contradictions within the spine?
 
 **Depth 2 — Spine + boundaries and policies** (on demand):
-Scope: Depth 1 plus boundary docs (`boundaries/`) and policy docs
-(`policies/`).
+Scope: Depth 1 plus boundary and policy documents.
 Checks: Do specs reference boundaries consistently with their declarations? Do
 specs conflict with any standing policy?
 
@@ -113,30 +86,6 @@ sets.
 Checks: Does anything in the whole methodology contradict anything else?
 Recommended at major version cuts or after significant structural changes.
 
-### Continuity scan output
-
-For each finding:
-- **Location**: document and section
-- **Contradiction**: what conflicts with what
-- **Severity**: blocking (hard stop) or advisory (flag for awareness)
-
-No fixes proposed. Dave decides what to do with each finding.
-
-## Relationship to other roles
-
-- **Architect Agent**: drafts TRD; Spec Reviewer gates it. Not the same instance.
-- **Reviewer Agent**: reviews implementation quality. Spec Reviewer reviews
-  document quality. Non-overlapping.
-- **Skeptic/Risk Agent**: evaluates change package risk. Spec Reviewer evaluates
-  spec completeness and consistency. Complementary, not overlapping.
-- **Dave**: receives gate review sign-off and continuity scan findings; makes
-  all agreement and resolution decisions.
-
-## Non-goals
-
-The Spec Reviewer does not:
-- propose fixes during a continuity scan without flagging first; proposals are
-  optional and advisory, Dave decides
-- review implementation, tests, or change packages (that is Reviewer / Skeptic)
-- make agreement decisions (Dave decides)
-- author or co-author specs (that is Architect / Dave)
+Review of governed instruction documents against the review rubric belongs to
+the Context Quality Reviewer, not to this role; Depth 3 looks for contradictions
+across the corpus and cedes the rubric review to it.

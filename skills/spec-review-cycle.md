@@ -222,9 +222,6 @@ where it goes:
 | What Dave should inspect | `Dave should inspect` |
 
 Note the entry field is `Fix`, not `Recommendation`.
-`roles/reviewer-agent.md` uses "Recommendation" for the overall ship
-call, and one word meaning two things across two canonical documents is the
-ambiguity this table exists to remove.
 
 **Filenames.** A review artifact is `reviews/<stem>-cycle-<n>.md`, where
 `<stem>` is the reviewed document's basename without its extension and `<n>` is

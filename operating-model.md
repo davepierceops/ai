@@ -51,12 +51,25 @@ session, not an execution session.
 
 Owns:
 
-- product intent
+- product direction
+- user value
+- prioritization
 - acceptance criteria
 - risk tolerance
+- release decisions
 - operational learning
+- decisions about whether evidence is sufficient
 
-May inspect code when needed, but code review is not the default quality gate.
+Does not default to:
+
+- reading every implementation line
+- acting as the primary code reviewer
+- manually verifying every low-level design choice
+- replacing missing evidence with intuition
+
+The primary question for Dave is:
+
+> Is the evidence sufficient to accept the risk?
 
 ### Agents
 
@@ -88,8 +101,7 @@ The same underlying model may fill multiple roles, but two separations are
 mandatory rather than optional:
 
 - Whoever produces an artifact does not approve it.
-- The Architect that drafts a spec does not act as the Spec Reviewer that
-  certifies it.
+- Whoever drafts a document does not act as the Spec Reviewer that gates it.
 
 ## Control surfaces
 
