@@ -99,14 +99,8 @@ Common boundary types include:
 
 Every verification claim carries one of the evidence classes defined in the
 lexicon. Every material boundary gap additionally carries one of the
-release-impact labels here.
-
-Each material boundary gap should be labeled as one of:
-
-- `blocking`: must be resolved before release
-- `deferred`: intentionally postponed with a named mechanism
-- `accepted-risk`: Dave or the release process has explicitly accepted the gap
-- `not-material`: known but not relevant to the release decision
+release-impact labels — `blocking`, `deferred`, `accepted-risk`,
+`not-material` — which are defined in the lexicon.
 
 ## Required triggers
 

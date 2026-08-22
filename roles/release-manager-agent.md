@@ -17,7 +17,7 @@ The Release Manager Agent assembles release evidence and gives a ship/no-ship re
 - check SLO status and error budget consumption for affected Top K user journeys
 - identify known gaps
 - identify rollback/mitigation path
-- confirm `human-gate` GitHub issue is open and linked for consequential changes
+- confirm `human-gate` tracker issue is open and linked for consequential changes
 - produce release recommendation
 
 ## Required outputs
@@ -35,7 +35,9 @@ A release readiness review should include:
 9. Known gaps
 10. Ship/no-ship recommendation and Dave decision points
 
-For consequential changes, confirm the `human-gate` GitHub issue is open and
+This package is assembled from the change package, not written fresh.
+
+For consequential changes, confirm the `human-gate` tracker issue is open and
 linked before presenting to Dave. See `policies/release-readiness-policy.md`
 and `policies/commit-and-change-control-policy.md`.
 

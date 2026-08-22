@@ -62,6 +62,21 @@ mechanism.
 
 **Accepted risk** — an explicit decision to proceed despite a known gap.
 
+## Release impact labels
+
+The labels a known gap is marked with at the release decision. Every material
+boundary gap carries one.
+
+**`blocking`** — must be resolved before release. A gap awaiting Dave's
+judgment is blocking; "requires Dave decision" is not a label.
+
+**`deferred`** — intentionally postponed with a named mechanism.
+
+**`accepted-risk`** — Dave or the release process has explicitly accepted the
+gap.
+
+**`not-material`** — known but not relevant to the release decision.
+
 ## Service levels
 
 **Top K** — the K most important user journeys of a product. The list is defined
