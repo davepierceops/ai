@@ -7,7 +7,7 @@ Date: 2026-08-22
 Scope: the whole file (107 lines), against docs/global-context/review-rubric.md @ 2a722bb, all ten criteria; and against context-sets/testing-and-verification.md @ 2a722bb for the single-home check the directive requires.
 Cross-checked: docs/global-context/core.md, docs/global-context/decision-layer.md, LEXICON.md, operating-model.md (all @ 2a722bb); context-sets/testing-and-verification.md; policies/verification-boundary-policy.md frontmatter and section headings only; policies/agent-review-policy.md, policies/decision-log-policy.md, policies/document-metadata-policy.md.
 Not inspected: policies/commit-and-change-control-policy.md and context-sets/spec-and-change-discipline.md beyond confirming they exist and that the red-gate is stated in operating-model.md — both are in other cycles; policies/verification-boundary-policy.md body; roles/test-designer-agent.md; any actual test suite or bin/ tooling.
-Findings: 7 — 3 blocking, 3 non-blocking, 1 observation
+Findings: 8 — 3 blocking, 4 non-blocking, 1 observation
 Dave should inspect: T2. Two live documents give different required contents for the same artifact — the test plan — and they have already drifted to eight items against ten. Whichever list survives is a real change to what a Test Designer must produce, not a formatting choice.
 
 ## Criterion 10, first and explicitly
