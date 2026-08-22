@@ -1,5 +1,5 @@
 ---
-status: in-review
+status: draft
 last-reviewed: null
 audience: [spec-reviewer-agent, architect-agent, chief-of-staff, human]
 ---
