@@ -36,9 +36,7 @@ from tests.helpers import (
 # ---------------------------------------------------------------- fixed spine
 
 SPINE = [
-    "context-sets/base.md",
     "context-sets/spec-and-change-discipline.md",
-    "context-sets/collab-workflow.md",
     "operating-model.md",
     "roles/chief-of-staff.md",
     "policies/commit-and-change-control-policy.md",
@@ -430,17 +428,17 @@ class TestShaSourcing(BundleMethodologyTestCase):
         self.assertEqual(rc1, 0, "stdout=%r stderr=%r" % (out1, err1))
         before = parse_file_list(bundle1.read_text(encoding="utf-8"))
 
-        write(self.repo, "context-sets/base.md", spine_content("context-sets/base.md") + "more.\n")
-        commit(self.repo, "edit base.md", env=self.env)
+        write(self.repo, "operating-model.md", spine_content("operating-model.md") + "more.\n")
+        commit(self.repo, "edit operating-model.md", env=self.env)
 
         rc2, out2, err2, bundle2 = self.write_one()
         self.assertEqual(rc2, 0, "stdout=%r stderr=%r" % (out2, err2))
         after = parse_file_list(bundle2.read_text(encoding="utf-8"))
 
         self.assertEqual(set(before.keys()), set(after.keys()))
-        self.assertNotEqual(before["context-sets/base.md"], after["context-sets/base.md"])
+        self.assertNotEqual(before["operating-model.md"], after["operating-model.md"])
         for path in before:
-            if path == "context-sets/base.md":
+            if path == "operating-model.md":
                 continue
             self.assertEqual(
                 before[path], after[path], "unrelated SHA for %s changed" % path

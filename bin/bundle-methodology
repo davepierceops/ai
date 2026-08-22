@@ -23,9 +23,7 @@ from aimeta import cli, frontmatter, repo  # noqa: E402
 
 # Fixed decision-layer spine, in this order (spec §4 / DEC-000140).
 SPINE = [
-    "context-sets/base.md",
     "context-sets/spec-and-change-discipline.md",
-    "context-sets/collab-workflow.md",
     "operating-model.md",
     "roles/chief-of-staff.md",
     "policies/commit-and-change-control-policy.md",
