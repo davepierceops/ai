@@ -14,24 +14,6 @@ Governed like any canonical document: changes enter through a review cycle.
 **The touch rule:** any file edited for another reason is conformed to this
 lexicon as part of that edit.
 
-## Sessions
-
-**Decision session** — triages, decides, and produces the artifacts that direct
-and record work: directives, session records, tracker updates. It reads freely
-and writes these artifacts, but it does not carry out the changes a directive
-specifies.
-
-**Execution session** — an LLM agent session carrying out a directive against a
-working tree.
-
-Nothing here authorizes acting against a deployed or production system; whether
-an agent may do so at all, and under what gate, is a policy question, not this
-file's.
-
-The boundary is role in the flow, not capability. A decision session may hold a
-clone and may commit; what makes it a decision session is that the work the
-directive specifies happens elsewhere.
-
 ## Spec state
 
 **Tranche** — one concurrent workstream of build work.
@@ -65,8 +47,7 @@ claiming disjoint territory, never from merging convergent edits.
   and one direction inside it is an *instruction*.
 - **What a decision session hands its successor decision session** — a *baton*.
 - **What a directive points the executor at** — a *companion document*.
-- **What runs in a shell** — a *command block*; the one that opens a dispatch
-  is a *sync block*.
+- **What runs in a shell** — a *command block*.
 - **What a session loads as standing context** — a *context set*, a *role
   document*, a *skill document*, a *policy*, a *boundary document*.
 - **What a session derives work from** — the *decomposition doc*, a *change
