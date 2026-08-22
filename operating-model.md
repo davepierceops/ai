@@ -31,10 +31,9 @@ Code matters, but trust comes from evidence that the change behaves as intended 
 
 ## Source of truth
 
-Specifications are canonical. The order is: **PRD** (product) → **TRD**
-(technical) → acceptance criteria → per-change architecture summary → **tracker
-issues** (currently GitHub Issues). Tracker issues are derived PM artifacts — a
-view onto the specs, never an independent source of truth.
+Specifications are canonical. Everything downstream of them — acceptance
+criteria, architecture summaries, tracker issues (currently GitHub Issues) — is
+a derived artifact: a view onto the specs, never an independent source of truth.
 
 If a derived artifact conflicts with a canonical one (an issue against the spec,
 an architecture summary against the TRD), it is a **hard stop**.
@@ -223,12 +222,6 @@ Escalate when:
 When in doubt whether to escalate, escalate.
 
 Do not escalate routine implementation decisions that can be resolved through existing guidance.
-
-## Relationship to tools
-
-These portable operating documents are the source of truth for project operating guidance.
-
-Tool-specific files may adapt these rules but should not be the sole location of durable policy.
 
 ## Operating standard
 

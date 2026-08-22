@@ -26,14 +26,9 @@ elsewhere or explicitly accepted as unverified.
 
 Agents must not let tests imply broader confidence than they actually support.
 
-When a test uses a mock, fixture, jsdom, fake timer, fake API, generated data, local-only config, or simulated environment, the agent must be able to answer:
-
-1. What production behavior is represented?
-2. What did the evidence verify?
-3. What did the evidence not verify?
-4. What verification is required elsewhere?
-5. Does the gap block release?
-6. Who or what owns the follow-up?
+A mocked boundary carries the answers to the mock-boundary checklist stated in
+the testing and verification context set, including who or what owns the
+follow-up.
 
 ## Boundary declaration
 
@@ -54,9 +49,9 @@ A boundary declaration should include:
 Example:
 
 ```yaml
-boundary: stadia.geocoding
-production_surface: "fetch() call to live geocoding provider"
-representation: "MSW handler with canned response fixture"
+boundary: external-api.record-lookup
+production_surface: "request to the live provider's record-lookup endpoint"
+representation: "HTTP mock handler with a canned response fixture"
 verification_class: "mock-verified"
 verified_claims:
   - "request URL is constructed as expected"
@@ -70,12 +65,17 @@ unverified_claims:
   - "quota and billing state are valid"
   - "live response shape still matches fixture"
 deferred_verification:
-  - "live geocoding smoke test"
+  - "live record-lookup smoke test"
   - "pre-release checklist"
 release_impact: "blocking before first production release unless Dave explicitly accepts risk"
 ```
 
 ## Boundary types
+
+This list names the representation mechanisms that stand in for production; the
+boundary-sensitive areas in the testing and verification context set name where
+a claim is easy to overstate. The two lists are complementary cuts, not
+competing taxonomies.
 
 Common boundary types include:
 
@@ -91,26 +91,15 @@ Common boundary types include:
 - mocked map/tile providers
 - local fixtures representing third-party data
 - generated data standing in for production data
-- jsdom replacing a real browser
+- a headless DOM replacing a real browser
 - local development config replacing production config
 - local environment variables replacing deployed secrets/config
-- SLO targets and error budget state not yet connected to production monitoring
-
-## Required status labels
-
-Use these labels:
-
-- `mock-verified`
-- `contract-verified`
-- `live-verified`
-- `browser-verified`
-- `production-verified`
-- `unverified`
-- `deferred`
-- `accepted-risk`
-- `blocking`
 
 ## Release impact labels
+
+Every verification claim carries one of the evidence classes defined in the
+lexicon. Every material boundary gap additionally carries one of the
+release-impact labels here.
 
 Each material boundary gap should be labeled as one of:
 
@@ -137,14 +126,17 @@ Update or create a boundary declaration when:
 
 Boundary information may live in:
 
-- `boundaries/` for durable cross-cutting boundaries
+- the project TRD's standing verification boundary section, for durable
+  cross-cutting boundaries
 - a feature-specific verification ledger
 - inline test comments for small/local boundaries
 - a change package
 - a release-readiness review
 - a pre-release checklist
 
-For durable or repeated boundaries, prefer `boundaries/` or a dedicated project verification ledger.
+Durable or repeated boundaries are declared in the project TRD's standing
+verification boundary section, or in a dedicated project verification ledger
+where the project keeps one.
 
 ## CI and automation expectations
 
@@ -162,23 +154,22 @@ boundary material to user-visible behavior or release risk is verified before
 release; one that can drift after deployment is verified by production
 monitoring.
 
-The important rule is not “run live tests constantly.” The important rule is “know which claims require live/browser/production evidence.”
-
 ## Reviewer obligations
 
-The Spec Reviewer Agent should check that durable boundaries declared in
-`boundaries/` are consistent with the TRD's standing verification boundary
-section, and flag drift as a continuity finding.
+Apply the obligation for the role you are filling:
 
-The Reviewer Agent should check whether boundaries are named and documented.
-
-The Skeptic/Risk Agent should challenge overbroad confidence claims.
-
-The Release Manager Agent should ensure material boundary gaps are resolved, deferred, or accepted before release.
+- **Spec Reviewer** — check that declared durable boundaries are consistent with
+  the TRD's standing verification boundary section, and flag drift as a
+  continuity finding.
+- **Reviewer** — check whether boundaries are named and documented.
+- **Skeptic/Risk** — challenge overbroad confidence claims.
+- **Release Manager** — ensure material boundary gaps are resolved, deferred, or
+  accepted before release.
 
 ## Release requirement
 
-Before release, all material verification boundaries must be in one of these states:
+Before release, all material verification boundaries must be in one of these
+states, which are the discharge conditions for the release-impact labels above:
 
 1. verified by an appropriate mechanism
 2. explicitly deferred with a named path
@@ -186,9 +177,3 @@ Before release, all material verification boundaries must be in one of these sta
 4. explicitly marked not material to the release
 
 Implicit unknowns are not acceptable.
-
-## Non-goals
-
-This policy does not require live tests for every dependency in every run.
-
-It requires that confidence boundaries be visible, intentional, and tied to release judgment.

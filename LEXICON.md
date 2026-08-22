@@ -100,7 +100,7 @@ executor fetches as its first act.
 **Track** — retired 2026-08-21. A directive states route and model tier; there
 is no third part.
 
-*Not covered by this retirement:* **error budget tracking**, **SLO tracking**,
-and similar SRE compounds, along with the ordinary verb "keep a list of." Those
-are a different word in a different domain, and they keep their ordinary
-meaning.
+*Not covered by this retirement:* **track**, **tracking**, and **tracker** in
+the ordinary sense of keeping or consulting a record — a loose-end tracker, a
+tracker issue, error budget tracking, SLO tracking. Those are a different word
+in a different domain, and they keep their ordinary meaning.

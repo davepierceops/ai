@@ -23,7 +23,7 @@ gate — the release go/no-go is an evidence-and-judgment decision, not a
 code-reading decision. A change can be in the consequential class (needs a human
 release go/no-go) without anyone reading its diff, and vice versa.
 
-A human may choose to inspect code directly when:
+Escalate for human code inspection when:
 
 - the change is security-sensitive
 - the system handles private data

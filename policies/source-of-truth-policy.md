@@ -6,6 +6,9 @@ audience: [all-roles, human]
 
 # Policy: Source of Truth
 
+This policy governs both session kinds: decision sessions and execution
+sessions.
+
 ## Purpose
 
 This policy fixes what is canonical and what is derived, so that disagreements
@@ -13,14 +16,14 @@ between artifacts are resolved by authority rather than by guessing.
 
 ## Canonical order
 
-1. **PRD** (`specs/prd-template.md`) — product intent. Canonical for *what* and
-   *why*.
-2. **TRD** (`specs/trd-template.md`) — technical design. Canonical for *how*.
+1. **PRD** — product intent. Canonical for *what* and *why*.
+2. **TRD** — technical design. Canonical for *how*.
 3. **Acceptance criteria** — derived from the PRD, owned by Dave.
 4. **Architecture summary** (per change) — derived from the TRD, produced by the
-   Architect Agent. This is the artifact a GitHub Issue is cut from.
-5. **GitHub Issues** — **derived PM artifacts**. They track and organize work.
-   An Issue is a *view onto the specs*, not an independent source of truth.
+   Architect Agent. This is the artifact a tracker issue is cut from.
+5. **Tracker issues** (currently GitHub Issues) — **derived PM artifacts**. They
+   track and organize work. A tracker issue is a *view onto the specs*, not an
+   independent source of truth.
 
 The portable operating-model documents (context sets, policies, roles, skills,
 boundaries) are canonical for *how the project is run*. Vendor-specific AI
@@ -59,13 +62,12 @@ Do not silently reconcile. Do not pick the version that is easier to implement.
 ## Keeping derived artifacts honest
 
 When a canonical document changes, derived artifacts downstream of it may go
-stale. The agent making the change is responsible for flagging which derived
-artifacts now need updating, per the document-consistency principle in
-`context-sets/spec-and-change-discipline.md`.
+stale. The agent making the change flags which derived artifacts now need
+updating.
 
 ## Proactive drift detection
 
 The Spec Reviewer Agent is the designated mechanism for proactively catching
 drift between canonical and derived artifacts before it reaches a hard stop.
-Continuity scans run automatically on every spec revision (Depth 1) and on
-demand at greater scope (Depth 2, Depth 3). See `roles/spec-reviewer-agent.md`.
+Continuity scans run on every spec revision and at wider scope on demand.
+Surface suspected drift when you meet it; do not wait for a scan.

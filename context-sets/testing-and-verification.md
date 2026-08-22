@@ -29,6 +29,7 @@ Every mock should make the boundary visible:
 3. What does this test not verify?
 4. Where is the missing side verified?
 5. If not verified, is that gap blocking, deferred, or accepted?
+6. Who or what owns the follow-up?
 
 ## Verification classes
 
@@ -171,6 +172,11 @@ A test plan for meaningful changes should include:
 10. Release impact of gaps.
 
 ## Boundary-sensitive areas
+
+This list names areas where a claim is easy to overstate. The verification
+boundary policy's boundary types name the representation mechanisms that stand
+in for production; the two lists are complementary cuts, not competing
+taxonomies.
 
 Treat these areas as boundary-sensitive by default:
 
