@@ -1,13 +1,13 @@
 ---
 status: draft
 last-reviewed: null
-audience: [spec-reviewer-agent, chief-of-staff, human]
+audience: [context-quality-reviewer, human]
 ---
 
 # Review Rubric — Fiducial Assembly, Pass 1 (prose)
 
 Criteria every non-code file in this repository is examined against. A file
-passes when it satisfies all ten or is retired. Findings cite the criterion
+passes when it satisfies all eleven or is retired. Findings cite the criterion
 number.
 
 1. **Bundles are the product.** The file is written to be read inside a
@@ -45,3 +45,8 @@ number.
 10. **The file earns its place or is retired.** It lands in at least one
     bundle and contributes something no other file in that bundle states.
     A file that fails this is removed, not fixed.
+
+11. **Escalation is not left to inference.** No wording lets the agent decide
+    what is Dave's. Underspecified conditions, missing escalation triggers,
+    language implying authority the methodology does not grant, and boundaries
+    two roles could both claim are defects.

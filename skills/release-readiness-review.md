@@ -27,24 +27,20 @@ Determine whether a change is ready to ship.
 
 ## Procedure
 
-1. Summarize user-visible change.
-2. Summarize test evidence.
-3. Summarize verification boundary status.
-4. State SLO status and error budget consumption for affected Top K user journeys.
-5. Identify live/browser/production checks required.
-6. Identify known gaps.
-7. Identify rollback or mitigation path.
-8. Confirm `human-gate` GitHub issue is open and linked if the change is
+The Release Manager's role document states what the release package contains.
+This is how it is assembled.
+
+1. Take each item the release package requires and find its source in the
+   change package. Where the change package states it, carry it across
+   unchanged; do not rewrite it.
+2. For the two items the change package does not carry — user-visible behavior,
+   and the rollback or mitigation path — derive them from the change and state
+   where each came from.
+3. Where a required item has no source at all, say so rather than filling the
+   slot; a missing item is a known gap.
+4. Confirm the `human-gate` tracker issue is open and linked if the change is
    consequential; flag if absent.
-9. Give a recommendation.
 
 ## Output
 
-Use one of:
-
-- ship
-- ship with accepted risks
-- do not ship
-- needs Dave decision
-
-Include the evidence behind the recommendation.
+The assembled package, plus the evidence behind the recommendation.
