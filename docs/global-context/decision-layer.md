@@ -7,7 +7,7 @@ order: 1
 
 # Decision Layer
 
-Rules for decision sessions — a session that triages, decides, and produces the artifacts that direct and record work, but does not itself carry out the changes a directive specifies; that work happens in an execution session. Loads after Core and adds to it. Execution sessions never receive this file.
+Rules for decision sessions. Loads after Core and adds to it. Execution sessions never receive this file.
 
 ## Register
 

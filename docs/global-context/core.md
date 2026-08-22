@@ -34,6 +34,13 @@ Rules for every agent session, in any domain. Load first. Layers loaded after it
 
 ## Vocabulary
 
+- **Decision session** — triages, decides, and produces the artifacts that direct and record work: directives, session records, tracker updates. It reads freely and writes these artifacts, but it does not carry out the changes a directive specifies; that work happens in an execution session.
+- **Execution session** — an LLM agent session carrying out a directive against a working tree.
+
+Nothing here authorizes acting against a deployed or production system; whether an agent may do so at all, and under what gate, is a policy question, not this file's.
+
+The boundary is role in the flow, not capability. A decision session may hold a clone and may commit; what makes it a decision session is that the work the directive specifies happens elsewhere.
+
 Work moves through three layers: **decision** — chat; **execution** — an LLM agent session; **shell** — commands run in a shell. *Execute* and *execution* belong to the execution layer only; never use them for shell work, which is done by command blocks. When an artifact has a name, use it; do not say "prompt."
 
 - **Paste block** — a fenced block copied whole and pasted whole somewhere else. The general form; execution blocks and command blocks are both delivered as paste blocks.
