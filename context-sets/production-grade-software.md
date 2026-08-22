@@ -2,25 +2,18 @@
 status: draft
 last-reviewed: null
 audience: [all-roles, human]
-context-set: production-grade-software
-purpose: What operable, observable, recoverable software requires.
-include-when: Changes affecting reliability, ops, security, or release quality.
-depends-on: [base]
+order: 6
+depends-on: []
 ---
 
 # Context Set: Production-Grade Software
 
-## Summary
-
-Production-grade software is not merely feature-complete. It is software that can be operated responsibly.
-
-For this project, production-grade means:
-
-> The system is intentionally specified, tested to stated boundaries, observable, recoverable, and understandable enough to operate.
+Rules for execution sessions. What operable, observable, recoverable software
+requires.
 
 ## Production-grade attributes
 
-A production-grade change should consider:
+A production-grade change is assessed against:
 
 - correctness
 - usability
@@ -42,7 +35,7 @@ Not every change requires deep treatment of every attribute. The agent must expl
 
 ## Evidence requirements
 
-A production-grade claim should be supported by evidence such as:
+A production-grade claim is supported by evidence such as:
 
 - passing unit tests
 - passing integration tests
@@ -58,7 +51,7 @@ A production-grade claim should be supported by evidence such as:
 
 ## Failure mode thinking
 
-Every meaningful change should consider:
+Every meaningful change answers:
 
 1. What happens if this fails?
 2. How would we know? Does this failure mode affect a Top K journey SLO, and would it burn error budget?
@@ -66,16 +59,3 @@ Every meaningful change should consider:
 4. Can the system recover?
 5. Can Dave debug or roll back?
 6. Is the failure acceptable?
-
-## Production-grade does not mean
-
-Production-grade does not mean:
-
-- perfect
-- over-tested
-- enterprise-heavy
-- no known gaps
-- every dependency mocked and live-tested in every run
-- every line reviewed by a human
-
-It does mean known gaps are visible and intentionally accepted.

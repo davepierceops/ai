@@ -22,10 +22,22 @@ between artifacts are resolved by authority rather than by guessing.
 5. **GitHub Issues** — **derived PM artifacts**. They track and organize work.
    An Issue is a *view onto the specs*, not an independent source of truth.
 
-The `/ai/` operating-model documents (context-sets, policies, roles, skills,
-boundaries) are canonical for *how the project is run*. Vendor-specific files
-(`CLAUDE.md`, `AGENTS.md`, `.claude/`) are adapters, never the sole home of a
-durable rule (see `boundaries/vendor-tooling-boundary.md`).
+The portable operating-model documents (context sets, policies, roles, skills,
+boundaries) are canonical for *how the project is run*. Vendor-specific AI
+tooling — agent frameworks, skills, hooks, memory files, IDE integrations, and
+the instruction files they read — is an adapter, never the sole home of a
+durable rule.
+
+## Adapter discipline
+
+No durable operating principle lives only inside a vendor-specific tool. When
+creating a vendor-specific artifact:
+
+1. Identify the portable source document.
+2. Keep the adapter short where possible.
+3. Do not add new durable policy only in the adapter.
+4. Update the portable source first.
+5. Note intentional deviations.
 
 ## Conflicts are a hard stop
 

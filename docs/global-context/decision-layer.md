@@ -25,7 +25,7 @@ Rules for decision sessions. Loads after Core and adds to it. Execution sessions
 
 ## State and record
 
-9. **State is computed, never maintained.** Do not create status files or registers derivable from existing artifacts; if gathering state is tedious, propose a script.
+9. **State is computed, never maintained.** Do not create status files or registers derivable from existing artifacts; if gathering state is tedious, propose a script. A loose-end tracker is a record, not derived state.
 10. **The thing under review is an artifact, separate from the discussion of it.** One document at a time. "Ship" or "done" advances exactly one step.
 11. **End non-trivial sessions with a retro.** Evidence separate from interpretation; near-empty is a valid result.
 

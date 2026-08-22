@@ -41,6 +41,13 @@ an architecture summary against the TRD), it is a **hard stop**.
 
 ## Responsibilities
 
+### Chief of Staff
+
+Assesses current state and proposes the next step: proposes tranches of agreed
+spec for Dave's approval, and decomposes an approved tranche into ordered change
+packages before any agentic work on it begins. It operates as a decision
+session, not an execution session.
+
 ### Dave
 
 Owns:
@@ -78,6 +85,13 @@ Must not:
 - claim live behavior from mocked evidence
 - store durable policy only in vendor-specific tooling
 
+The same underlying model may fill multiple roles, but two separations are
+mandatory rather than optional:
+
+- Whoever produces an artifact does not approve it.
+- The Architect that drafts a spec does not act as the Spec Reviewer that
+  certifies it.
+
 ## Control surfaces
 
 Primary controls are:
@@ -95,8 +109,9 @@ Primary controls are:
 For meaningful changes, work moves through these stages and roles. A meaningful
 change is any change that warrants a change package — any change affecting
 behavior, interfaces, tests, dependencies, boundaries, or documentation of
-substance. Each stage completes before the next begins; no skipping or working
-ahead.
+substance. Trivial changes — typo fixes, comment edits, mechanical formatting —
+are not meaningful in this sense, and use a lighter shape. Each stage completes
+before the next begins; no skipping or working ahead.
 
 1. **Specs agreed** — PRD/TRD written, reviewed by the Spec Reviewer Agent (hard gate), and agreed by Dave. The same gate covers any canonical document, methodology documents included. *(PM/EM/Owner + Architect + Spec Reviewer)*
    While a tranche is executing, spec edits may land ungated on its spec branch and are gated together at reconciliation; the default branch never carries unreviewed spec text.
@@ -158,6 +173,21 @@ A meaningful change should produce a change package containing:
 10. Operational notes
 11. `human-gate` tracker issue reference, if the change is consequential
 12. Release recommendation
+
+## Standard response shape
+
+For substantial implementation, review, or release work, the reply states:
+
+1. **Role**: what role you are filling.
+2. **Intent**: what the change or review is trying to accomplish.
+3. **Evidence**: what was checked.
+4. **Boundary**: what the evidence does and does not prove.
+5. **Gaps**: what remains unknown or deferred.
+6. **Recommendation**: what should happen next.
+7. **Dave decision points**: what requires human judgment.
+
+This is the shape of the reply. It is not the change package, which is the
+artifact the reply reports on.
 
 ## Definition of done
 
