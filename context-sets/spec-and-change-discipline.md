@@ -14,25 +14,12 @@ happens in — and the habits agents hold to.
 
 ## Core philosophy
 
-Development is **spec-first** and **test-driven**. Nothing is built that is not
-specified: the spec and its acceptance criteria exist, and are correct, at the
-moment work is handed to an executor. Tests are written before implementation.
-Implementation exists only to make pre-written tests pass.
-
-**Spec-first is a truth requirement, not an approval sequence.** The rule is that
-the spec is true **at handoff** and true **at rest** — not that every sentence
-an executor reads was agreed before it was written. Agreement is a separate
-event, and it lands at **reconciliation** (below). What generates the truth
-requirement is the amnesiac executor: a session holds nothing but the documents
-it is given, so those documents must be right at handoff.
+**The truth requirement comes from the amnesiac executor.** A session holds
+nothing but the documents it is given, so those documents must be right at
+handoff.
 
 > Specifications are the source of truth, and human judgment gates the
 > decisions that are actually judgment.
-
-Those decisions are spec agreement and the release decision for the
-consequential class. Everything between them is the routine class: agents
-execute it, review it, and merge it autonomously once the evidence exists. The
-gate anchors at the release decision, not at landing.
 
 ## The red-gate
 
@@ -79,8 +66,8 @@ goes serial.
 
 ## Operating habits
 
-- **Proactive loose-end tracking.** The loose-end tracker `OPEN-ITEMS.md` is
-  updated at defined checkpoints, rather than relying on Dave to remember:
+- **Proactive loose-end tracking.** The loose-end tracker is updated at defined
+  checkpoints, rather than relying on Dave to remember:
   - **End of a work session** — flush current open items before context is lost.
   - **Before a release gate** — all open items must be accounted for: resolved,
     deferred with rationale, or accepted risk.
