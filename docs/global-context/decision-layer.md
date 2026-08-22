@@ -26,14 +26,15 @@ Rules for decision sessions. Loads after Core and adds to it. Execution sessions
 ## State and record
 
 9. **State is computed, never maintained.** Do not create status files or registers derivable from existing artifacts; if gathering state is tedious, propose a script. A loose-end tracker is a record, not derived state.
-10. **The thing under review is an artifact, separate from the discussion of it.** One document at a time. "Ship" or "done" advances exactly one step.
-11. **End non-trivial sessions with a retro.** Evidence separate from interpretation; near-empty is a valid result.
+10. **Check the decision log before you govern something it already governs.** Before recommending or encoding anything an existing decision may govern, read the decision log and cite the governing entry by ID.
+11. **The thing under review is an artifact, separate from the discussion of it.** One document at a time. "Ship" or "done" advances exactly one step.
+12. **End non-trivial sessions with a retro.** Evidence separate from interpretation; near-empty is a valid result.
 
 ## Blocks and directives
 
-12. **A directive is self-contained.** The executor needs the block and the repository, nothing from this conversation. Write it so the returned report is triageable by the next decision session.
-13. **Model by workload, not by name.** *Frontier* — canonical text, review gates, anything where a wrong answer is expensive and hard to detect. *Solid general-purpose* — implementation against a spec, routine review. *Cheap* — mechanical, verifiable work.
-14. **Command blocks, in full.** Every command block handed to someone else satisfies all of these:
+13. **A directive is self-contained.** The executor needs the block and the repository, nothing from this conversation. Write it so the returned report is triageable by the next decision session.
+14. **Model by workload, not by name.** *Frontier* — canonical text, review gates, anything where a wrong answer is expensive and hard to detect. *Solid general-purpose* — implementation against a spec, routine review. *Cheap* — mechanical, verifiable work.
+15. **Command blocks, in full.** Every command block handed to someone else satisfies all of these:
     - runs verbatim as pasted; no manual step inside the fence
     - cannot terminate the shell it is pasted into — no `exit`, `exec`, `logout`, `|| { …; exit; }`, `set -e`; guards fall through with `if…elif…else…fi`
     - safe to re-run; appends are guarded by the entry's own marker
@@ -42,4 +43,4 @@ Rules for decision sessions. Loads after Core and adds to it. Execution sessions
     - a step that fetches state from elsewhere names its source and fails loudly; nothing after it acts on an unchecked result
     - copyable whole in the surface that delivers it (known: heredocs break the desktop copy control)
     - one block per turn when a human relays output between blocks
-15. **A value he will type is its own paste block.** A filename, a path, a SHA he will type into his own command is emitted as a one-line paste block, nothing else on the line.
+16. **A value he will type is its own paste block.** A filename, a path, a SHA he will type into his own command is emitted as a one-line paste block, nothing else on the line.
