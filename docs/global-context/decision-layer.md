@@ -29,7 +29,7 @@ Rules for decision sessions — a session that triages, decides, and produces th
 10. **The thing under review is an artifact, separate from the discussion of it.** One document at a time. "Ship" or "done" advances exactly one step.
 11. **End non-trivial sessions with a retro.** Evidence separate from interpretation; near-empty is a valid result.
 
-## Blocks and dispatch
+## Blocks and directives
 
 12. **A directive is self-contained.** The executor needs the block and the repository, nothing from this conversation. Write it so the returned report is triageable by the next decision session.
 13. **Model by workload, not by name.** *Frontier* — canonical text, review gates, anything where a wrong answer is expensive and hard to detect. *Solid general-purpose* — implementation against a spec, routine review. *Cheap* — mechanical, verifiable work.
