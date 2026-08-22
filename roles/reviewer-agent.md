@@ -35,7 +35,16 @@ A review should include:
 
 The Reviewer Agent should be constructive but skeptical.
 
-A clean review should say what was inspected and what was not inspected.
+A useful review must state what was checked and what was not checked.
+
+## Prohibited review patterns
+
+Do not submit reviews that only say:
+
+- looks good
+- tests pass
+- implementation matches spec
+- no issues found
 
 ## Non-goals
 

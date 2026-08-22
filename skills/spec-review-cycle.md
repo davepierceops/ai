@@ -1,6 +1,6 @@
 ---
-status: agreed
-last-reviewed: reviews/expedited-log.md @ c9e87ad253b5b9c2b67f4721d00e3d231c3326b3
+status: in-review
+last-reviewed: null
 audience: [spec-reviewer-agent, architect-agent, chief-of-staff, human]
 ---
 
@@ -207,7 +207,7 @@ clean pass stays short.
 ### What this schema governs
 
 It governs the **artifact**. `roles/spec-reviewer-agent.md` and
-`policies/agent-review-policy.md` govern the **review** — what must be
+`roles/reviewer-agent.md` govern the **review** — what must be
 inspected and what must be reported. Where they name a required output, this is
 where it goes:
 
@@ -222,7 +222,7 @@ where it goes:
 | What Dave should inspect | `Dave should inspect` |
 
 Note the entry field is `Fix`, not `Recommendation`.
-`policies/agent-review-policy.md` uses "Recommendation" for the overall ship
+`roles/reviewer-agent.md` uses "Recommendation" for the overall ship
 call, and one word meaning two things across two canonical documents is the
 ambiguity this table exists to remove.
 

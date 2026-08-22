@@ -139,10 +139,9 @@ changes to users:
 - **Routine changes** flow to release on evidence, without an explicit human
   go/no-go.
 - **Consequential changes** require the human's explicit go/no-go at the release
-  decision. The consequential class is anything touching auth, schema/migrations,
-  security or privacy, irreversible operations, public-facing surfaces, a
-  verification boundary, or core architecture (the standing TRD). When unsure
-  which tier applies, treat the change as consequential and ask.
+  decision. The consequential class is the list the commit and change control
+  policy states. When unsure which tier applies, treat the change as
+  consequential and ask.
 
 *Deploy* (code on prod) and *release* (functionality exposed to users) may be
 separate events; where the release decision sits relative to commit and deploy
@@ -164,7 +163,8 @@ A meaningful change should produce a change package containing:
 2. Acceptance criteria
 3. Test plan
 4. Implementation summary
-5. Test results
+5. Test results — including the test commands run, any skipped tests, and a
+   recommendation on whether the testing evidence is sufficient
 6. Verification boundary updates
 7. SLO status and error budget consumption for affected Top K user journeys
 8. Review findings

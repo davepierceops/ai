@@ -6,23 +6,17 @@ audience: [all-roles, human]
 
 # Policy: Project Setup Requirements
 
+These are adoption preconditions, confirmed before either session kind begins
+work in a repo. Confirming them is the human's.
+
 ## Purpose
 
 This policy names what must be true about a repository **before** the
-methodology governs work in it. These are adoption preconditions, not
-day-to-day rules.
+methodology governs work in it. They are not day-to-day rules.
 
-Most of them live **outside git** — in GitHub's configuration, in local hook
+Most of them live **outside git** — in the forge's configuration, in local hook
 state, in tooling. Git cannot record them and no hook can enforce them, so
-they are written down instead. That is the whole reason this document exists.
-
-## The constraint on this document
-
-**This list stays short.** It is a set of adoption preconditions, not a
-project-setup manual. If it grows toward twenty items, that is a signal the
-approach is wrong — not a reason for a longer list. Something that can be
-enforced by a hook, derived from git, or checked by a script belongs there
-instead of here.
+they are written down instead.
 
 ## Requirements
 
@@ -32,43 +26,42 @@ instead of here.
 
 - **no force-push**
 - **no branch deletion**
+- **changes land via pull request**
+- **bypass disallowed, including for administrators**
+
+The last one carries the others.
 
 This is the structural gate. It is what makes "agents may push and merge"
 safe to say: history on the default branch cannot be rewritten or destroyed,
 whoever holds the credential.
 
-Branch protection lives in GitHub's configuration, not in the repository.
+Branch protection lives in the forge's configuration, not in the repository.
 Nothing in the repo can verify it. It is asserted here and confirmed by a
 human at adoption.
 
-*(Open: whether protection additionally requires a PR, required reviews, or
-required status checks. Those are gates on the merge event, and this
-methodology's human gate is the release decision, not the merge — see
-`policies/commit-and-change-control-policy.md`. Left undecided pending the
-push/merge posture reaching a canonical home.)*
-
 ### 2. Frontmatter enforcement
 
-The repo stands up its own frontmatter enforcement for the in-scope document
-set defined in `policies/document-metadata-policy.md`.
+The repo runs its own frontmatter check over its spec documents at commit time.
 
-That policy mandates the metadata schema for every adopting project's spec
-documents, and states plainly that adoption is not optional. But the
-methodology repo's hooks cannot reach a project repo. Each project installs
-its own — in this repo, `bin/install-hooks` installs the pre-commit hook that
-runs `bin/check-frontmatter --staged`.
+The in-scope set is the documents agents consume as governing context —
+policies, role documents, context sets, boundary documents, skill documents,
+spec documents, vendor documents, and the operating model, the lexicon, and the
+readme at the root. State trackers, adapters, and instantiated project
+artifacts are out of scope. Adoption of the metadata schema is not optional for
+an adopting project's spec documents, and the methodology repo's hooks cannot
+reach a project repo, so each project installs its own. (In this repo, the
+instance is `bin/install-hooks`, which installs a pre-commit hook running
+`bin/check-frontmatter --staged`.)
 
-Hook installation is local state. It is per-clone, it is not tracked, and a
-fresh clone has no hooks until someone runs the installer. This is a real
+Hook installation is local state. It is per-clone, it is not recorded in git,
+and a fresh clone has no hooks until someone runs the installer. This is a real
 gap, not a formality.
 
 ### 3. An empty expedited-review log
 
-`reviews/expedited-log.md` exists, even if empty.
-
-`policies/document-metadata-policy.md` requires this explicitly: without it,
-the first expedited agreement fails on a missing review artifact, "which
-reads as a review problem rather than the setup omission it is."
+`reviews/expedited-log.md` exists, even if empty. Without it, the first
+expedited agreement fails on a missing review artifact, which reads as a review
+problem rather than the setup omission it is.
 
 ### 4. A recorded grandfather disposition list, or none
 
@@ -76,22 +69,6 @@ If documents enter migration already marked `agreed`, the repo records a
 one-time per-document disposition list naming exactly which ones, and its
 adoption record declares where that list lives.
 
-Per `policies/document-metadata-policy.md`: a document absent from the list
-does not qualify, and **if no disposition list exists, the grandfather clause
-does not apply at all**. Recording "none" is a valid and complete answer.
-
-## Discharge note
-
-This document, when agreed, discharges the `OPEN-ITEMS.md` entry
-"Per-project frontmatter enforcement as a project-setup step" — that item
-asked for exactly requirement 2 above, and Q1c decided it and the
-startup-assumptions document are one document.
-
-The OPEN-ITEMS entry is **not removed yet**. It is discharged when this
-document reaches `agreed`, not when it is drafted.
-
-## Status of this draft
-
-Drafted 2026-08-02 per the doc-review directive
-(`docs/cycles/doc-review-2026-08-02-directive.md`, W3.1) executing Q1c.
-Nothing here is agreed.
+A document absent from the list does not qualify, and **if no disposition list
+exists, the grandfather clause does not apply at all**. Recording "none" is a
+valid and complete answer.

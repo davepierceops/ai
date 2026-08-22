@@ -18,6 +18,10 @@ A test executes a controlled scenario. Verification is the confidence claim draw
 
 The central risk is not undertesting. The central risk is **overclaiming what a test proves**.
 
+A test that passes before implementation is a broken test, not a head start.
+Implementation proceeds only as far as needed to turn the confirmed-failing
+tests green.
+
 ## Core principle
 
 > A mock is a claim with a deferred proof.
@@ -30,6 +34,25 @@ Every mock should make the boundary visible:
 4. Where is the missing side verified?
 5. If not verified, is that gap blocking, deferred, or accepted?
 6. Who or what owns the follow-up?
+
+## Test levels
+
+Use the smallest useful test, but do not pretend small tests verify larger
+claims. Preferred levels:
+
+1. Unit tests for deterministic logic.
+2. Component tests for UI behavior.
+3. Integration tests for combined local components.
+4. Contract tests for external assumptions — these produce a contract-verified
+   claim.
+5. Live smoke tests for real external services — these produce a live-verified
+   claim.
+6. Browser/E2E smoke tests for browser-only behavior — these produce a
+   browser-verified claim.
+7. Production synthetic checks or monitoring for ongoing health — these produce
+   a production-verified claim, including verification against the SLO targets
+   defined in the TRD for each Top K user journey. Error budget consumption
+   should be observable from these checks.
 
 ## Verification classes
 
@@ -170,6 +193,7 @@ A test plan for meaningful changes should include:
 8. Production monitoring or synthetic checks, if relevant.
 9. Known unverified behavior.
 10. Release impact of gaps.
+11. Failure cases.
 
 ## Boundary-sensitive areas
 
@@ -232,3 +256,6 @@ Avoid:
 - using fixtures without knowing what assumptions they encode
 - adding live tests to every unit run
 - refusing mocks because live behavior matters
+- using line coverage as a substitute for boundary analysis — coverage shows
+  that code executed, not that it was verified against production-relevant
+  conditions
