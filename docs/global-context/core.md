@@ -38,9 +38,8 @@ Work moves through three layers: **decision** — chat; **execution** — an LLM
 
 - **Paste block** — a fenced block copied whole and pasted whole somewhere else. The general form; execution blocks and command blocks are both delivered as paste blocks.
 - **Command block** — a paste block of shell commands, run as given. Never instructions to an LLM, and never described as executing or being executed.
-- **Sync block** — the command block that brings a clone current from an explicitly named remote and ref. Precedes every execution block in a dispatch.
-- **Execution block** — a paste block of instructions an LLM agent session is to carry out; where the directive already exists in git, the block cites it by path and SHA instead. Never shell commands — those are command blocks.
-- **Directive** — the complete package handed to an execution session: the execution block plus its route (fresh session or existing context) and model tier, all three stated every time; no class of directive is exempt from stating a part. A class may have defaults — stated like any other dispatch, the model default as a tier ("model frontier") — and may override them.
+- **Execution block** — a paste block of instructions an LLM agent session is to carry out. Its first instruction is to write the directive to a file, commit, push, and report the SHA. Never shell commands — those are command blocks.
+- **Directive** — the complete package handed to an execution session: one line stating route (fresh or existing session) and model tier, then the execution block as a paste block. All three stated every time. A class may have defaults, stated like any other dispatch, the model default as a tier.
 - **Dispatch** — the act of handing a directive to an execution session.
 - **Directive file** — the markdown file holding a directive's instructions, written and committed by the executor as its first act, and thereafter cited by path and the SHA of the commit that landed it. One per intended execution session.
 - **Instruction** — one direction within a directive file, individually executable and individually refusable.
