@@ -32,11 +32,42 @@ its tranche and never spans two.
 what was actually built, and the whole accumulated diff goes through the
 reviewer gate **once** — once per delta, not once per edit — arriving on the
 default branch as a pull request. Agreement attaches here, to the version of
-record.
+record. The default branch therefore never carries unreviewed spec text, and
+`agreed` there never lies.
 
 **Claimed** — of a spec document: appearing in an open delta's diff. A claimed
 document may not be claimed by a second open delta. Concurrency comes from
 claiming disjoint territory, never from merging convergent edits.
+
+## Evidence classes
+
+The classes an evidence claim is labelled with. Every verification claim carries
+one.
+
+**Mock-verified** — against controlled or simulated inputs.
+
+**Contract-verified** — against a documented or encoded interface contract.
+
+**Live-verified** — against a real external system or deploy-like service.
+
+**Browser-verified** — in a real browser environment.
+
+**Production-verified** — through deployed telemetry, monitoring, synthetic
+checks, logs, or real production signals.
+
+**Unverified** — known but not yet checked.
+
+**Deferred verification** — intentionally postponed, with a named future
+mechanism.
+
+**Accepted risk** — an explicit decision to proceed despite a known gap.
+
+## Service levels
+
+**Top K** — the K most important user journeys of a product. The list is defined
+once, in the PRD; the TRD sets SLO targets against it and does not redefine it.
+Where a document requires SLO status or error budget accounting "for Top K
+journeys," it means that list.
 
 ## Retired terms
 
@@ -68,3 +99,8 @@ executor fetches as its first act.
 
 **Track** — retired 2026-08-21. A directive states route and model tier; there
 is no third part.
+
+*Not covered by this retirement:* **error budget tracking**, **SLO tracking**,
+and similar SRE compounds, along with the ordinary verb "keep a list of." Those
+are a different word in a different domain, and they keep their ordinary
+meaning.

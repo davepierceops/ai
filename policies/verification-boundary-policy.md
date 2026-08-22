@@ -6,6 +6,9 @@ audience: [all-roles, human]
 
 # Policy: Verification Boundaries
 
+This policy governs both session kinds: decision sessions and execution
+sessions.
+
 ## Purpose
 
 This policy makes verification boundaries visible and intentional.
@@ -15,6 +18,9 @@ A verification boundary is the point where evidence stops. It is the line betwee
 ## Core rule
 
 Every meaningful mock, stub, fake, fixture, simulated service, generated response, assumed external behavior, browser substitute, or deployment assumption must have a declared verification boundary.
+
+A mock is a claim about our side of the contract, with the other side verified
+elsewhere or explicitly accepted as unverified.
 
 ## Policy statement
 
@@ -41,6 +47,8 @@ A boundary declaration should include:
 - unverified claims
 - deferred verification path
 - release impact
+- cadence — how often the verification is re-run
+- failure response — what happens when the verification fails
 - owner or trigger for follow-up
 
 Example:
@@ -148,6 +156,11 @@ Live/browser checks should normally be separate from the default unit suite. The
 - in a dedicated CI job
 - on a schedule
 - after deploy as synthetic monitoring
+
+Choose among these by the risk of the boundary, not by a fixed schedule. A
+boundary material to user-visible behavior or release risk is verified before
+release; one that can drift after deployment is verified by production
+monitoring.
 
 The important rule is not “run live tests constantly.” The important rule is “know which claims require live/browser/production evidence.”
 

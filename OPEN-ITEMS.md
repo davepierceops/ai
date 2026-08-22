@@ -4,7 +4,7 @@ This file tracks open questions, deferred decisions, and outstanding fixes
 for the AI operating model. Updated at defined checkpoints per
 `context-sets/spec-and-change-discipline.md`.
 
-Last updated: 2026-08-11
+Last updated: 2026-08-21
 
 ---
 
@@ -1105,3 +1105,7 @@ is overtaken by the retirement above. Still live at that point: the skeleton is
 a directive *file* template, and the executor now writes that file from a paste
 block, so what the tool produces is the thing chat pastes rather than the thing
 chat commits.
+
+## `bin/bundle`'s path-following closure mode is retired, replaced in Pass 2 by audience selection
+
+Recorded 2026-08-21, Pass 1 cycle 12 revision: rubric criterion 3 proceeds as written, so removing in-body backticked `*.md` paths from the corpus silently shrinks `bin/bundle`'s closure to `depends-on` edges only; no edit to `bin/` was made in that cycle, and audience selection replaces the path-following mode in Pass 2.

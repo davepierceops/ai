@@ -2,13 +2,13 @@
 status: draft
 last-reviewed: null
 audience: [all-roles, human]
-context-set: testing-and-verification
-purpose: Verification classes, confidence ledgers, and boundary discipline.
-include-when: Any chat that writes, reviews, or relies on tests.
-depends-on: [base]
+order: 5
+depends-on: []
 ---
 
 # Context Set: Testing and Verification
+
+Rules for execution sessions.
 
 ## Summary
 
@@ -32,11 +32,10 @@ Every mock should make the boundary visible:
 
 ## Verification classes
 
-Use these classes precisely.
+What each class does and does not support. The classes themselves are defined in
+the lexicon.
 
 ### Mock-verified
-
-The behavior was tested using simulated or controlled inputs.
 
 Useful for:
 
@@ -60,8 +59,6 @@ Does not prove:
 
 ### Contract-verified
 
-The behavior was checked against a documented, encoded, or maintained interface contract.
-
 Useful for:
 
 - fixture shape
@@ -81,8 +78,6 @@ Does not prove:
 
 ### Live-verified
 
-The behavior was checked against a real external service.
-
 Useful for:
 
 - credentials
@@ -100,8 +95,6 @@ Does not prove:
 - browser rendering unless run in browser
 
 ### Browser-verified
-
-The behavior was checked in a real browser.
 
 Useful for:
 
@@ -121,8 +114,6 @@ Does not prove:
 - production health over time
 
 ### Production-verified
-
-The behavior was checked in the deployed system through telemetry, monitoring, synthetic checks, logs, or real production signals.
 
 Useful for:
 
@@ -151,14 +142,14 @@ For meaningful changes, agents should be able to produce a confidence ledger.
 Example:
 
 ```text
-Claim: Geocoding request parser handles valid provider response.
+Claim: External API client parses a valid provider response.
 Evidence: Mock-verified unit test with fixture.
 Boundary: Does not verify live provider auth, quota, domain restrictions, or current schema.
-Deferred verification: live geocoding smoke test.
+Deferred verification: live smoke test against the provider.
 
-Claim: Map page renders a TileLayer component.
-Evidence: Component test in jsdom.
-Boundary: Does not verify browser tile requests or visible map rendering.
+Claim: The results view renders the returned records.
+Evidence: Component test in a headless DOM.
+Boundary: Does not verify browser network requests or visible rendering.
 Deferred verification: browser smoke test with network observation.
 ```
 
@@ -193,20 +184,20 @@ Treat these areas as boundary-sensitive by default:
 - storage and persistence
 - time, timers, and scheduling
 - rate limits, quotas, and billing
+- hosted databases
+- analytics and telemetry providers
+- domain and CORS restrictions
 - SLO targets and error budget state — production signals that tests cannot
   capture; error budget exhaustion is a release-relevant condition
 - security and privacy controls
 
 Boundary-sensitive does not mean "must be overtested." It means "do not overclaim."
 
-## What green means
-
-See `context-sets/base.md`. A green test suite proves only that the tested
-scenarios passed under the conditions represented by the tests — not shippability.
-
 ## Required output when tests are written or reviewed
 
-When writing or reviewing tests, agents should state:
+This is the verification-specific expansion of the Evidence, Boundary, and Gaps
+elements of the standard response shape, not a second shape. When writing or
+reviewing tests, agents should state:
 
 - what is verified
 - what is not verified
@@ -230,11 +221,8 @@ For a small project or early-stage feature, the minimum acceptable practice is:
 
 Avoid:
 
-- using coverage as proof of correctness
-- treating mocked fetch tests as live API verification
-- treating jsdom rendering as browser rendering
+- treating a headless DOM as browser rendering
 - treating agent review as evidence without stating what was reviewed
 - using fixtures without knowing what assumptions they encode
 - adding live tests to every unit run
 - refusing mocks because live behavior matters
-- shipping with implicit unverified boundaries
