@@ -135,11 +135,9 @@ round-trip, the cycle directive, and the per-cycle review artifact.
 
    The class includes, at minimum:
    - `policies/document-metadata-policy.md` — this document.
-   - `policies/agent-review-policy.md`
    - `policies/commit-and-change-control-policy.md`
    - `policies/source-of-truth-policy.md`
    - `policies/release-readiness-policy.md`
-   - `policies/testing-policy.md`
    - `policies/verification-boundary-policy.md`
    - `policies/project-setup-requirements.md` — effective when that
      document reaches `agreed`.
